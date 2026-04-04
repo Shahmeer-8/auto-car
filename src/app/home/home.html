@@ -1,0 +1,91 @@
+<div class="home-page">
+
+  <!-- 1. Hero Slider -->
+  <app-hero-slider></app-hero-slider>
+
+  <!-- 2. Shop by Brand (Japanese Brands) -->
+  <section class="brand-section">
+    <div class="container">
+      <h2 class="section-title">Shop by Brand</h2>
+      <p class="section-subtitle">Browse Japan's most trusted automotive manufacturers</p>
+      <div class="brand-grid">
+        <a
+          class="brand-card"
+          *ngFor="let brand of brands"
+          [routerLink]="['/cars']"
+          [queryParams]="{ make: brand.name }">
+          <div class="brand-logo">{{ brand.logo }}</div>
+          <span class="brand-name">{{ brand.name }}</span>
+          <span class="brand-count">{{ brand.count }} cars</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Popular Cars Slider -->
+  <app-cars-slider></app-cars-slider>
+
+  <!-- 4. Shop by Body Type -->
+  <section class="body-type-section">
+    <div class="container">
+      <h2 class="section-title">Shop by Body Type</h2>
+      <div class="body-type-grid">
+        <a
+          class="body-type-card"
+          *ngFor="let type of bodyTypes"
+          [routerLink]="['/cars']"
+          [queryParams]="{ body: type.name.toLowerCase() }">
+          <div class="body-type-icon">{{ type.icon }}</div>
+          <span class="body-type-name">{{ type.name }}</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Why Buy JDM -->
+  <section class="why-section">
+    <div class="container">
+      <div class="why-header">
+        <span class="japan-flag">🇯🇵</span>
+        <h2 class="section-title">Why Buy JDM Cars?</h2>
+        <span class="japan-flag">🇯🇵</span>
+      </div>
+      <p class="section-subtitle">Japan Domestic Market vehicles — the world's best kept secret</p>
+      <div class="why-grid">
+        <div class="why-card" *ngFor="let item of whyItems">
+          <div class="why-icon">{{ item.icon }}</div>
+          <h3 class="why-title">{{ item.title }}</h3>
+          <p class="why-desc">{{ item.desc }}</p>
+          <span class="why-badge">{{ item.badge }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<!-- 6. JDM Buying Advice and Guides -->
+  <app-guides-slider></app-guides-slider>
+
+<!-- 7. rankings-slider -->
+  <app-rankings-slider></app-rankings-slider>
+
+
+<!-- 8. reliable-slider -->
+  <app-reliable-slider></app-reliable-slider>
+
+<!-- 9. studies-slider -->
+  <app-studies-slider></app-studies-slider>
+
+
+<!-- 10. resources-slider -->
+  <app-resources-slider></app-resources-slider>
+
+
+<!-- 11. best-used-slider -->
+  <app-best-used-slider></app-best-used-slider>
+
+<!-- 12. best-used-slider -->
+  <app-comparisons-slider></app-comparisons-slider>
+
+
+
+</div>

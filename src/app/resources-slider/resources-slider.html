@@ -1,0 +1,41 @@
+<section class="resources-slider-section">
+  <div class="container">
+
+    <!-- Header Row -->
+    <div class="slider-header">
+      <h2 class="section-title">Popular Shopping Resources</h2>
+      <div class="arrows">
+        <button class="arrow" (click)="prev()" [disabled]="currentIndex === 0">
+          <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
+            <path d="M8.5 1.5L1.5 8L8.5 14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="arrow" (click)="next()" [disabled]="currentIndex >= maxIndex">
+          <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
+            <path d="M1.5 1.5L8.5 8L1.5 14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Cards Track -->
+    <div class="slider-viewport">
+      <div class="slider-track" [style.transform]="translateX">
+        <div class="resource-card"
+             *ngFor="let item of resources; let i = index"
+             [routerLink]="['/guide', i]">
+          <div class="resource-image-wrap">
+            <img [src]="item.image" [alt]="item.title" class="resource-image" />
+          </div>
+          <div class="resource-info">
+            <h3 class="resource-title">{{ item.title }}</h3>
+            <p class="resource-desc">{{ item.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+  </div>
+</section>

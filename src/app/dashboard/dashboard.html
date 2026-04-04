@@ -1,0 +1,183 @@
+<div class="dashboard-page">
+  <div class="container">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <h1>Welcome, {{ userName }}! 👋</h1>
+        <p>{{ userType === 'seller' ? 'Manage your listings' : 'Browse your saved cars' }}</p>
+      </div>
+      <button class="btn-logout" (click)="logout()">Logout</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'listings'"
+        (click)="activeTab = 'listings'">
+        🚗 My Listings ({{ listings.length }})
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'saved'"
+        (click)="activeTab = 'saved'">
+        ❤️ Saved Cars ({{ savedCars.length }})
+      </button>
+      <button
+        class="tab-btn"
+        [class.active]="activeTab === 'profile'"
+        (click)="activeTab = 'profile'">
+        👤 Profile
+      </button>
+    </div>
+
+    <!-- ═══ TAB 1: MY LISTINGS ═══ -->
+    <div *ngIf="activeTab === 'listings'">
+
+      <!-- Add New Button -->
+      <div class="tab-action-bar">
+        <a routerLink="/sell-your-car" class="btn-add-new">+ Add New Listing</a>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-summary" *ngIf="listings.length > 0">
+        <div class="stat-card">
+          <div class="stat-number">{{ listings.length }}</div>
+          <div class="stat-label">Total Listings</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ pendingListings.length }}</div>
+          <div class="stat-label">Pending Review</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">{{ approvedListings.length }}</div>
+          <div class="stat-label">Approved</div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="listings.length === 0">
+        <div class="empty-icon">📭</div>
+        <h2>No Listings Yet</h2>
+        <p>You haven't submitted any car listings yet.</p>
+        <a routerLink="/sell-your-car" class="btn-primary">Submit Your First Car</a>
+      </div>
+
+      <!-- Listings Grid -->
+      <div class="listings-grid" *ngIf="listings.length > 0">
+        <div class="listing-card" *ngFor="let listing of listings">
+
+          <div class="listing-image">
+            <img
+              [src]="listing.images[0] || 'assets/placeholder-car.jpg'"
+              [alt]="listing.make + ' ' + listing.model">
+            <div class="status-badge" [ngClass]="getStatusClass(listing.status)">
+              {{ getStatusText(listing.status) }}
+            </div>
+          </div>
+
+          <div class="listing-content">
+            <h3 class="listing-title">
+              {{ listing.year }} {{ listing.make }} {{ listing.model }}
+            </h3>
+
+            <div class="listing-details">
+              <div class="detail-item">
+                <span class="detail-icon">🚗</span>
+                <span>{{ listing.mileage | number }} km</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">⚙️</span>
+                <span>{{ listing.transmission | titlecase }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">⛽</span>
+                <span>{{ listing.fuelType | titlecase }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">🎨</span>
+                <span>{{ listing.color }}</span>
+              </div>
+            </div>
+
+            <div class="listing-price">{{ formatPrice(listing.price) }}</div>
+
+            <div class="listing-meta">
+              <span class="meta-date">📅 {{ formatDate(listing.submittedAt) }}</span>
+              <span class="meta-location">📍 {{ listing.location }}</span>
+            </div>
+
+            <div class="listing-actions">
+              <button class="btn-view" (click)="viewDetails(listing.id)">View Details</button>
+              <button class="btn-delete" (click)="deleteListing(listing.id)">Delete</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB 2: SAVED CARS ═══ -->
+    <div *ngIf="activeTab === 'saved'">
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="savedCars.length === 0">
+        <div class="empty-icon">❤️</div>
+        <h2>No Saved Cars</h2>
+        <p>Browse cars and save your favourites here.</p>
+        <a routerLink="/cars" class="btn-primary">Browse Cars</a>
+      </div>
+
+      <!-- Saved Cars Grid -->
+      <div class="listings-grid" *ngIf="savedCars.length > 0">
+        <div class="listing-card" *ngFor="let car of savedCars">
+
+          <div class="listing-image">
+            <img
+              [src]="car.image || 'assets/placeholder-car.jpg'"
+              [alt]="car.make + ' ' + car.model">
+          </div>
+
+          <div class="listing-content">
+            <h3 class="listing-title">
+              {{ car.year }} {{ car.make }} {{ car.model }}
+            </h3>
+            <div class="listing-price">{{ formatPrice(car.price) }}</div>
+            <div class="listing-meta">
+              <span class="meta-date">📅 Saved: {{ formatDate(car.savedAt) }}</span>
+            </div>
+            <div class="listing-actions">
+              <button class="btn-view" (click)="viewDetails(car.id)">View Details</button>
+              <button class="btn-delete" (click)="removeSavedCar(car.id)">Remove</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB 3: PROFILE ═══ -->
+    <div *ngIf="activeTab === 'profile'">
+      <div class="profile-card">
+        <div class="profile-avatar">{{ userName.charAt(0).toUpperCase() }}</div>
+        <div class="profile-info">
+          <h2>{{ userName }}</h2>
+          <p>{{ userEmail }}</p>
+          <span class="user-type-badge">{{ userType | titlecase }}</span>
+        </div>
+        <div class="profile-stats">
+          <div class="profile-stat">
+            <strong>{{ listings.length }}</strong>
+            <span>Listings</span>
+          </div>
+          <div class="profile-stat">
+            <strong>{{ savedCars.length }}</strong>
+            <span>Saved Cars</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,199 @@
+<!-- ===========================
+     HERO SECTION
+=========================== -->
+<section class="hero">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span class="dot"></span>
+      Established 2014 · Koshigaya, Japan
+      <span class="dot"></span>
+    </div>
+    <h1 class="hero-title">About <em>AutoFlex</em></h1>
+    <p class="hero-tagline">Japan's Premier Used Car Exporter — Where Trust, Quality<br>and Transparency Drive Every Transaction.</p>
+    <div class="hero-btns">
+      <a routerLink="/cars" class="btn-primary">Browse Inventory</a>
+      <a routerLink="/contact" class="btn-ghost">Contact Our Team</a>
+    </div>
+    <div class="hero-stats">
+  <div class="hstat" *ngFor="let s of teamStats">
+    <strong>{{ s.display }}</strong>
+    <span>{{ s.lbl }}</span>
+  </div>
+</div>
+  </div>
+  <div class="hero-scroll-hint">
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ===========================
+     COMPANY INTRO
+=========================== -->
+<section class="section intro-section">
+  <div class="container intro-grid">
+    <div class="intro-visual">
+      <div class="intro-img-wrap">
+        <img src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&q=85" alt="AutoFlex premium vehicles" class="intro-img" />
+        <div class="intro-img-overlay"></div>
+      </div>
+      <div class="intro-accent-card">
+        <div class="ac-icon">🇯🇵</div>
+        <p>Direct from<br><strong>Japan's Official<br>Auction Network</strong></p>
+      </div>
+    </div>
+    <div class="intro-text">
+      <span class="eyebrow-tag">Who We Are</span>
+      <h2 class="section-title">A Decade of Excellence<br>in Japanese Automotive<br>Exports.</h2>
+      <p>AutoFlex was born in 2014 from a simple conviction — that buyers worldwide deserve access to Japan's exceptional used car market without the uncertainty, the hidden costs, or the unreliable middlemen that plagued the industry.</p>
+      <p>Operating from our headquarters in Koshigaya, Saitama, Japan, we immerse ourselves daily in Japan's world-class auction ecosystem — hand-selecting vehicles with Grade 4.0 and above ratings, verified mileage, and clean histories that meet our exacting standards before a single listing goes live.</p>
+      <p>A decade later, we have served over 8,000 satisfied buyers across 50+ countries, built a team of dedicated export specialists, and earned a reputation that speaks for itself — one delivered car at a time.</p>
+      <div class="divider-line"></div>
+      <div class="intro-features">
+        <div class="if-item"><span class="if-icon">✓</span> Auction Grade 4.0+ Only</div>
+        <div class="if-item"><span class="if-icon">✓</span> Verified Mileage & History</div>
+        <div class="if-item"><span class="if-icon">✓</span> End-to-End Export Support</div>
+        <div class="if-item"><span class="if-icon">✓</span> Marine Insurance Included</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     MISSION & VISION
+=========================== -->
+<section class="section mv-section">
+  <div class="container">
+    <div class="section-header centered">
+      <span class="eyebrow-tag">Our Purpose</span>
+      <h2 class="section-title light">Mission & Vision</h2>
+      <p class="section-sub light">Two guiding principles that shape every decision we make.</p>
+    </div>
+    <div class="mv-grid">
+      <div class="mv-card">
+        <div class="mv-card-inner">
+          <div class="mv-icon-wrap"><span class="mv-icon">🎯</span></div>
+          <h3>Our Mission</h3>
+          <p>To connect car buyers worldwide with Japan's finest used vehicles through a process that is fully transparent, professionally managed, and genuinely customer-first — from auction floor selection to doorstep delivery.</p>
+          <ul class="mv-list">
+            <li><span>—</span> Honest, verified listings with zero manipulation</li>
+            <li><span>—</span> Full cost disclosure before any commitment</li>
+            <li><span>—</span> End-to-end support from purchase to port</li>
+            <li><span>—</span> Post-delivery assistance, always available</li>
+          </ul>
+        </div>
+        <div class="mv-card-glow mission-glow"></div>
+      </div>
+      <div class="mv-card">
+        <div class="mv-card-inner">
+          <div class="mv-icon-wrap"><span class="mv-icon">🌏</span></div>
+          <h3>Our Vision</h3>
+          <p>To become the world's most trusted Japanese used car export platform — where every buyer, in every country, has access to premium quality vehicles and the confidence that comes with genuine professional service.</p>
+          <ul class="mv-list">
+            <li><span>—</span> Global reach powered by local Japanese expertise</li>
+            <li><span>—</span> Technology-driven transparency and tracking</li>
+            <li><span>—</span> Long-term relationships over one-time transactions</li>
+            <li><span>—</span> Industry-leading customer satisfaction benchmarks</li>
+          </ul>
+        </div>
+        <div class="mv-card-glow vision-glow"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     WHY CHOOSE US
+=========================== -->
+<section class="section why-section">
+  <div class="container">
+    <div class="section-header centered">
+      <span class="eyebrow-tag">Why AutoFlex</span>
+      <h2 class="section-title">The Standard Others<br>Are Measured Against.</h2>
+      <p class="section-sub">Six reasons why discerning buyers across 50+ countries choose AutoFlex — and return.</p>
+    </div>
+    <div class="why-grid">
+      <div class="why-card" *ngFor="let f of features; let i = index">
+        <div class="why-num">0{{ i + 1 }}</div>
+        <div class="why-icon">{{ f.icon }}</div>
+        <h4>{{ f.title }}</h4>
+        <p>{{ f.desc }}</p>
+        <div class="why-line"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     SERVICES
+=========================== -->
+<section class="section services-section">
+  <div class="container">
+    <div class="section-header centered">
+      <span class="eyebrow-tag">What We Offer</span>
+      <h2 class="section-title light">Premium Services,<br>Seamless Experience.</h2>
+      <p class="section-sub light">Everything you need — under one roof, delivered with excellence.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card" *ngFor="let s of services">
+        <div class="service-icon-wrap">
+          <span class="service-icon">{{ s.icon }}</span>
+        </div>
+        <div class="service-body">
+          <h4>{{ s.title }}</h4>
+          <p>{{ s.desc }}</p>
+        </div>
+        <div class="service-arrow">→</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     TRUST & TRANSPARENCY
+=========================== -->
+<section class="section trust-section">
+  <div class="container trust-grid">
+    <div class="trust-left">
+      <span class="eyebrow-tag light-tag">Trust & Transparency</span>
+      <h2 class="section-title light">We Operate With<br>Uncompromising<br>Integrity.</h2>
+      <p class="trust-lead">Purchasing a used vehicle from overseas demands absolute trust. We earn that trust through systematic verification, complete disclosure, and a culture that puts your interests first — always.</p>
+      <div class="trust-items">
+        <div class="trust-item" *ngFor="let t of trustPoints">
+          <div class="t-icon-box">{{ t.icon }}</div>
+          <div class="t-body">
+            <strong>{{ t.title }}</strong>
+            <p>{{ t.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="trust-right">
+      <div class="trust-img-wrap">
+        <img src="https://images.unsplash.com/photo-1619767886558-efdc259cde1a?w=800&q=85" alt="Vehicle inspection" class="trust-img" />
+        <div class="trust-img-overlay"></div>
+      </div>
+      <div class="trust-badge">
+        <div class="tb-icon">🛡️</div>
+        <strong>100% Verified</strong>
+        <p>Every listing inspected<br>and certified</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     CALL TO ACTION
+=========================== -->
+<section class="cta-section">
+  <div class="cta-overlay"></div>
+  <div class="cta-content">
+    <span class="eyebrow-tag light-tag">Start Your Journey</span>
+    <h2>Your Perfect Japanese Car<br>Is Waiting for You.</h2>
+    <p>Browse our hand-selected inventory of 1,200+ verified vehicles or speak directly with one of our export specialists today. Premium quality, transparent pricing, worldwide delivery.</p>
+    <div class="cta-btns">
+      <a routerLink="/cars" class="btn-primary">Browse Inventory</a>
+      <a routerLink="/contact" class="btn-ghost">Speak to an Expert</a>
+    </div>
+  </div>
+</section>

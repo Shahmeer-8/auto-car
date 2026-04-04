@@ -1,0 +1,124 @@
+<section class="hero-slider">
+
+  <!-- Slides -->
+  <div class="slides-wrapper">
+    <div
+      class="slide"
+      *ngFor="let slide of slides; let i = index"
+      [class.active]="i === currentSlide">
+      <img [src]="slide.image" [alt]="slide.alt" class="slide-img" />
+      <div class="slide-overlay"></div>
+
+      <!-- Slide Label Badge -->
+      <div class="slide-badge">{{ slide.label }}</div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="hero-content">
+    <div class="hero-tag">🇯🇵 Direct from Japan</div>
+    <h1 class="hero-title">Find Your Perfect<br><span class="hero-highlight">Japanese Car</span></h1>
+    <p class="hero-subtitle">1,200+ Quality JDM Vehicles — Low Mileage, Inspected & Ready to Ship</p>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+
+      <!-- Make -->
+      <div class="search-field">
+        <label class="field-label">Make</label>
+        <select class="search-select" [(ngModel)]="selectedMake" (change)="onMakeChange()">
+          <option value="">All Makes</option>
+          <option *ngFor="let make of makes" [value]="make">{{ make }}</option>
+        </select>
+      </div>
+
+      <div class="field-divider"></div>
+
+      <!-- Model -->
+      <div class="search-field">
+        <label class="field-label">Model</label>
+        <select class="search-select" [(ngModel)]="selectedModel">
+          <option value="">All Models</option>
+          <option *ngFor="let model of filteredModels" [value]="model">{{ model }}</option>
+        </select>
+      </div>
+
+      <div class="field-divider"></div>
+
+      <!-- Year -->
+      <div class="search-field">
+        <label class="field-label">Year</label>
+        <select class="search-select" [(ngModel)]="selectedYear">
+          <option value="">Any Year</option>
+          <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+        </select>
+      </div>
+
+      <div class="field-divider"></div>
+
+      <!-- Max Price -->
+      <div class="search-field">
+        <label class="field-label">Max Price</label>
+        <select class="search-select" [(ngModel)]="selectedPrice">
+          <option value="">Any Price</option>
+          <option value="5000">Under $5,000</option>
+          <option value="10000">Under $10,000</option>
+          <option value="20000">Under $20,000</option>
+          <option value="30000">Under $30,000</option>
+          <option value="50000">Under $50,000</option>
+        </select>
+      </div>
+
+      <!-- Search Button -->
+      <button class="search-btn" (click)="onSearch()">
+        <span class="search-icon">🔍</span> SEARCH
+      </button>
+    </div>
+
+    <!-- Quick Search Tags -->
+    <div class="quick-tags">
+      <span class="tag-label">Popular:</span>
+      <button class="quick-tag" *ngFor="let tag of quickTags" (click)="quickSearch(tag)">
+        {{ tag.label }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Prev / Next Arrows -->
+  <button class="arrow arrow-left" (click)="prevSlide()">&#8249;</button>
+  <button class="arrow arrow-right" (click)="nextSlide()">&#8250;</button>
+
+  <!-- Dots -->
+  <div class="dots">
+    <button
+      class="dot"
+      *ngFor="let slide of slides; let i = index"
+      [class.active]="i === currentSlide"
+      (click)="goToSlide(i)">
+    </button>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="hero-stats">
+    <div class="stat-item">
+      <span class="stat-num">1,200+</span>
+      <span class="stat-label">Cars Listed</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num">50+</span>
+      <span class="stat-label">Countries Shipped</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num">Grade 4+</span>
+      <span class="stat-label">Avg Auction Grade</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-num">10yrs</span>
+      <span class="stat-label">Experience</span>
+    </div>
+  </div>
+
+</section>

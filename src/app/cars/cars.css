@@ -1,0 +1,12 @@
+.cars-page {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 24px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+h1 {
+  font-size: 2rem;
+  color: #222;
+  margin-bottom: 16px;
+}

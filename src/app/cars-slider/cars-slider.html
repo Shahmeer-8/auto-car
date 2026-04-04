@@ -1,0 +1,59 @@
+<section class="cars-slider-section">
+  <div class="container">
+
+    <!-- Header -->
+    <div class="slider-header">
+      <h2 class="section-title">Popular Cars for Sale</h2>
+      <div class="header-right">
+        <a class="view-all" routerLink="/cars">View All <span>→</span></a>
+        <div class="arrows">
+          <button class="arrow" (click)="prev()" [disabled]="currentIndex === 0">
+            <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
+              <path d="M8.5 1.5L1.5 8L8.5 14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button class="arrow" (click)="next()" [disabled]="currentIndex >= maxIndex">
+            <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
+              <path d="M1.5 1.5L8.5 8L1.5 14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cards Track -->
+    <div class="slider-viewport">
+      <div class="slider-track" [style.transform]="translateX">
+        <div class="car-card" *ngFor="let car of cars; let i = index">
+          <div class="car-image-wrap">
+            <img [src]="car.image" [alt]="car.name" class="car-image" />
+            <span class="car-badge" *ngIf="car.badge">{{ car.badge }}</span>
+          </div>
+          <div class="car-info">
+            <h3 class="car-name">{{ car.name }}</h3>
+            <p class="car-price">{{ car.price }}</p>
+            <p class="car-meta">{{ car.meta }}</p>
+
+            <!-- ✅ User listing ke liye ID se, hardcoded ke liye index se -->
+            <button class="car-btn"
+              [routerLink]="['/car-detail', car.isUserListing ? car.id : (i + 1)]">
+              View Details
+            </button>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dots -->
+    <div class="dots">
+      <button
+        class="dot"
+        *ngFor="let dot of dots; let i = index"
+        [class.active]="i === currentIndex"
+        (click)="goTo(i)">
+      </button>
+    </div>
+
+  </div>
+</section>

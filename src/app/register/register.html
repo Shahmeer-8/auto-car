@@ -1,0 +1,222 @@
+<!-- Registration Page -->
+<div class="register-page">
+  <div class="register-container">
+    
+    <!-- Left Side - Form -->
+    <div class="register-form-section">
+      
+      <!-- Header -->
+      <div class="form-header">
+        <h1>Create Account</h1>
+        <p>Join AutoFlex and start buying or selling cars today</p>
+      </div>
+
+      <!-- User Type Selection -->
+      <div class="user-type-selector">
+        <h3>I want to:</h3>
+        <div class="type-options">
+          <div 
+            class="type-card"
+            [class.selected]="userType === 'buyer'"
+            (click)="selectUserType('buyer')">
+            <div class="type-icon">🛒</div>
+            <h4>Buy Cars</h4>
+            <p>Browse and purchase premium Japanese vehicles</p>
+            <div class="check-mark" *ngIf="userType === 'buyer'">✓</div>
+          </div>
+
+          <div 
+            class="type-card"
+            [class.selected]="userType === 'seller'"
+            (click)="selectUserType('seller')">
+            <div class="type-icon">🚗</div>
+            <h4>Sell Cars</h4>
+            <p>List your vehicles and reach thousands of buyers</p>
+            <div class="check-mark" *ngIf="userType === 'seller'">✓</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Registration Form -->
+      <form (ngSubmit)="onSubmit()" class="register-form">
+        
+        <!-- Full Name -->
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input 
+            type="text" 
+            [(ngModel)]="name"
+            name="name"
+            (focus)="clearError('name')"
+            placeholder="John Smith"
+            [class.error]="nameError"
+            required>
+          <span class="error-message" *ngIf="nameError">{{ nameError }}</span>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label>Email Address *</label>
+          <input 
+            type="email" 
+            [(ngModel)]="email"
+            name="email"
+            (focus)="clearError('email')"
+            placeholder="john@example.com"
+            [class.error]="emailError"
+            required>
+          <span class="error-message" *ngIf="emailError">{{ emailError }}</span>
+        </div>
+
+        <!-- Phone -->
+        <div class="form-group">
+          <label>Phone Number *</label>
+          <input 
+            type="tel" 
+            [(ngModel)]="phone"
+            name="phone"
+            (focus)="clearError('phone')"
+            placeholder="+1 234 567 8900"
+            [class.error]="phoneError"
+            required>
+          <span class="error-message" *ngIf="phoneError">{{ phoneError }}</span>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label>Password *</label>
+          <div class="password-input">
+            <input 
+              [type]="showPassword ? 'text' : 'password'"
+              [(ngModel)]="password"
+              name="password"
+              (focus)="clearError('password')"
+              placeholder="At least 8 characters"
+              [class.error]="passwordError"
+              required>
+            <button 
+              type="button" 
+              class="toggle-password"
+              (click)="showPassword = !showPassword">
+              {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+            </button>
+          </div>
+          <span class="error-message" *ngIf="passwordError">{{ passwordError }}</span>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+          <label>Confirm Password *</label>
+          <div class="password-input">
+            <input 
+              [type]="showConfirmPassword ? 'text' : 'password'"
+              [(ngModel)]="confirmPassword"
+              name="confirmPassword"
+              (focus)="clearError('confirmPassword')"
+              placeholder="Re-enter your password"
+              [class.error]="confirmPasswordError"
+              required>
+            <button 
+              type="button" 
+              class="toggle-password"
+              (click)="showConfirmPassword = !showConfirmPassword">
+              {{ showConfirmPassword ? '👁️' : '👁️‍🗨️' }}
+            </button>
+          </div>
+          <span class="error-message" *ngIf="confirmPasswordError">{{ confirmPasswordError }}</span>
+        </div>
+
+        <!-- Terms Checkbox -->
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="acceptTerms"
+              name="acceptTerms">
+            <span>I agree to the <a href="/terms" target="_blank">Terms & Conditions</a> and <a href="/privacy" target="_blank">Privacy Policy</a></span>
+          </label>
+        </div>
+
+        <!-- Submit Error -->
+        <div class="submit-error" *ngIf="submitError">
+          <span class="error-icon">⚠️</span>
+          {{ submitError }}
+        </div>
+
+        <!-- Submit Button -->
+        <button 
+          type="submit" 
+          class="btn-submit"
+          [disabled]="isLoading">
+          <span *ngIf="!isLoading">Create Account</span>
+          <span *ngIf="isLoading">Creating Account...</span>
+        </button>
+
+        <!-- Login Link -->
+        <div class="form-footer">
+          Already have an account? 
+          <a routerLink="/login">Sign In</a>
+        </div>
+
+      </form>
+
+    </div>
+
+    <!-- Right Side - Info -->
+    <div class="register-info-section">
+      <div class="info-content">
+        <h2>Why Join AutoFlex?</h2>
+        
+        <div class="benefits-list">
+          <div class="benefit-item">
+            <div class="benefit-icon">✓</div>
+            <div>
+              <h4>Premium Japanese Vehicles</h4>
+              <p>Access to 1,200+ high-quality JDM cars</p>
+            </div>
+          </div>
+
+          <div class="benefit-item">
+            <div class="benefit-icon">✓</div>
+            <div>
+              <h4>Verified Listings</h4>
+              <p>All cars are auction-graded and inspected</p>
+            </div>
+          </div>
+
+          <div class="benefit-item">
+            <div class="benefit-icon">✓</div>
+            <div>
+              <h4>Worldwide Shipping</h4>
+              <p>We deliver to 50+ countries globally</p>
+            </div>
+          </div>
+
+          <div class="benefit-item">
+            <div class="benefit-icon">✓</div>
+            <div>
+              <h4>Expert Support</h4>
+              <p>Dedicated team to assist you 24/7</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-banner">
+          <div class="stat">
+            <strong>8,000+</strong>
+            <span>Happy Customers</span>
+          </div>
+          <div class="stat">
+            <strong>50+</strong>
+            <span>Countries</span>
+          </div>
+          <div class="stat">
+            <strong>10+</strong>
+            <span>Years Experience</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

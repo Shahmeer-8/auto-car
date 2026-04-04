@@ -1,0 +1,181 @@
+/* ===== SECTION ===== */
+.guides-slider-section {
+  padding: 52px 0;
+  background: #fff;
+  border-top: 1px solid #f0f0f0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+/* ===== HEADER ===== */
+.slider-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #222;
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.view-all {
+  color: #E84B2B;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: gap 0.2s;
+  width: fit-content;
+}
+
+.view-all:hover { gap: 8px; }
+
+.arrows {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ===== ARROWS ===== */
+.arrow {
+  background: #fff;
+  border: 1.5px solid #ddd;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  color: #333;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.arrow:hover:not(:disabled) {
+  background: #E84B2B;
+  border-color: #E84B2B;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(232,75,43,0.25);
+}
+
+.arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ===== VIEWPORT ===== */
+.slider-viewport {
+  overflow: hidden;
+  width: 100%;
+}
+
+/* ===== TRACK ===== */
+.slider-track {
+  display: flex;
+  transition: transform 0.4s ease;
+}
+
+/* ===== GUIDE CARD ===== */
+.guide-card {
+  flex: 0 0 calc((100% - 48px) / 4);
+  margin-right: 16px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.guide-card:hover {
+  transform: translateY(-3px);
+}
+
+.guide-image-wrap {
+  width: 100%;
+  height: 200px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.guide-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s;
+}
+
+.guide-card:hover .guide-image {
+  transform: scale(1.04);
+}
+
+.guide-info {
+  padding: 0 4px;
+}
+
+.guide-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.guide-desc {
+  font-size: 0.83rem;
+  color: #666;
+  line-height: 1.55;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .guide-card {
+    flex: 0 0 calc((100% - 32px) / 3);
+  }
+}
+
+@media (max-width: 768px) {
+  .guide-card {
+    flex: 0 0 calc((100% - 16px) / 2);
+  }
+
+  .guide-image-wrap { height: 160px; }
+
+  .arrow {
+    width: 32px;
+    height: 32px;
+  }
+
+  .section-title { font-size: 1.2rem; }
+}
+
+@media (max-width: 480px) {
+  .guide-card { flex: 0 0 85%; }
+
+  .slider-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

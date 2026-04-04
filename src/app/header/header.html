@@ -1,0 +1,136 @@
+<nav class="navbar" (click)="closeAll()">
+  <div class="navbar-container" (click)="$event.stopPropagation()">
+
+    <!-- Logo -->
+    <a class="logo" routerLink="/">
+      <div class="logo-icon">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="8" fill="#E84B2B"/>
+          <path d="M7 21H6a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h1l3-5h12l3 5h1a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-1"
+            stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="10" cy="21" r="2" stroke="white" stroke-width="1.6"/>
+          <circle cx="22" cy="21" r="2" stroke="white" stroke-width="1.6"/>
+          <path d="M12 21h8" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="logo-text">Auto<strong>Flex</strong></span>
+    </a>
+
+    <!-- Desktop Nav Links -->
+    <ul class="nav-links desktop-nav">
+
+      <li class="nav-item">
+        <a routerLink="/cars" routerLinkActive="active" class="nav-link">Cars for Sale</a>
+      </li>
+
+      <!-- Research Dropdown -->
+      <li class="nav-item dropdown">
+        <button class="nav-link dropdown-btn" (click)="toggleResearch(); $event.stopPropagation()">
+          Research
+          <svg class="chevron" [class.open]="researchOpen" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M3 5L7 9L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="dropdown-menu" [class.show]="researchOpen">
+          <a routerLink="/guides" class="dropdown-item" (click)="closeAll()">JDM Guides</a>
+          <a routerLink="/cars" [queryParams]="{sort: 'ranking'}" class="dropdown-item" (click)="closeAll()">Car Rankings</a>
+          <a routerLink="/cars" [queryParams]="{compare: 'true'}" class="dropdown-item" (click)="closeAll()">Compare Cars</a>
+          <a routerLink="/guides" class="dropdown-item" (click)="closeAll()">Popular Studies</a>
+          <a routerLink="/guides" class="dropdown-item" (click)="closeAll()">Car Reliability</a>
+        </div>
+      </li>
+
+      <!-- Shop by Type Dropdown -->
+      <li class="nav-item dropdown">
+        <button class="nav-link dropdown-btn" (click)="toggleShop(); $event.stopPropagation()">
+          Shop by Type
+          <svg class="chevron" [class.open]="shopOpen" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M3 5L7 9L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="dropdown-menu" [class.show]="shopOpen">
+          <a routerLink="/cars" [queryParams]="{body: 'suv'}" class="dropdown-item" (click)="closeAll()">SUV</a>
+          <a routerLink="/cars" [queryParams]="{body: 'sedan'}" class="dropdown-item" (click)="closeAll()">Sedan</a>
+          <a routerLink="/cars" [queryParams]="{body: 'truck'}" class="dropdown-item" (click)="closeAll()">Truck</a>
+          <a routerLink="/cars" [queryParams]="{body: 'hybrid'}" class="dropdown-item" (click)="closeAll()">Hybrid</a>
+          <a routerLink="/cars" [queryParams]="{body: 'luxury'}" class="dropdown-item" (click)="closeAll()">Luxury</a>
+          <a routerLink="/cars" [queryParams]="{body: 'sports-car'}" class="dropdown-item" (click)="closeAll()">Sports Car</a>
+        </div>
+      </li>
+
+      <!-- Log In -->
+      <li class="nav-item">
+        <a routerLink="/login" class="nav-link login-link">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Log In
+        </a>
+      </li>
+
+    </ul>
+
+    <!-- Hamburger Button -->
+    <button class="hamburger" (click)="toggleMobileMenu(); $event.stopPropagation()"
+      [class.active]="mobileMenuOpen" aria-label="Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" [class.open]="mobileMenuOpen" (click)="$event.stopPropagation()">
+
+    <a routerLink="/cars" routerLinkActive="active" class="mobile-link" (click)="closeMobileMenu()">
+      Cars for Sale
+    </a>
+
+    <!-- Mobile Research -->
+    <div class="mobile-dropdown">
+      <button class="mobile-link mobile-dropdown-btn" (click)="toggleMobileResearch(); $event.stopPropagation()">
+        Research
+        <svg class="chevron" [class.open]="mobileResearchOpen" width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M3 5L7 9L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="mobile-submenu" [class.show]="mobileResearchOpen">
+        <a routerLink="/guides" class="mobile-sub-item" (click)="closeMobileMenu()">JDM Guides</a>
+        <a routerLink="/cars" [queryParams]="{sort: 'ranking'}" class="mobile-sub-item" (click)="closeMobileMenu()">Car Rankings</a>
+        <a routerLink="/cars" [queryParams]="{compare: 'true'}" class="mobile-sub-item" (click)="closeMobileMenu()">Compare Cars</a>
+        <a routerLink="/guides" class="mobile-sub-item" (click)="closeMobileMenu()">Popular Studies</a>
+        <a routerLink="/guides" class="mobile-sub-item" (click)="closeMobileMenu()">Car Reliability</a>
+      </div>
+    </div>
+
+    <!-- Mobile Shop by Type -->
+    <div class="mobile-dropdown">
+      <button class="mobile-link mobile-dropdown-btn" (click)="toggleMobileShop(); $event.stopPropagation()">
+        Shop by Type
+        <svg class="chevron" [class.open]="mobileShopOpen" width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M3 5L7 9L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="mobile-submenu" [class.show]="mobileShopOpen">
+        <a routerLink="/cars" [queryParams]="{body: 'suv'}" class="mobile-sub-item" (click)="closeMobileMenu()">SUV</a>
+        <a routerLink="/cars" [queryParams]="{body: 'sedan'}" class="mobile-sub-item" (click)="closeMobileMenu()">Sedan</a>
+        <a routerLink="/cars" [queryParams]="{body: 'truck'}" class="mobile-sub-item" (click)="closeMobileMenu()">Truck</a>
+        <a routerLink="/cars" [queryParams]="{body: 'hybrid'}" class="mobile-sub-item" (click)="closeMobileMenu()">Hybrid</a>
+        <a routerLink="/cars" [queryParams]="{body: 'luxury'}" class="mobile-sub-item" (click)="closeMobileMenu()">Luxury</a>
+        <a routerLink="/cars" [queryParams]="{body: 'sports-car'}" class="mobile-sub-item" (click)="closeMobileMenu()">Sports Car</a>
+      </div>
+    </div>
+
+    <!-- Mobile Log In -->
+    <a routerLink="/login" class="mobile-link login-mobile" (click)="closeMobileMenu()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M2 14c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Log In
+    </a>
+
+  </div>
+</nav>

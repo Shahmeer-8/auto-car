@@ -1,0 +1,347 @@
+.car-detail-page {
+  background: #fff;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* Back bar */
+.back-bar {
+  background: #f8f8f8;
+  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #555;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.back-btn:hover { color: #E84B2B; }
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Main grid */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 48px;
+  padding: 40px 0 32px;
+}
+
+/* ═══ IMAGE SECTION ═══ */
+.main-image-wrap {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.main-image {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.3s ease;
+}
+
+.detail-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: #E84B2B;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+  z-index: 2;
+}
+
+/* Image Counter */
+.image-counter {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0,0,0,0.55);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  z-index: 2;
+}
+
+/* Thumbnail Strip */
+.thumb-strip {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.thumb-item {
+  width: 80px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.25s;
+  opacity: 0.65;
+  flex-shrink: 0;
+}
+
+.thumb-item:hover {
+  opacity: 1;
+  border-color: #E84B2B;
+  transform: translateY(-2px);
+}
+
+.thumb-item.active {
+  opacity: 1;
+  border-color: #E84B2B;
+  box-shadow: 0 0 0 2px rgba(232,75,43,0.25);
+}
+
+.thumb-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ═══ RIGHT INFO ═══ */
+.detail-name {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.detail-price {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #E84B2B;
+  margin-bottom: 24px;
+}
+
+/* Meta grid */
+.detail-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 12px 14px;
+  transition: border-color 0.2s;
+}
+
+.meta-item:hover {
+  border-color: #E84B2B;
+}
+
+.meta-icon { font-size: 1.2rem; }
+
+.meta-label {
+  font-size: 0.68rem;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.meta-val {
+  font-size: 0.9rem;
+  color: #222;
+  font-weight: 600;
+}
+
+/* ═══ BUTTONS ═══ */
+.detail-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  flex: 1;
+  background: #E84B2B;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 14px 20px;
+  border-radius: 10px;
+  text-decoration: none;
+  text-align: center;
+  transition: background 0.2s, transform 0.2s;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  min-width: 160px;
+}
+
+.btn-primary:hover {
+  background: #c73820;
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  flex: 1;
+  background: #fff;
+  color: #E84B2B;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 14px 20px;
+  border-radius: 10px;
+  text-decoration: none;
+  text-align: center;
+  border: 2px solid #E84B2B;
+  transition: all 0.2s;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  min-width: 140px;
+}
+
+.btn-secondary:hover {
+  background: #E84B2B;
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* Trust row */
+.trust-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.trust-item {
+  font-size: 0.8rem;
+  color: #666;
+  background: #f5f5f5;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+/* ═══ SELLER INFO ═══ */
+.seller-info {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.seller-info h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 14px;
+}
+
+.seller-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.seller-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.seller-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.seller-item span { color: #64748b; }
+.seller-item strong { color: #0f172a; font-weight: 600; }
+
+/* ═══ DESCRIPTION ═══ */
+.detail-desc-section {
+  border-top: 1px solid #eee;
+  padding: 32px 0 48px;
+}
+
+.desc-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 14px;
+}
+
+.desc-text {
+  font-size: 0.92rem;
+  color: #666;
+  line-height: 1.8;
+  max-width: 800px;
+}
+
+/* ═══ NOT FOUND ═══ */
+.not-found {
+  text-align: center;
+  padding: 80px 24px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.not-found h2 { margin-bottom: 20px; color: #444; }
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 768px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .main-image { height: 280px; }
+  .detail-name { font-size: 1.4rem; }
+  .detail-price { font-size: 1.3rem; }
+  .detail-meta-grid { grid-template-columns: 1fr 1fr; }
+  .detail-actions { flex-direction: column; }
+  .btn-primary, .btn-secondary { min-width: unset; }
+
+  .thumb-strip {
+    gap: 8px;
+  }
+
+  .thumb-item {
+    width: 65px;
+    height: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 0 16px; }
+  .detail-meta-grid { grid-template-columns: 1fr; }
+
+  .thumb-item {
+    width: 55px;
+    height: 44px;
+  }
+}

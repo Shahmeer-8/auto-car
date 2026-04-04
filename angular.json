@@ -2,11 +2,12 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "analytics": false
   },
   "newProjectRoot": "projects",
   "projects": {
-    "AutoCar": {
+    "Auto-Flex": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -26,12 +27,7 @@
             ],
             "styles": [
               "src/styles.css"
-            ],
-            "server": "src/main.server.ts",
-            "outputMode": "server",
-            "ssr": {
-              "entry": "src/server.ts"
-            }
+            ]
           },
           "configurations": {
             "production": {
@@ -61,10 +57,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "AutoCar:build:production"
+              "buildTarget": "Auto-Flex:build:production"
             },
             "development": {
-              "buildTarget": "AutoCar:build:development"
+              "buildTarget": "Auto-Flex:build:development"
             }
           },
           "defaultConfiguration": "development"

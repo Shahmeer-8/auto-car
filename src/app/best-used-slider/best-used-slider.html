@@ -1,0 +1,40 @@
+<section class="best-used-section">
+  <div class="container">
+
+    <div class="slider-header">
+      <h2 class="section-title">Best Used Japanese Cars</h2>
+      <div class="arrows">
+        <button class="arrow" (click)="prev()" [disabled]="currentIndex === 0">
+          <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
+            <path d="M8.5 1.5L1.5 8L8.5 14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="arrow" (click)="next()" [disabled]="currentIndex >= maxIndex">
+          <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
+            <path d="M1.5 1.5L8.5 8L1.5 14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="slider-viewport">
+      <div class="slider-track" [style.transform]="translateX">
+        <div class="best-card"
+             *ngFor="let item of bestCars; let i = index"
+             [routerLink]="['/cars']"
+             [queryParams]="{ budget: item.budget }">
+          <div class="best-image-wrap">
+            <img [src]="item.image" [alt]="item.title" class="best-image" />
+          </div>
+          <div class="best-info">
+            <h3 class="best-title">{{ item.title }}</h3>
+            <p class="best-desc">{{ item.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+  </div>
+</section>

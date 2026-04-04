@@ -1,0 +1,194 @@
+<div class="car-detail-page" *ngIf="car">
+
+  <!-- Back Button -->
+  <div class="back-bar">
+    <div class="container">
+      <a class="back-btn" routerLink="/">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Back to Home
+      </a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="detail-grid">
+
+      <!-- LEFT: Image Slider -->
+      <div class="detail-left">
+
+        <!-- Main Image -->
+        <div class="main-image-wrap">
+          <img [src]="selectedImage" [alt]="car.name" class="main-image" />
+          <span class="detail-badge" *ngIf="car.badge">{{ car.badge }}</span>
+          <!-- Image Counter -->
+          <div class="image-counter" *ngIf="images.length > 1">
+            {{ images.indexOf(selectedImage) + 1 }} / {{ images.length }}
+          </div>
+        </div>
+
+        <!-- Thumbnail Strip -->
+        <div class="thumb-strip" *ngIf="images.length > 1">
+          <div
+            class="thumb-item"
+            *ngFor="let img of images; let i = index"
+            [class.active]="selectedImage === img"
+            (click)="selectImage(img)">
+            <img [src]="img" [alt]="'Photo ' + (i+1)">
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Info -->
+      <div class="detail-right">
+        <h1 class="detail-name">{{ car.name }}</h1>
+        <p class="detail-price">{{ car.price }}</p>
+
+        <div class="detail-meta-grid">
+          <div class="meta-item">
+            <span class="meta-icon">🛣️</span>
+            <div>
+              <div class="meta-label">Mileage</div>
+              <div class="meta-val">{{ car.km }}</div>
+            </div>
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">⚙️</span>
+            <div>
+              <div class="meta-label">Transmission</div>
+              <div class="meta-val">{{ car.transmission | titlecase }}</div>
+            </div>
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">🚗</span>
+            <div>
+              <div class="meta-label">Body Type</div>
+              <div class="meta-val">{{ car.body | titlecase }}</div>
+            </div>
+          </div>
+
+          <div class="meta-item" *ngIf="!car.isUserListing">
+            <span class="meta-icon">⭐</span>
+            <div>
+              <div class="meta-label">Auction Grade</div>
+              <div class="meta-val">{{ car.grade }}</div>
+            </div>
+          </div>
+          <div class="meta-item" *ngIf="car.isUserListing">
+            <span class="meta-icon">⭐</span>
+            <div>
+              <div class="meta-label">Condition</div>
+              <div class="meta-val">{{ car.condition | titlecase }}</div>
+            </div>
+          </div>
+
+          <div class="meta-item" *ngIf="car.isUserListing">
+            <span class="meta-icon">⛽</span>
+            <div>
+              <div class="meta-label">Fuel Type</div>
+              <div class="meta-val">{{ car.fuelType | titlecase }}</div>
+            </div>
+          </div>
+
+          <div class="meta-item" *ngIf="car.isUserListing">
+            <span class="meta-icon">🎨</span>
+            <div>
+              <div class="meta-label">Color</div>
+              <div class="meta-val">{{ car.color }}</div>
+            </div>
+          </div>
+
+          <div class="meta-item">
+            <span class="meta-icon">🇯🇵</span>
+            <div>
+              <div class="meta-label">Origin</div>
+              <div class="meta-val">Japan</div>
+            </div>
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">🚢</span>
+            <div>
+              <div class="meta-label">Shipping</div>
+              <div class="meta-val">Worldwide</div>
+            </div>
+          </div>
+
+          <div class="meta-item" *ngIf="car.isUserListing">
+            <span class="meta-icon">📍</span>
+            <div>
+              <div class="meta-label">Location</div>
+              <div class="meta-val">{{ car.location }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA Buttons -->
+        <div class="detail-actions">
+          <a *ngIf="car.isUserListing"
+            [href]="'https://wa.me/' + car.phone"
+            class="btn-primary">
+            💬 WhatsApp Seller
+          </a>
+          <a *ngIf="!car.isUserListing"
+            href="https://wa.me/818027439931"
+            class="btn-primary">
+            💬 Enquire on WhatsApp
+          </a>
+          <a *ngIf="!car.isUserListing" href="tel:+81489906633" class="btn-secondary">
+            📞 Call Us
+          </a>
+        </div>
+
+        <!-- Seller Info -->
+        <div class="seller-info" *ngIf="car.isUserListing">
+          <h3>👤 Seller Information</h3>
+          <div class="seller-details">
+            <div class="seller-item">
+              <span>Name</span>
+              <strong>{{ car.ownerName }}</strong>
+            </div>
+            <div class="seller-item">
+              <span>Listed On</span>
+              <strong>{{ car.submittedAt | date:'mediumDate' }}</strong>
+            </div>
+            <div class="seller-item">
+              <span>Status</span>
+              <strong [style.color]="car.badge === 'Approved' ? '#22c55e' : '#f59e0b'">
+                {{ car.badge }}
+              </strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trust badges -->
+        <div class="trust-row" *ngIf="!car.isUserListing">
+          <div class="trust-item">✅ Auction Verified</div>
+          <div class="trust-item">📋 Full Inspection</div>
+          <div class="trust-item">🚢 Ready to Ship</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="detail-desc-section">
+      <h2 class="desc-title">About This Vehicle</h2>
+      <p class="desc-text" *ngIf="car.isUserListing">{{ car.description }}</p>
+      <p class="desc-text" *ngIf="!car.isUserListing">
+        This {{ car.name }} is a premium quality used vehicle sourced directly from Japan through our verified auction network.
+        It has been thoroughly inspected and graded {{ car.grade }} — meaning it is in excellent condition with no major defects.
+        With only {{ car.km }} on the odometer, this vehicle represents outstanding value for money.
+        We handle all export documentation and worldwide shipping directly from Japan to your port.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<!-- Not Found -->
+<div class="not-found" *ngIf="!car">
+  <h2>Car not found</h2>
+  <a routerLink="/" class="btn-primary">← Back to Home</a>
+</div>

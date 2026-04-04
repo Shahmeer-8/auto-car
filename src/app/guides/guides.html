@@ -1,0 +1,168 @@
+<!-- ===========================
+     GUIDES HERO
+=========================== -->
+<section class="guides-hero">
+  <div class="guides-hero-overlay"></div>
+  <div class="container guides-hero-content">
+    <span class="eyebrow-tag">Expert Knowledge</span>
+    <h1 class="hero-title">JDM Buying Advice<br><em>& Guides</em></h1>
+    <p class="hero-tagline">Everything you need to know about purchasing, importing, and maintaining Japanese domestic market vehicles.</p>
+    
+    <!-- Search Bar -->
+    <div class="hero-search">
+      <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18 18l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <input type="text" placeholder="Search guides, tips, and advice..." [(ngModel)]="searchQuery" (input)="filterGuides()">
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     CATEGORIES FILTER
+=========================== -->
+<section class="section categories-section">
+  <div class="container">
+    <div class="categories-filter">
+      <button 
+        *ngFor="let cat of categories" 
+        [class.active]="selectedCategory === cat.id"
+        (click)="selectCategory(cat.id)"
+        class="category-btn">
+        <span class="cat-icon">{{ cat.icon }}</span>
+        <span class="cat-label">{{ cat.label }}</span>
+        <span class="cat-count">{{ cat.count }}</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     GUIDES GRID
+=========================== -->
+<section class="section guides-grid-section">
+  <div class="container">
+    
+    <!-- Section Header -->
+    <div class="section-header">
+      <div class="header-left">
+        <h2 class="section-title">{{ getSectionTitle() }}</h2>
+        <p class="section-sub">{{ filteredGuides.length }} guides found</p>
+      </div>
+      <div class="header-right">
+        <select class="sort-select" [(ngModel)]="sortBy" (change)="sortGuides()">
+          <option value="latest">Latest First</option>
+          <option value="popular">Most Popular</option>
+          <option value="title">A-Z</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Guides Grid -->
+    <div class="guides-grid" *ngIf="filteredGuides.length > 0">
+      <div class="guide-card" *ngFor="let guide of filteredGuides" [routerLink]="['/guide', guide.slug]">
+        <div class="guide-image-wrap">
+          <img [src]="guide.image" [alt]="guide.title" class="guide-image">
+          <div class="guide-overlay"></div>
+          <span class="guide-category-badge">{{ guide.category }}</span>
+          <div class="guide-read-time">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V5z"/>
+            </svg>
+            {{ guide.readTime }} min read
+          </div>
+        </div>
+        <div class="guide-content">
+          <h3 class="guide-title">{{ guide.title }}</h3>
+          <p class="guide-excerpt">{{ guide.excerpt }}</p>
+          <div class="guide-meta">
+            <div class="guide-author">
+              <img [src]="guide.authorImage" [alt]="guide.author" class="author-avatar">
+              <span class="author-name">{{ guide.author }}</span>
+            </div>
+            <div class="guide-stats">
+              <span class="stat">
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                  <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+                {{ guide.views }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Results -->
+    <div class="no-results" *ngIf="filteredGuides.length === 0">
+      <div class="no-results-icon">🔍</div>
+      <h3>No guides found</h3>
+      <p>Try adjusting your search or filter to find what you're looking for.</p>
+      <button class="btn-primary" (click)="resetFilters()">Clear Filters</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===========================
+     FEATURED RESOURCES
+=========================== -->
+<section class="section resources-section">
+  <div class="container">
+    <div class="section-header centered">
+      <span class="eyebrow-tag">Quick Access</span>
+      <h2 class="section-title">Essential Resources</h2>
+      <p class="section-sub">Helpful tools and calculators to assist your JDM purchase journey.</p>
+    </div>
+    
+    <div class="resources-grid">
+      <div class="resource-card" *ngFor="let resource of resources">
+        <div class="resource-icon">{{ resource.icon }}</div>
+        <h4>{{ resource.title }}</h4>
+        <p>{{ resource.description }}</p>
+        <a [routerLink]="resource.link" class="resource-link">
+          {{ resource.linkText }}
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     NEWSLETTER CTA
+=========================== -->
+<section class="section newsletter-section">
+  <div class="container">
+    <div class="newsletter-card">
+      <div class="newsletter-content">
+        <div class="newsletter-icon">📧</div>
+        <h3>Stay Updated with JDM Insights</h3>
+        <p>Get the latest buying guides, market trends, and expert tips delivered to your inbox every week.</p>
+      </div>
+      <form class="newsletter-form" (submit)="subscribeNewsletter($event)">
+        <input type="email" placeholder="Enter your email address" required>
+        <button type="submit" class="btn-subscribe">Subscribe</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ===========================
+     CTA SECTION
+=========================== -->
+<section class="cta-section">
+  <div class="cta-overlay"></div>
+  <div class="cta-content">
+    <span class="eyebrow-tag">Ready to Import?</span>
+    <h2>Browse Our Premium<br>Vehicle Inventory.</h2>
+    <p>Apply your knowledge and explore 1,200+ verified Japanese vehicles ready for export.</p>
+    <div class="cta-btns">
+      <a routerLink="/cars" class="btn-primary">View All Vehicles</a>
+      <a routerLink="/contact" class="btn-ghost">Contact an Expert</a>
+    </div>
+  </div>
+</section>

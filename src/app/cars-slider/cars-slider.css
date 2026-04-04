@@ -1,0 +1,259 @@
+/* ===== SECTION ===== */
+.cars-slider-section {
+  padding: 52px 0;
+  background: #fff;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+/* ===== HEADER ROW ===== */
+.slider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.section-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #222;
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.view-all {
+  color: #E84B2B;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: gap 0.2s;
+}
+
+.view-all:hover {
+  gap: 8px;
+}
+
+.view-all span {
+  font-size: 1rem;
+}
+
+.arrows {
+  display: flex;
+  gap: 8px;
+}
+
+/* ===== ARROWS (top-right) ===== */
+.arrow {
+  background: #fff;
+  border: 1.5px solid #ddd;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  color: #333;
+  line-height: 1;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.arrow:hover:not(:disabled) {
+  background: #E84B2B;
+  border-color: #E84B2B;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(232,75,43,0.25);
+}
+
+.arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ===== VIEWPORT ===== */
+.slider-viewport {
+  overflow: hidden;
+  width: 100%;
+}
+
+/* ===== TRACK ===== */
+.slider-track {
+  display: flex;
+  transition: transform 0.4s ease;
+}
+
+/* ===== CAR CARD — bigger ===== */
+.car-card {
+  flex: 0 0 calc((100% - 48px) / 4);
+  margin-right: 16px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.car-card:hover {
+  box-shadow: 0 10px 32px rgba(0,0,0,0.13);
+  transform: translateY(-5px);
+}
+
+.car-image-wrap {
+  position: relative;
+  height: 210px;  /* bigger image */
+  overflow: hidden;
+}
+
+.car-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s;
+}
+
+.car-card:hover .car-image {
+  transform: scale(1.05);
+}
+
+.car-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #E84B2B;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.car-info {
+  padding: 18px;
+}
+
+.car-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 6px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.car-price {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #E84B2B;
+  margin-bottom: 6px;
+}
+
+.car-meta {
+  font-size: 0.82rem;
+  color: #888;
+  margin-bottom: 16px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.car-btn {
+  width: 100%;
+  padding: 11px;
+  background: transparent;
+  border: 1.5px solid #E84B2B;
+  color: #E84B2B;
+  font-size: 0.87rem;
+  font-weight: 600;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.car-btn:hover {
+  background: #E84B2B;
+  color: #fff;
+}
+
+/* ===== DOTS ===== */
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ddd;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  padding: 0;
+}
+
+.dot.active {
+  background: #E84B2B;
+  transform: scale(1.3);
+  width: 24px;
+  border-radius: 4px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .car-card {
+    flex: 0 0 calc((100% - 32px) / 3);
+  }
+}
+
+@media (max-width: 768px) {
+  .car-card {
+    flex: 0 0 calc((100% - 16px) / 2);
+  }
+
+  .car-image-wrap {
+    height: 180px;
+  }
+
+  .arrow {
+    width: 32px;
+    height: 32px;
+    font-size: 1.3rem;
+  }
+
+  .section-title {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .car-card {
+    flex: 0 0 85%;
+  }
+
+  .slider-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
