@@ -3,12 +3,13 @@ import { Home } from './home/home';
 import { CarsPage } from './cars/cars';
 import { CarDetail } from './car-detail/car-detail';
 import { About } from './about/about';
-import { Contact } from './contact/contact';  
+import { Contact } from './contact/contact';
 import { Login } from './login/login';
-import { Register } from './register/register'; 
-import { Guides } from './guides/guides'; 
+import { Register } from './register/register';
+import { Guides } from './guides/guides';
 import { Dashboard } from './dashboard/dashboard';
 import { SellYourCar } from './sell-your-car/sell-your-car';
+import { authGuard, guestGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -17,10 +18,10 @@ export const routes: Routes = [
   { path: 'car-detail/:id', component: CarDetail },
   { path: 'about', component: About },
   { path: 'contact', component: Contact },
-  { path: 'login', component: Login },
-  { path: 'register', component: Register },
+  { path: 'login', component: Login, canActivate: [guestGuard] },
+  { path: 'register', component: Register, canActivate: [guestGuard] },
   { path: 'guides', component: Guides },
-  { path: 'dashboard', component: Dashboard },
-  { path: 'sell-your-car', component: SellYourCar },
-  { path: '**', redirectTo: '' }
+  { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
+  { path: 'sell-your-car', component: SellYourCar, canActivate: [authGuard] },
+  { path: '**', redirectTo: '' },
 ];

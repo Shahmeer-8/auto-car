@@ -1,115 +1,88 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
-
-interface CarListing {
-  id: string;
-  make: string;
-  model: string;
-  year: number;
-  mileage: number;
-  transmission: string;
-  fuelType: string;
-  color: string;
-  condition: string;
-  price: number;
-  description: string;
-  images: string[];
-  ownerName: string;
-  email: string;
-  phone: string;
-  location: string;
-  submittedAt: string;
-  status: 'pending' | 'approved' | 'rejected';
-}
-
-interface SavedCar {
-  id: string;
-  make: string;
-  model: string;
-  year: number;
-  price: number;
-  image: string;
-  savedAt: string;
-}
+import { AuthService } from '../services/auth.service';
+import { CarService } from '../services/car.service';
+import { CarListing, SavedCar } from '../models/car.model';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.css'
+  styleUrl: './dashboard.css',
 })
 export class Dashboard implements OnInit {
+  userName = '';
+  userEmail = '';
+  userType = '';
+  isLoading = true;
+  loadError = '';
 
-  // User Info
-  userName: string = '';
-  userEmail: string = '';
-  userType: string = '';
-
-  // Active Tab
   activeTab: 'listings' | 'saved' | 'profile' = 'listings';
 
-  // Data
   listings: CarListing[] = [];
   savedCars: SavedCar[] = [];
 
-  constructor(private router: Router) {}
+  private userId = '';
 
-  ngOnInit() {
-    // Check login
-    const isLoggedIn = localStorage.getItem('userLoggedIn');
-    if (!isLoggedIn) {
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private carService: CarService,
+  ) {}
+
+  async ngOnInit() {
+    await this.authService.waitUntilReady();
+
+    if (!this.authService.isAuthenticated) {
       this.router.navigate(['/login']);
       return;
     }
 
-    this.userName  = localStorage.getItem('userName')  || '';
-    this.userEmail = localStorage.getItem('userEmail') || '';
-    this.userType  = localStorage.getItem('userType')  || 'buyer';
+    this.userId = this.authService.currentUser!.uid;
+    this.userName = this.authService.getUserDisplayName();
+    this.userEmail = this.authService.getUserEmail();
+    this.userType = this.authService.getUserType();
 
-    this.loadListings();
-    this.loadSavedCars();
+    this.activeTab = this.userType === 'seller' ? 'listings' : 'saved';
 
-    // Default tab based on userType
-    if (this.userType === 'seller') {
-      this.activeTab = 'listings';
-    } else {
-      this.activeTab = 'saved';
+    await this.loadData();
+  }
+
+  async loadData() {
+    this.isLoading = true;
+    this.loadError = '';
+
+    try {
+      await Promise.all([this.loadListings(), this.loadSavedCars()]);
+    } catch {
+      this.loadError = 'Failed to load dashboard data. Please refresh the page.';
+    } finally {
+      this.isLoading = false;
     }
   }
 
-  // ─── Listings (Seller) ───────────────────────────────────────
-
-  loadListings() {
-    const stored = localStorage.getItem('carListings');
-    if (stored) {
-      const all: CarListing[] = JSON.parse(stored);
-      this.listings = all
-        .filter(l => l.email === this.userEmail)
-        .sort((a, b) =>
-          new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
-        );
-    }
+  async loadListings() {
+    this.listings = await this.carService.getUserListings(this.userId);
   }
 
   get pendingListings() {
-    return this.listings.filter(l => l.status === 'pending');
+    return this.listings.filter((l) => l.status === 'pending');
   }
 
   get approvedListings() {
-    return this.listings.filter(l => l.status === 'approved');
+    return this.listings.filter((l) => l.status === 'approved');
   }
 
-  deleteListing(id: string) {
-    if (confirm('Are you sure you want to delete this listing?')) {
-      const stored = localStorage.getItem('carListings');
-      if (stored) {
-        let all: CarListing[] = JSON.parse(stored);
-        all = all.filter(l => l.id !== id);
-        localStorage.setItem('carListings', JSON.stringify(all));
-        this.loadListings();
-      }
+  async deleteListing(id: string) {
+    if (!id || !confirm('Are you sure you want to delete this listing?')) return;
+
+    try {
+      await this.carService.deleteCar(id);
+      await this.loadListings();
+    } catch {
+      alert('Failed to delete listing. Please try again.');
     }
   }
 
@@ -117,37 +90,29 @@ export class Dashboard implements OnInit {
     this.router.navigate(['/car-detail', id]);
   }
 
-  // ─── Saved Cars (Buyer) ──────────────────────────────────────
+  async loadSavedCars() {
+    this.savedCars = await this.carService.getSavedCars(this.userId);
+  }
 
-  loadSavedCars() {
-    const stored = localStorage.getItem(`savedCars_${this.userEmail}`);
-    if (stored) {
-      this.savedCars = JSON.parse(stored);
+  async removeSavedCar(carId: string) {
+    try {
+      await this.carService.removeSavedCar(this.userId, carId);
+      this.savedCars = this.savedCars.filter((c) => c.carId !== carId);
+    } catch {
+      alert('Failed to remove saved car. Please try again.');
     }
   }
 
-  removeSavedCar(id: string) {
-    this.savedCars = this.savedCars.filter(c => c.id !== id);
-    localStorage.setItem(
-      `savedCars_${this.userEmail}`,
-      JSON.stringify(this.savedCars)
-    );
-  }
+  async logout() {
+    if (!confirm('Are you sure you want to logout?')) return;
 
-  // ─── Logout ──────────────────────────────────────────────────
-
-  logout() {
-    if (confirm('Are you sure you want to logout?')) {
-      localStorage.removeItem('userLoggedIn');
-      localStorage.removeItem('userEmail');
-      localStorage.removeItem('userName');
-      localStorage.removeItem('userType');
-      localStorage.removeItem('userId');
+    try {
+      await this.authService.logout();
       this.router.navigate(['/login']);
+    } catch {
+      alert('Logout failed. Please try again.');
     }
   }
-
-  // ─── Helpers ─────────────────────────────────────────────────
 
   getStatusClass(status: string): string {
     return `status-${status}`;
@@ -158,8 +123,11 @@ export class Dashboard implements OnInit {
   }
 
   formatDate(dateString: string): string {
+    if (!dateString) return '—';
     return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric', month: 'short', day: 'numeric'
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
     });
   }
 

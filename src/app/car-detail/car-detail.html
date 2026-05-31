@@ -1,4 +1,4 @@
-<div class="car-detail-page" *ngIf="car">
+<div class="car-detail-page" *ngIf="car && !isLoading">
 
   <!-- Back Button -->
   <div class="back-bar">
@@ -187,8 +187,13 @@
   </div>
 </div>
 
+<!-- Loading -->
+<div class="not-found" *ngIf="isLoading">
+  <h2>Loading vehicle details...</h2>
+</div>
+
 <!-- Not Found -->
-<div class="not-found" *ngIf="!car">
+<div class="not-found" *ngIf="!isLoading && notFound">
   <h2>Car not found</h2>
   <a routerLink="/" class="btn-primary">← Back to Home</a>
 </div>

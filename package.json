@@ -1,12 +1,17 @@
 {
-  "name": "auto-flex",
+  "name": "auto-car",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "env": "node scripts/load-env.mjs",
+    "prestart": "node scripts/load-env.mjs",
     "start": "ng serve",
+    "prebuild": "node scripts/load-env.mjs --production",
     "build": "ng build",
+    "build:dev": "node scripts/load-env.mjs && ng build --configuration development",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "firebase:rules": "firebase deploy --only firestore:rules,storage:rules,firestore:indexes"
   },
   "prettier": {
     "printWidth": 100,
@@ -29,6 +34,7 @@
     "@angular/forms": "^21.1.0",
     "@angular/platform-browser": "^21.1.0",
     "@angular/router": "^21.1.0",
+    "firebase": "^12.14.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

@@ -1,5 +1,4 @@
 <div class="home-page">
-
   <!-- 1. Hero Slider -->
   <app-hero-slider></app-hero-slider>
 
@@ -13,7 +12,8 @@
           class="brand-card"
           *ngFor="let brand of brands"
           [routerLink]="['/cars']"
-          [queryParams]="{ make: brand.name }">
+          [queryParams]="{ make: brand.name }"
+        >
           <div class="brand-logo">{{ brand.logo }}</div>
           <span class="brand-name">{{ brand.name }}</span>
           <span class="brand-count">{{ brand.count }} cars</span>
@@ -23,7 +23,8 @@
   </section>
 
   <!-- 3. Popular Cars Slider -->
-  <app-cars-slider></app-cars-slider>
+  <app-slider title="Popular Cars for Sale" [items]="popularCars" [config]="popularCarsConfig">
+  </app-slider>
 
   <!-- 4. Shop by Body Type -->
   <section class="body-type-section">
@@ -34,7 +35,8 @@
           class="body-type-card"
           *ngFor="let type of bodyTypes"
           [routerLink]="['/cars']"
-          [queryParams]="{ body: type.name.toLowerCase() }">
+          [queryParams]="{ body: type.name.toLowerCase() }"
+        >
           <div class="body-type-icon">{{ type.icon }}</div>
           <span class="body-type-name">{{ type.name }}</span>
         </a>
@@ -62,30 +64,34 @@
     </div>
   </section>
 
-<!-- 6. JDM Buying Advice and Guides -->
-  <app-guides-slider></app-guides-slider>
+  <!-- 6. JDM Buying Advice and Guides -->
+  <app-slider title="JDM Buying Advice and Guides" [items]="guides" [config]="guidesConfig">
+  </app-slider>
 
-<!-- 7. rankings-slider -->
-  <app-rankings-slider></app-rankings-slider>
+  <!-- 7. Rankings -->
+  <app-slider
+    title="Best Japanese Car Rankings for 2025"
+    [items]="rankings"
+    [config]="rankingsConfig"
+  >
+  </app-slider>
 
+  <!-- 8. Reliable Cars -->
+  <app-slider title="Most Reliable Japanese Cars" [items]="reliableCars" [config]="reliableConfig">
+  </app-slider>
 
-<!-- 8. reliable-slider -->
-  <app-reliable-slider></app-reliable-slider>
+  <!-- 9. Studies -->
+  <app-slider title="Popular Studies" [items]="studies" [config]="studiesConfig"> </app-slider>
 
-<!-- 9. studies-slider -->
-  <app-studies-slider></app-studies-slider>
+  <!-- 10. Resources -->
+  <app-slider title="Popular Shopping Resources" [items]="resources" [config]="resourcesConfig">
+  </app-slider>
 
+  <!-- 11. Best Used Cars -->
+  <app-slider title="Best Used Japanese Cars" [items]="bestUsed" [config]="bestUsedConfig">
+  </app-slider>
 
-<!-- 10. resources-slider -->
-  <app-resources-slider></app-resources-slider>
-
-
-<!-- 11. best-used-slider -->
-  <app-best-used-slider></app-best-used-slider>
-
-<!-- 12. best-used-slider -->
-  <app-comparisons-slider></app-comparisons-slider>
-
-
-
+  <!-- 12. Comparisons -->
+  <app-slider title="Car Comparisons" [items]="comparisons" [config]="comparisonsConfig">
+  </app-slider>
 </div>

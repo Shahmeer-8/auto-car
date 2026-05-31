@@ -2,17 +2,17 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
+import { FirebaseError } from 'firebase/app';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-register',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './register.html',
-  styleUrl: './register.css'
+  styleUrl: './register.css',
 })
 export class Register {
-  
-  // Form Fields
   name = '';
   email = '';
   password = '';
@@ -20,29 +20,40 @@ export class Register {
   phone = '';
   userType: 'buyer' | 'seller' = 'buyer';
   acceptTerms = false;
-  
-  // Validation Errors
+
   nameError = '';
   emailError = '';
   passwordError = '';
   confirmPasswordError = '';
   phoneError = '';
   submitError = '';
-  
-  // UI States
+
   showPassword = false;
   showConfirmPassword = false;
   isLoading = false;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+  ) {}
 
   clearError(field: string) {
-    switch(field) {
-      case 'name': this.nameError = ''; break;
-      case 'email': this.emailError = ''; break;
-      case 'password': this.passwordError = ''; break;
-      case 'confirmPassword': this.confirmPasswordError = ''; break;
-      case 'phone': this.phoneError = ''; break;
+    switch (field) {
+      case 'name':
+        this.nameError = '';
+        break;
+      case 'email':
+        this.emailError = '';
+        break;
+      case 'password':
+        this.passwordError = '';
+        break;
+      case 'confirmPassword':
+        this.confirmPasswordError = '';
+        break;
+      case 'phone':
+        this.phoneError = '';
+        break;
     }
     this.submitError = '';
   }
@@ -104,54 +115,26 @@ export class Register {
 
   async onSubmit() {
     this.submitError = '';
-    
+
     if (!this.validate()) return;
 
     this.isLoading = true;
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
-      const emailExists = existingUsers.some((user: any) => user.email === this.email);
-
-      if (emailExists) {
-        this.submitError = 'This email is already registered. Please login instead.';
-        this.isLoading = false;
-        return;
-      }
-
-      const newUser = {
-        id: Date.now().toString(),
+      await this.authService.register({
         name: this.name,
         email: this.email,
         password: this.password,
         phone: this.phone,
         userType: this.userType,
-        createdAt: new Date().toISOString(),
-        isActive: true
-      };
+      });
 
-      existingUsers.push(newUser);
-      localStorage.setItem('users', JSON.stringify(existingUsers));
-
-      // Auto login
-      localStorage.setItem('userLoggedIn', 'true');
-      localStorage.setItem('userEmail', this.email);
-      localStorage.setItem('userName', this.name);
-      localStorage.setItem('userType', this.userType);
-      localStorage.setItem('userId', newUser.id);
-
-      alert(`✅ Account created successfully!\n\nWelcome ${this.name}!`);
-
-      // ✅ Dono user types ek hi dashboard pe jayenge
       this.router.navigate(['/dashboard']);
-
-    } catch (err: any) {
-      this.submitError = err?.message || 'Registration failed. Please try again.';
+    } catch (err) {
+      const code = err instanceof FirebaseError ? err.code : '';
+      this.submitError = this.authService.mapAuthError(code);
     } finally {
       this.isLoading = false;
     }
   }
 }
-

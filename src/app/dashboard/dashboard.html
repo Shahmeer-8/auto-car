@@ -109,8 +109,8 @@
             </div>
 
             <div class="listing-actions">
-              <button class="btn-view" (click)="viewDetails(listing.id)">View Details</button>
-              <button class="btn-delete" (click)="deleteListing(listing.id)">Delete</button>
+              <button class="btn-view" (click)="viewDetails(listing.id!)">View Details</button>
+              <button class="btn-delete" (click)="deleteListing(listing.id!)">Delete</button>
             </div>
           </div>
 
@@ -148,8 +148,8 @@
               <span class="meta-date">📅 Saved: {{ formatDate(car.savedAt) }}</span>
             </div>
             <div class="listing-actions">
-              <button class="btn-view" (click)="viewDetails(car.id)">View Details</button>
-              <button class="btn-delete" (click)="removeSavedCar(car.id)">Remove</button>
+              <button class="btn-view" (click)="viewDetails(car.carId)">View Details</button>
+              <button class="btn-delete" (click)="removeSavedCar(car.carId)">Remove</button>
             </div>
           </div>
 

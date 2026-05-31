@@ -1,0 +1,178 @@
+<section class="slider-section">
+  <div class="container">
+    <!-- Header -->
+    @if (config.headerLayout === 'stacked') {
+    <div class="slider-header slider-header--stacked">
+      <div class="header-left">
+        <h2 class="section-title">{{ title }}</h2>
+        @if (config.viewAllLink) {
+        <a class="view-all" [routerLink]="config.viewAllLink">
+          {{ config.viewAllLabel || 'View All' }} <span>→</span>
+        </a>
+        }
+      </div>
+      <div class="arrows">
+        <button
+          class="arrow"
+          (click)="prev()"
+          [disabled]="currentIndex() === 0"
+          aria-label="Previous slide"
+        >
+          <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
+            <path
+              d="M8.5 1.5L1.5 8L8.5 14.5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <button
+          class="arrow"
+          (click)="next()"
+          [disabled]="currentIndex() >= maxIndex()"
+          aria-label="Next slide"
+        >
+          <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
+            <path
+              d="M1.5 1.5L8.5 8L1.5 14.5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+    } @else {
+    <div class="slider-header slider-header--inline">
+      <h2 class="section-title">{{ title }}</h2>
+      <div class="header-right">
+        @if (config.viewAllLink) {
+        <a class="view-all" [routerLink]="config.viewAllLink">
+          {{ config.viewAllLabel || 'View All' }} <span>→</span>
+        </a>
+        }
+        <div class="arrows">
+          <button
+            class="arrow"
+            (click)="prev()"
+            [disabled]="currentIndex() === 0"
+            aria-label="Previous slide"
+          >
+            <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
+              <path
+                d="M8.5 1.5L1.5 8L8.5 14.5"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          <button
+            class="arrow"
+            (click)="next()"
+            [disabled]="currentIndex() >= maxIndex()"
+            aria-label="Next slide"
+          >
+            <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
+              <path
+                d="M1.5 1.5L8.5 8L1.5 14.5"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- Cards Track -->
+    <div class="slider-viewport">
+      <div class="slider-track" [style.transform]="translateX()">
+        @for (item of items; track $index; let i = $index) { @switch (config.cardVariant) { @case
+        ('car') {
+        <div class="card card--car">
+          <div class="card__image-wrap card__image-wrap--car">
+            <img [src]="item.image" [alt]="item.title" class="card__image" />
+            @if (item.badge) {
+            <span class="card__badge">{{ item.badge }}</span>
+            }
+          </div>
+          <div class="card__body card__body--car">
+            <h3 class="card__title card__title--car">{{ item.title }}</h3>
+            @if (item.price) {
+            <p class="card__price">{{ item.price }}</p>
+            } @if (item.meta) {
+            <p class="card__meta">{{ item.meta }}</p>
+            }
+            <button class="card__btn" [routerLink]="getCarDetailLink(item, i)">View Details</button>
+          </div>
+        </div>
+        } @case ('article') {
+        <div
+          class="card card--article"
+          [routerLink]="getRouterLink(item, i)"
+          [queryParams]="getQueryParams(item)"
+        >
+          <div class="card__image-wrap card__image-wrap--article">
+            <img [src]="item.image" [alt]="item.title" class="card__image" />
+          </div>
+          <div class="card__body card__body--article">
+            <h3 class="card__title card__title--article">{{ item.title }}</h3>
+            @if (item.desc) {
+            <p class="card__desc">{{ item.desc }}</p>
+            }
+          </div>
+        </div>
+        } @case ('category') {
+        <div
+          class="card card--category"
+          [routerLink]="getRouterLink(item, i)"
+          [queryParams]="getQueryParams(item)"
+        >
+          <div class="card__image-wrap card__image-wrap--category">
+            <img [src]="item.image" [alt]="item.title" class="card__image" />
+          </div>
+          <div class="card__body card__body--category">
+            <h3 class="card__title card__title--category">{{ item.title }}</h3>
+          </div>
+          <div class="card__divider"></div>
+        </div>
+        } @case ('comparison') {
+        <div
+          class="card card--comparison"
+          [routerLink]="getRouterLink(item, i)"
+          [queryParams]="getQueryParams(item)"
+        >
+          <div class="card__image-wrap card__image-wrap--comparison">
+            <img [src]="item.image" [alt]="item.title" class="card__image" />
+          </div>
+          <h3 class="card__title card__title--comparison">{{ item.title }}</h3>
+        </div>
+        } } }
+      </div>
+    </div>
+
+    @if (config.showDots) {
+    <div class="dots">
+      @for (dot of dots(); track dot) {
+      <button
+        class="dot"
+        [class.active]="dot === currentIndex()"
+        (click)="goTo(dot)"
+        [attr.aria-label]="'Go to slide ' + (dot + 1)"
+      ></button>
+      }
+    </div>
+    } @if (config.showDivider) {
+    <div class="section-divider"></div>
+    }
+  </div>
+</section>

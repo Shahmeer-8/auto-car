@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
+import { FirebaseError } from 'firebase/app';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -21,7 +23,10 @@ export class Login {
   submitError = '';
   isLoading = false;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+  ) {}
 
   clearError(field: 'email' | 'password') {
     if (field === 'email') this.emailError = '';
@@ -58,35 +63,11 @@ export class Login {
     this.isLoading = true;
 
     try {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Get users from localStorage
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-
-      // Find user by email and password
-      const user = users.find((u: any) => u.email === this.email && u.password === this.password);
-
-      if (!user) {
-        this.submitError = 'Invalid email or password. Please try again.';
-        this.isLoading = false;
-        return;
-      }
-
-      // Save session
-      localStorage.setItem('userLoggedIn', 'true');
-      localStorage.setItem('userEmail', user.email);
-      localStorage.setItem('userName', user.name);
-      localStorage.setItem('userType', user.userType);
-      localStorage.setItem('userId', user.id);
-
-      // Success message
-      alert(`✅ Welcome back, ${user.name}!`);
-
-      // ✅ Dono user types ek hi dashboard pe jayenge
+      await this.authService.login(this.email, this.password);
       this.router.navigate(['/dashboard']);
-    } catch (err: any) {
-      this.submitError = err?.message || 'Login failed. Please try again.';
+    } catch (err) {
+      const code = err instanceof FirebaseError ? err.code : '';
+      this.submitError = this.authService.mapAuthError(code);
     } finally {
       this.isLoading = false;
     }

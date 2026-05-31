@@ -42,3 +42,11 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Local secrets (Firebase, API keys)
+local.env
+.env
+.env.local
+
+# Generated environment (built from local.env)
+src/environments/environment.ts

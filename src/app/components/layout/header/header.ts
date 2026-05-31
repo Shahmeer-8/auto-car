@@ -1,26 +1,43 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { AuthService } from '../../../services/auth.service';
+import { AppUser } from '../../../models/user.model';
 
 @Component({
   selector: 'app-header',
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './header.html',
-  styleUrls: ['./header.css']
+  styleUrls: ['./header.css'],
 })
-export class Header {
-
-  // Desktop dropdowns
+export class Header implements OnInit, OnDestroy {
   researchOpen = false;
   shopOpen = false;
 
-  // Mobile menu
   mobileMenuOpen = false;
   mobileResearchOpen = false;
   mobileShopOpen = false;
 
-  // Desktop toggles
+  isLoggedIn = false;
+  userName = '';
+
+  private sub?: Subscription;
+
+  constructor(private authService: AuthService) {}
+
+  ngOnInit() {
+    this.sub = this.authService.userProfile$.subscribe((profile: AppUser | null) => {
+      this.isLoggedIn = !!profile;
+      this.userName = profile?.name ?? '';
+    });
+  }
+
+  ngOnDestroy() {
+    this.sub?.unsubscribe();
+  }
+
   toggleResearch() {
     this.researchOpen = !this.researchOpen;
     this.shopOpen = false;
@@ -31,7 +48,6 @@ export class Header {
     this.researchOpen = false;
   }
 
-  // Mobile toggles
   toggleMobileMenu() {
     this.mobileMenuOpen = !this.mobileMenuOpen;
     if (!this.mobileMenuOpen) {
