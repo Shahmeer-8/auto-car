@@ -1,5 +1,6 @@
 <div class="sell-page">
   <div class="container">
+
     <!-- Header -->
     <div class="page-header">
       <h1>Sell Your Car</h1>
@@ -31,11 +32,13 @@
 
     <!-- Form Card -->
     <div class="form-card">
+
       <!-- ═══ STEP 1: CAR DETAILS ═══ -->
       <div *ngIf="currentStep === 1">
         <h2 class="step-title">🚗 Car Details</h2>
 
         <div class="form-grid">
+
           <div class="form-group">
             <label>Car Make *</label>
             <select [(ngModel)]="make" [class.error]="errors.make">
@@ -47,12 +50,8 @@
 
           <div class="form-group">
             <label>Car Model *</label>
-            <input
-              type="text"
-              [(ngModel)]="model"
-              placeholder="e.g. Corolla, Civic"
-              [class.error]="errors.model"
-            />
+            <input type="text" [(ngModel)]="model" placeholder="e.g. Corolla, Civic"
+              [class.error]="errors.model">
             <span class="error-msg" *ngIf="errors.model">{{ errors.model }}</span>
           </div>
 
@@ -67,12 +66,8 @@
 
           <div class="form-group">
             <label>Mileage (km) *</label>
-            <input
-              type="number"
-              [(ngModel)]="mileage"
-              placeholder="e.g. 45000"
-              [class.error]="errors.mileage"
-            />
+            <input type="number" [(ngModel)]="mileage" placeholder="e.g. 45000"
+              [class.error]="errors.mileage">
             <span class="error-msg" *ngIf="errors.mileage">{{ errors.mileage }}</span>
           </div>
 
@@ -115,44 +110,32 @@
 
           <div class="form-group">
             <label>Color</label>
-            <input type="text" [(ngModel)]="color" placeholder="e.g. White, Black, Silver" />
+            <input type="text" [(ngModel)]="color" placeholder="e.g. White, Black, Silver">
           </div>
 
           <div class="form-group full-width">
             <label>Condition *</label>
             <div class="condition-options">
-              <div
-                class="condition-card"
-                [class.selected]="condition === 'excellent'"
-                (click)="condition = 'excellent'"
-              >
+              <div class="condition-card" [class.selected]="condition === 'excellent'"
+                (click)="condition = 'excellent'">
                 <span>⭐⭐⭐⭐⭐</span>
                 <strong>Excellent</strong>
                 <p>Like new condition</p>
               </div>
-              <div
-                class="condition-card"
-                [class.selected]="condition === 'good'"
-                (click)="condition = 'good'"
-              >
+              <div class="condition-card" [class.selected]="condition === 'good'"
+                (click)="condition = 'good'">
                 <span>⭐⭐⭐⭐</span>
                 <strong>Good</strong>
                 <p>Minor wear only</p>
               </div>
-              <div
-                class="condition-card"
-                [class.selected]="condition === 'fair'"
-                (click)="condition = 'fair'"
-              >
+              <div class="condition-card" [class.selected]="condition === 'fair'"
+                (click)="condition = 'fair'">
                 <span>⭐⭐⭐</span>
                 <strong>Fair</strong>
                 <p>Some visible wear</p>
               </div>
-              <div
-                class="condition-card"
-                [class.selected]="condition === 'poor'"
-                (click)="condition = 'poor'"
-              >
+              <div class="condition-card" [class.selected]="condition === 'poor'"
+                (click)="condition = 'poor'">
                 <span>⭐⭐</span>
                 <strong>Poor</strong>
                 <p>Needs repair</p>
@@ -160,6 +143,7 @@
             </div>
             <span class="error-msg" *ngIf="errors.condition">{{ errors.condition }}</span>
           </div>
+
         </div>
 
         <div class="form-actions">
@@ -173,45 +157,35 @@
         <h2 class="step-title">💰 Price & Information</h2>
 
         <div class="form-grid">
+
           <div class="form-group">
             <label>Asking Price (USD) *</label>
             <div class="input-prefix">
               <span>$</span>
-              <input
-                type="number"
-                [(ngModel)]="price"
-                placeholder="e.g. 15000"
-                [class.error]="errors.price"
-              />
+              <input type="number" [(ngModel)]="price" placeholder="e.g. 15000"
+                [class.error]="errors.price">
             </div>
             <span class="error-msg" *ngIf="errors.price">{{ errors.price }}</span>
           </div>
 
           <div class="form-group">
             <label>Location *</label>
-            <input
-              type="text"
-              [(ngModel)]="location"
-              placeholder="e.g. Tokyo, Japan"
-              [class.error]="errors.location"
-            />
+            <input type="text" [(ngModel)]="location" placeholder="e.g. Tokyo, Japan"
+              [class.error]="errors.location">
             <span class="error-msg" *ngIf="errors.location">{{ errors.location }}</span>
           </div>
 
           <div class="form-group full-width">
             <label>Description *</label>
-            <textarea
-              [(ngModel)]="description"
-              rows="6"
+            <textarea [(ngModel)]="description" rows="6"
               placeholder="Describe your car in detail — service history, features, any issues, reason for selling..."
-              [class.error]="errors.description"
-            ></textarea>
-            <div class="char-count">
-              {{ description.length }} characters
+              [class.error]="errors.description"></textarea>
+            <div class="char-count">{{ description.length }} characters
               <span *ngIf="description.length < 30"> (minimum 30)</span>
             </div>
             <span class="error-msg" *ngIf="errors.description">{{ errors.description }}</span>
           </div>
+
         </div>
 
         <div class="form-actions">
@@ -232,14 +206,8 @@
             <p>Click to upload photos</p>
             <span>JPG, PNG — Max 50 photos</span>
           </div>
-          <input
-            #fileInput
-            type="file"
-            accept="image/*"
-            multiple
-            (change)="onImageUpload($event)"
-            style="display: none"
-          />
+          <input #fileInput type="file" accept="image/*" multiple
+            (change)="onImageUpload($event)" style="display:none">
           <span class="error-msg" *ngIf="imageError">{{ imageError }}</span>
         </div>
 
@@ -260,9 +228,9 @@
             (dragstart)="onDragStart(i)"
             (dragover)="onDragOver($event, i)"
             (drop)="onDrop($event, i)"
-            (dragend)="onDragEnd()"
-          >
-            <img [src]="img" [alt]="'Car photo ' + (i + 1)" />
+            (dragend)="onDragEnd()">
+
+            <img [src]="img" [alt]="'Car photo ' + (i+1)">
 
             <!-- Remove button -->
             <button class="remove-img" (click)="removeImage(i)">✕</button>
@@ -271,25 +239,24 @@
             <span class="img-badge" *ngIf="i === 0">⭐ Main</span>
 
             <!-- Set as main button -->
-            <button class="set-main-btn" *ngIf="i !== 0" (click)="setMainPhoto(i)">Set Main</button>
+            <button class="set-main-btn" *ngIf="i !== 0" (click)="setMainPhoto(i)">
+              Set Main
+            </button>
 
             <!-- Drag handle -->
             <div class="drag-handle">⠿</div>
 
             <!-- Photo number -->
             <span class="photo-number">{{ i + 1 }}</span>
+
           </div>
         </div>
 
         <!-- Phone -->
-        <div class="form-group" style="margin-top: 24px">
+        <div class="form-group" style="margin-top: 24px;">
           <label>Contact Phone *</label>
-          <input
-            type="tel"
-            [(ngModel)]="phone"
-            placeholder="+81 80 1234 5678"
-            [class.error]="errors.phone"
-          />
+          <input type="tel" [(ngModel)]="phone" placeholder="+81 80 1234 5678"
+            [class.error]="errors.phone">
           <span class="error-msg" *ngIf="errors.phone">{{ errors.phone }}</span>
         </div>
 
@@ -331,8 +298,8 @@
             <span *ngIf="isLoading">Submitting...</span>
           </button>
         </div>
-        <p class="submit-error" *ngIf="submitError">{{ submitError }}</p>
       </div>
+
     </div>
   </div>
 </div>

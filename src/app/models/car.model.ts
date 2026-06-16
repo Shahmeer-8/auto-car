@@ -21,6 +21,21 @@ export interface CarListing {
   email: string;
   submittedAt: string;
   status: ListingStatus;
+
+  // ── New fields ──
+  variant?: string;
+  exteriorColor?: string;
+  registrationCity?: string;
+  engineDisplacement?: string;
+  driveType?: string;
+  previousOwners?: string;
+  registeredIn?: string;
+  features?: string[];
+  negotiable?: string;
+  installmentAvailable?: string | null;
+  fullName?: string;
+  whatsapp?: string;
+  preferredContactTime?: string;
 }
 
 export interface SavedCar {
@@ -34,13 +49,14 @@ export interface SavedCar {
 }
 
 export interface CreateCarListingInput {
+  sellerId: string;
   make: string;
   model: string;
   year: number;
   mileage: number;
   transmission: string;
   fuelType: string;
-  color: string;
+  color?: string;
   condition: string;
   bodyType: string;
   price: number;
@@ -50,5 +66,19 @@ export interface CreateCarListingInput {
   images: string[];
   ownerName: string;
   email: string;
-  sellerId: string;
+
+  // ── New fields ──
+  variant?: string;
+  exteriorColor?: string;
+  registrationCity?: string;
+  engineDisplacement?: string;
+  driveType?: string;
+  previousOwners?: string;
+  registeredIn?: string;
+  features?: string[];
+  negotiable?: string;
+  installmentAvailable?: string | null;
+  fullName?: string;
+  whatsapp?: string;
+  preferredContactTime?: string;
 }

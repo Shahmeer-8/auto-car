@@ -9,7 +9,7 @@ import { Register } from './register/register';
 import { Guides } from './guides/guides';
 import { Dashboard } from './dashboard/dashboard';
 import { SellYourCar } from './sell-your-car/sell-your-car';
-import { authGuard, guestGuard } from './guards/auth.guard';
+import { authGuard, guestGuard, adminGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -23,5 +23,10 @@ export const routes: Routes = [
   { path: 'guides', component: Guides },
   { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
   { path: 'sell-your-car', component: SellYourCar, canActivate: [authGuard] },
+  {
+    path: 'admin',
+    canActivate: [adminGuard],
+    loadChildren: () => import('./admin/admin.routes').then((m) => m.adminRoutes),
+  },
   { path: '**', redirectTo: '' },
 ];

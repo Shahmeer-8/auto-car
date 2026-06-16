@@ -1,0 +1,119 @@
+<div class="admin-wrapper">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <span class="material-icons">directions_car</span>
+      </div>
+      <div class="logo-text">
+        <span class="logo-name">CarAdmin</span>
+        <span class="logo-role">Super Admin</span>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="sidebar-nav">
+
+      <div class="nav-group">
+        <span class="nav-group-label">MAIN</span>
+        <a routerLink="/admin/dashboard" routerLinkActive="active">
+          <span class="material-icons">dashboard</span>
+          Dashboard
+        </a>
+        <a routerLink="/admin/cars" routerLinkActive="active">
+          <span class="material-icons">directions_car</span>
+          Car listings
+          @if (carListingsCount > 0) {
+            <span class="nav-badge">{{ carListingsCount }}</span>
+          }
+        </a>
+        <a routerLink="/admin/users" routerLinkActive="active">
+          <span class="material-icons">manage_accounts</span>
+          User management
+        </a>
+        <a routerLink="/admin/analytics" routerLinkActive="active">
+          <span class="material-icons">bar_chart</span>
+          Reports & analytics
+        </a>
+      </div>
+
+      <div class="nav-group">
+        <span class="nav-group-label">AD MANAGEMENT</span>
+        <a routerLink="/admin/reviews" routerLinkActive="active">
+          <span class="material-icons">check_circle</span>
+          Ad review
+          @if (adReviewCount > 0) {
+            <span class="nav-badge nav-badge--red">{{ adReviewCount }}</span>
+          }
+        </a>
+        <a routerLink="/admin/featured" routerLinkActive="active">
+          <span class="material-icons">star</span>
+          Featured / sponsored
+        </a>
+      </div>
+
+      <div class="nav-group">
+        <span class="nav-group-label">SYSTEM</span>
+        <a routerLink="/admin/categories" routerLinkActive="active">
+          <span class="material-icons">category</span>
+          Category & attributes
+        </a>
+        <a routerLink="/admin/complaints" routerLinkActive="active">
+          <span class="material-icons">flag</span>
+          Complaints
+          @if (complaintsCount > 0) {
+            <span class="nav-badge nav-badge--red">{{ complaintsCount }}</span>
+          }
+        </a>
+        <a routerLink="/admin/content" routerLinkActive="active">
+          <span class="material-icons">article</span>
+          Content management
+        </a>
+        <a routerLink="/admin/roles" routerLinkActive="active">
+          <span class="material-icons">shield</span>
+          Roles & permissions
+        </a>
+      </div>
+
+    </nav>
+
+    <!-- Bottom user profile -->
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="user-avatar">SA</div>
+        <div class="user-info">
+          <span class="user-name">Super Admin</span>
+          <span class="user-email">admin&#64;carsite.com</span>
+        </div>
+      </div>
+      <button (click)="logout()" class="logout-icon-btn" title="Logout">
+        <span class="material-icons">logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main-area">
+    <!-- Top Header -->
+    <header class="top-header">
+      <h1 class="page-title">{{ pageTitle }}</h1>
+      <div class="header-right">
+        <button class="icon-btn">
+          <span class="material-icons">notifications</span>
+          <span class="notif-dot"></span>
+        </button>
+        <button class="icon-btn">
+          <span class="material-icons">settings</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="page-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+</div>

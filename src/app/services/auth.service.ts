@@ -102,6 +102,10 @@ export class AuthService {
     return this.userProfile?.userType ?? 'buyer';
   }
 
+  get isAdmin(): boolean {
+  return this.userProfile?.userType === 'admin';
+}
+
   getUserDisplayName(): string {
     return this.userProfile?.name ?? this.currentUser?.displayName ?? '';
   }

@@ -21,6 +21,25 @@ export const guestGuard: CanActivateFn = () => {
   return auth.authReady$.pipe(
     filter((ready) => ready),
     take(1),
-    map(() => (auth.isAuthenticated ? router.createUrlTree(['/dashboard']) : true)),
+    map(() => {
+      if (!auth.isAuthenticated) return true;
+      if (auth.isAdmin) return router.createUrlTree(['/admin/dashboard']);
+      return router.createUrlTree(['/dashboard']);
+    }),
+  );
+};
+
+export const adminGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  return auth.authReady$.pipe(
+    filter((ready) => ready),
+    take(1),
+    map(() => {
+      if (!auth.isAuthenticated) return router.createUrlTree(['/login']);
+      if (!auth.isAdmin) return router.createUrlTree(['/']);
+      return true;
+    }),
   );
 };

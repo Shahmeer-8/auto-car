@@ -1,0 +1,140 @@
+<!-- Stat Cards -->
+<div class="stats-grid">
+  <div class="stat-card" *ngFor="let stat of stats">
+    <div class="stat-icon" [style.background]="stat.color + '15'">
+      <span class="material-icons" [style.color]="stat.color">{{ stat.icon }}</span>
+    </div>
+    <div class="stat-body">
+      <p class="stat-label">{{ stat.label }}</p>
+      <h3 class="stat-value">
+        @if (loading) {
+          <span class="material-icons spin">refresh</span>
+        } @else {
+          {{ stat.value }}
+        }
+      </h3>
+      @if (!loading && stat.change) {
+        <span class="stat-change" [class.positive]="stat.changeUp" [class.negative]="!stat.changeUp">
+          <span class="material-icons">{{ stat.changeUp ? 'arrow_upward' : 'arrow_downward' }}</span>
+          {{ stat.change }}
+        </span>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="quick-actions">
+  <div class="quick-btn" routerLink="/admin/reviews">
+    <div class="quick-icon" style="background:#eff6ff;">
+      <span class="material-icons" style="color:#3b82f6;">check_circle</span>
+    </div>
+    <span>Review ads</span>
+  </div>
+  <div class="quick-btn" routerLink="/admin/users">
+    <div class="quick-icon" style="background:#f0fdf4;">
+      <span class="material-icons" style="color:#22c55e;">how_to_reg</span>
+    </div>
+    <span>Verify users</span>
+  </div>
+  <div class="quick-btn" routerLink="/admin/complaints">
+    <div class="quick-icon" style="background:#fff7ed;">
+      <span class="material-icons" style="color:#f97316;">flag</span>
+    </div>
+    <span>Complaints</span>
+  </div>
+  <div class="quick-btn" routerLink="/admin/featured">
+    <div class="quick-icon" style="background:#fdf4ff;">
+      <span class="material-icons" style="color:#a855f7;">star</span>
+    </div>
+    <span>Feature ad</span>
+  </div>
+</div>
+
+<!-- Tables Row -->
+<div class="tables-row">
+
+  <!-- Recent Ad Submissions -->
+  <div class="table-card">
+    <div class="card-header">
+      <h3>Recent ad submissions</h3>
+      <a routerLink="/admin/reviews" class="view-all">View all →</a>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Car</th>
+          <th>User</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ad of recentAds">
+          <td>{{ ad.car }}</td>
+          <td>{{ ad.user }}</td>
+          <td>
+            <span class="badge" [ngClass]="'badge--' + ad.status.toLowerCase()">
+              {{ ad.status }}
+            </span>
+          </td>
+        </tr>
+        <tr *ngIf="recentAds.length === 0">
+          <td colspan="3" style="text-align:center; color:#9ca3af; padding:20px;">
+            No recent submissions
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- User Management -->
+  <div class="table-card">
+    <div class="card-header">
+      <h3>User management</h3>
+      <a routerLink="/admin/users" class="view-all">View all →</a>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Ads</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of recentUsers">
+          <td>{{ user.name }}</td>
+          <td>{{ user.ads }}</td>
+          <td>
+            <span class="badge" [ngClass]="'badge--' + user.status.toLowerCase()">
+              {{ user.status }}
+            </span>
+          </td>
+        </tr>
+        <tr *ngIf="recentUsers.length === 0">
+          <td colspan="3" style="text-align:center; color:#9ca3af; padding:20px;">
+            No users found
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- Traffic Chart -->
+<div class="chart-card">
+  <div class="card-header">
+    <h3>Traffic & sales overview</h3>
+    <a routerLink="/admin/analytics" class="view-all" style="color:#3b82f6;">Full report →</a>
+  </div>
+  <div class="chart-bars">
+    <div class="chart-col" *ngFor="let item of chartData">
+      <span class="bar-value">{{ item.value }}</span>
+      <div class="bar-wrap">
+        <div class="bar" [style.height.%]="item.percent" [class.bar--active]="item.active"></div>
+      </div>
+      <span class="bar-label">{{ item.month }}</span>
+    </div>
+  </div>
+</div>
