@@ -1,60 +1,118 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, map, Observable, switchMap } from 'rxjs';
+import { collection, doc, getDoc, getDocs, deleteDoc, updateDoc, addDoc, serverTimestamp, query, where } from 'firebase/firestore';
+import { getFirebaseDb } from '../core/firebase/firebase';
+import { CarListing, SavedCar } from '../models/car.model';
 
 @Injectable({ providedIn: 'root' })
 export class CarService {
+  private readonly db = getFirebaseDb();
 
   // ✅ 1. BehaviorSubject — signal ki tarah kaam karta hai
   private carsUpdated = new BehaviorSubject<boolean>(false);
   carsUpdated$ = this.carsUpdated.asObservable();
 
-  // ✅ 2. Notify function — jab car save ho tab call karo
+  // ✅ 2. Notify function — when cars saved/changed
   notifyUpdate() {
     this.carsUpdated.next(true);
   }
 
-  // ✅ 3. localStorage se approved cars lao
-  getListedCars() {
-    const stored = localStorage.getItem('carListings');
-    if (!stored) return [];
-    return JSON.parse(stored).filter((c: any) => c.status === 'approved');
+  // ------------------------------
+  // Approved cars stream (for Home)
+  // ------------------------------
+  readonly approvedCars$: Observable<CarListing[]> = this.carsUpdated$.pipe(
+    switchMap(() => this.fetchApprovedCars()),
+  );
+
+  private async fetchApprovedCars(): Promise<CarListing[]> {
+    const q = query(collection(this.db, 'cars'), where('status', '==', 'approved'));
+    const snap = await getDocs(q);
+
+    return snap.docs.map((d) => ({
+      id: d.id,
+      ...(d.data() as Omit<CarListing, 'id'>),
+    }));
+  }
+
+  // ✅ 3. Get listed cars (used elsewhere)
+  async getListedCars(): Promise<CarListing[]> {
+    return this.fetchApprovedCars();
   }
 
   // ✅ 4. Single car by ID
-  getCarById(id: string) {
-    const stored = localStorage.getItem('carListings');
-    if (!stored) return null;
-    const all = JSON.parse(stored);
-    return all.find((c: any) => c.id === id) || null;
+  async getCarById(id: string): Promise<CarListing | null> {
+    if (!id) return null;
+    const snap = await getDoc(doc(this.db, 'cars', id));
+    if (!snap.exists()) return null;
+    return { id: snap.id, ...(snap.data() as Omit<CarListing, 'id'>) };
   }
 
   // ✅ 5. Car delete karo
-  deleteCar(id: string) {
-    const stored = localStorage.getItem('carListings');
-    if (!stored) return;
-    const all = JSON.parse(stored);
-    const updated = all.filter((c: any) => c.id !== id);
-    localStorage.setItem('carListings', JSON.stringify(updated));
-    this.notifyUpdate(); // ✅ delete ke baad bhi notify
+  async deleteCar(id: string): Promise<void> {
+    if (!id) return;
+    await deleteDoc(doc(this.db, 'cars', id));
+    this.notifyUpdate();
   }
 
   // ✅ 6. Car update karo (edit listing)
-  updateCar(id: string, newData: any) {
-    const stored = localStorage.getItem('carListings');
-    if (!stored) return;
-    const all = JSON.parse(stored);
-    const index = all.findIndex((c: any) => c.id === id);
-    if (index !== -1) {
-      all[index] = { ...all[index], ...newData };
-      localStorage.setItem('carListings', JSON.stringify(all));
-      this.notifyUpdate(); // ✅ update ke baad bhi notify
-    }
+  async updateCar(id: string, newData: Partial<CarListing>): Promise<void> {
+    if (!id) return;
+    await updateDoc(doc(this.db, 'cars', id), newData as any);
+    this.notifyUpdate();
   }
 
-  // ✅ 7. User ki apni cars
-  getUserCars(email: string) {
-    const stored = localStorage.getItem('carListings');
-    if (!stored) return [];
-    return JSON.parse(stored).filter((c: any) => c.email === email);
+  // ------------------------------
+  // Dashboard: user listings
+  // ------------------------------
+  // Dashboard passes userId (uid). Firestore listing has sellerId.
+  async getUserListings(userId: string): Promise<CarListing[]> {
+    if (!userId) return [];
+    const q = query(collection(this.db, 'cars'), where('sellerId', '==', userId));
+    const snap = await getDocs(q);
+
+    return snap.docs.map((d) => ({
+      id: d.id,
+      ...(d.data() as Omit<CarListing, 'id'>),
+    }));
+  }
+
+  // Backward compatible with older method name
+  async getUserCars(emailOrUserId: string): Promise<CarListing[]> {
+    // If caller provides an email, older code stored that in localStorage.
+    // Current Firestore shape uses sellerId/email; try sellerId first, then fallback to email.
+    if (!emailOrUserId) return [];
+
+    const bySellerId = query(collection(this.db, 'cars'), where('sellerId', '==', emailOrUserId));
+    const snap1 = await getDocs(bySellerId);
+    if (!snap1.empty) {
+      return snap1.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<CarListing, 'id'>) }));
+    }
+
+    const byEmail = query(collection(this.db, 'cars'), where('email', '==', emailOrUserId));
+    const snap2 = await getDocs(byEmail);
+    return snap2.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<CarListing, 'id'>) }));
+  }
+
+  // ------------------------------
+  // Dashboard: saved cars
+  // ------------------------------
+  // Assumed Firestore structure:
+  // - collection: users_saved_cars/{userId}/items/{carId}
+  // where each item stores SavedCar (at least carId, make, model, year, price, image, savedAt)
+  private savedCarsCol(userId: string) {
+    return collection(this.db, 'users_saved_cars', userId, 'items');
+  }
+
+  async getSavedCars(userId: string): Promise<SavedCar[]> {
+    if (!userId) return [];
+    const qSnap = await getDocs(this.savedCarsCol(userId));
+    return qSnap.docs.map((d) => d.data() as SavedCar);
+  }
+
+  async removeSavedCar(userId: string, carId: string): Promise<void> {
+    if (!userId || !carId) return;
+    await deleteDoc(doc(this.savedCarsCol(userId), carId));
+    this.notifyUpdate();
   }
 }
+

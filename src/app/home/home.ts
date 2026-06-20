@@ -117,8 +117,9 @@ export class Home implements OnInit, OnDestroy {
   constructor(private carService: CarService) {}
 
   ngOnInit(): void {
-    this.buildPopularCars(this.carService.getListedCars());
-    this.sub = this.carService.approvedCars$.subscribe((cars) => this.buildPopularCars(cars));
+    this.carService.getListedCars().then((cars) => this.buildPopularCars(cars));
+    this.sub = this.carService.approvedCars$.subscribe((cars: CarListing[]) => this.buildPopularCars(cars));
+
   }
 
   ngOnDestroy(): void {
