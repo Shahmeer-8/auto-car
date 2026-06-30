@@ -1,0 +1,82 @@
+<h2 style="font-size:22px; font-weight:600; color:#1a1f36; margin:0 0 24px;">Content management</h2>
+
+@if (loading) {
+  <div style="display:flex; align-items:center; gap:8px; color:#718096; padding:32px 0;">
+    <mat-icon>hourglass_empty</mat-icon>
+    <span>Loading content...</span>
+  </div>
+} @else {
+  <mat-card style="border-radius:12px; margin-bottom:20px; padding:24px;">
+    <h3 style="font-size:16px; font-weight:600; color:#1a1f36; margin:0 0 4px;">Homepage Hero</h3>
+    <p style="font-size:13px; color:#718096; margin:0 0 20px;">Main banner shown at the top of the homepage.</p>
+
+    <div style="margin-bottom:18px;">
+      <label style="display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px;">Hero Title</label>
+      <input
+        type="text"
+        [(ngModel)]="model.heroTitle"
+        (ngModelChange)="onChange()"
+        style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:14px; box-sizing:border-box;" />
+    </div>
+
+    <div>
+      <label style="display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px;">Hero Subtitle</label>
+      <textarea
+        [(ngModel)]="model.heroSubtitle"
+        (ngModelChange)="onChange()"
+        style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:14px; box-sizing:border-box; min-height:100px; resize:vertical;"></textarea>
+    </div>
+  </mat-card>
+
+  <mat-card style="border-radius:12px; margin-bottom:20px; padding:24px;">
+    <h3 style="font-size:16px; font-weight:600; color:#1a1f36; margin:0 0 4px;">About</h3>
+    <p style="font-size:13px; color:#718096; margin:0 0 20px;">Description shown on the About page.</p>
+
+    <div>
+      <label style="display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px;">About Text</label>
+      <textarea
+        [(ngModel)]="model.aboutText"
+        (ngModelChange)="onChange()"
+        style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:14px; box-sizing:border-box; min-height:180px; resize:vertical;"></textarea>
+    </div>
+  </mat-card>
+
+  <mat-card style="border-radius:12px; margin-bottom:20px; padding:24px;">
+    <h3 style="font-size:16px; font-weight:600; color:#1a1f36; margin:0 0 4px;">Contact &amp; Footer</h3>
+    <p style="font-size:13px; color:#718096; margin:0 0 20px;">Contact details and footer text shown across the site.</p>
+
+    <div style="margin-bottom:18px;">
+      <label style="display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px;">Contact Email</label>
+      <input
+        type="email"
+        [(ngModel)]="model.contactEmail"
+        (ngModelChange)="onChange()"
+        style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:14px; box-sizing:border-box;" />
+    </div>
+
+    <div style="margin-bottom:18px;">
+      <label style="display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px;">Contact Phone</label>
+      <input
+        type="text"
+        [(ngModel)]="model.contactPhone"
+        (ngModelChange)="onChange()"
+        style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:14px; box-sizing:border-box;" />
+    </div>
+
+    <div>
+      <label style="display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px;">Footer Text</label>
+      <input
+        type="text"
+        [(ngModel)]="model.footerText"
+        (ngModelChange)="onChange()"
+        style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:14px; box-sizing:border-box;" />
+    </div>
+  </mat-card>
+
+  <div style="display:flex; align-items:center; gap:16px; padding:8px 0 32px;">
+    <button mat-flat-button style="background:#16a34a; color:white;" [disabled]="saving" (click)="save()">{{ saving ? 'Saving...' : 'Save changes' }}</button>
+    @if (saved) {
+      <span style="color:#16a34a; font-size:14px; font-weight:600;">&#10003; Saved</span>
+    }
+  </div>
+}

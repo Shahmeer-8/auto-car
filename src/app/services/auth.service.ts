@@ -28,12 +28,22 @@ export class AuthService {
 
   constructor() {
     onAuthStateChanged(this.auth, async (user) => {
-      this.currentUserSubject.next(user);
-
       if (user) {
         const profile = await this.fetchUserProfile(user.uid);
+
+        // Banned users are signed out immediately and never treated as active.
+        if (profile && profile.isActive === false) {
+          this.userProfileSubject.next(null);
+          this.currentUserSubject.next(null);
+          this.authReadySubject.next(true);
+          await signOut(this.auth);
+          return;
+        }
+
+        this.currentUserSubject.next(user);
         this.userProfileSubject.next(profile);
       } else {
+        this.currentUserSubject.next(null);
         this.userProfileSubject.next(null);
       }
 
@@ -51,6 +61,11 @@ export class AuthService {
 
   get isAuthenticated(): boolean {
     return !!this.currentUser;
+  }
+
+  get isActive(): boolean {
+    // Treat missing profile as active=false only when a user is signed in.
+    return this.userProfile?.isActive !== false;
   }
 
   waitUntilReady(): Promise<void> {
@@ -90,8 +105,23 @@ export class AuthService {
     this.userProfileSubject.next(profile);
   }
 
-  async login(email: string, password: string): Promise<void> {
-    await signInWithEmailAndPassword(this.auth, email.trim(), password);
+  async login(email: string, password: string): Promise<AppUser | null> {
+    const credential = await signInWithEmailAndPassword(this.auth, email.trim(), password);
+    // Load the profile right away so callers can route by role without a race.
+    return this.reloadProfile(credential.user.uid);
+  }
+
+  /**
+   * Fetches the latest profile for the given (or current) user and publishes it.
+   * Returns the profile so callers can make immediate decisions (e.g. role-based redirect).
+   */
+  async reloadProfile(uid?: string): Promise<AppUser | null> {
+    const userId = uid ?? this.currentUser?.uid;
+    if (!userId) return null;
+
+    const profile = await this.fetchUserProfile(userId);
+    this.userProfileSubject.next(profile);
+    return profile;
   }
 
   async logout(): Promise<void> {

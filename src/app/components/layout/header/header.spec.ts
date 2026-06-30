@@ -1,47 +1,46 @@
-import { Component, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { of } from 'rxjs';
+import { Header } from './header';
+import { AuthService } from '../../../services/auth.service';
 
-@Component({
-  selector: 'app-header',
-  standalone: true,
-  imports: [CommonModule, RouterModule],
-  templateUrl: './header.html',
-  styleUrls: ['./header.css']
-})
-export class Header {
-  // Desktop dropdowns
-  researchOpen = false;
-  shopOpen = false;
+describe('Header', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [Header],
+      providers: [
+        provideRouter([]),
+        // Stub AuthService so the test never touches Firebase.
+        { provide: AuthService, useValue: { userProfile$: of(null) } },
+      ],
+    }).compileComponents();
+  });
 
-  // Mobile menu
-  mobileMenuOpen = false;
-  mobileResearchOpen = false;
-  mobileShopOpen = false;
+  it('should create', () => {
+    const fixture = TestBed.createComponent(Header);
+    expect(fixture.componentInstance).toBeTruthy();
+  });
 
-  // Desktop toggles
-  toggleResearch() { this.researchOpen = !this.researchOpen; this.shopOpen = false; }
-  toggleShop()     { this.shopOpen = !this.shopOpen; this.researchOpen = false; }
+  it('toggleResearch opens research and closes shop', () => {
+    const fixture = TestBed.createComponent(Header);
+    const header = fixture.componentInstance;
+    header.shopOpen = true;
 
-  // Mobile toggles
-  toggleMobileMenu()     { this.mobileMenuOpen = !this.mobileMenuOpen; }
-  toggleMobileResearch() { this.mobileResearchOpen = !this.mobileResearchOpen; this.mobileShopOpen = false; }
-  toggleMobileShop()     { this.mobileShopOpen = !this.mobileShopOpen; this.mobileResearchOpen = false; }
+    header.toggleResearch();
 
-  closeMobileMenu() {
-    this.mobileMenuOpen = false;
-    this.mobileResearchOpen = false;
-    this.mobileShopOpen = false;
-  }
+    expect(header.researchOpen).toBe(true);
+    expect(header.shopOpen).toBe(false);
+  });
 
-  closeAll() {
-    this.researchOpen = false;
-    this.shopOpen = false;
-    this.mobileMenuOpen = false;
-    this.mobileResearchOpen = false;
-    this.mobileShopOpen = false;
-  }
+  it('closeAll closes every menu', () => {
+    const fixture = TestBed.createComponent(Header);
+    const header = fixture.componentInstance;
+    header.researchOpen = true;
+    header.mobileMenuOpen = true;
 
-  @HostListener('document:click')
-  onDocumentClick() { this.closeAll(); }
-}
+    header.closeAll();
+
+    expect(header.researchOpen).toBe(false);
+    expect(header.mobileMenuOpen).toBe(false);
+  });
+});

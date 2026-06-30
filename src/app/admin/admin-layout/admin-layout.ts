@@ -20,6 +20,23 @@ export class AdminLayout implements OnInit {
   complaintsCount = 0;
   pageTitle = 'Main dashboard';
 
+  get adminName(): string {
+    return this.auth.getUserDisplayName() || 'Admin';
+  }
+
+  get adminEmail(): string {
+    return this.auth.getUserEmail() || '';
+  }
+
+  get adminInitials(): string {
+    const name = this.adminName.trim();
+    if (!name) return 'A';
+    const parts = name.split(/\s+/);
+    const first = parts[0]?.[0] ?? '';
+    const second = parts.length > 1 ? (parts[parts.length - 1][0] ?? '') : '';
+    return (first + second).toUpperCase() || 'A';
+  }
+
   private titles: Record<string, string> = {
     'dashboard': 'Main dashboard',
     'cars': 'Car listings',

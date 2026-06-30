@@ -1,0 +1,83 @@
+<h2 style="font-size:22px; font-weight:600; color:#1a1f36; margin:0 0 24px;">Complaints</h2>
+
+<div style="display:flex; gap:8px; margin-bottom:24px;">
+  <button
+    (click)="setFilter('all')"
+    style="border:none; padding:8px 18px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;"
+    [style.background]="filter === 'all' ? '#3b82f6' : '#f1f5f9'"
+    [style.color]="filter === 'all' ? '#ffffff' : '#475569'">
+    All
+  </button>
+  <button
+    (click)="setFilter('open')"
+    style="border:none; padding:8px 18px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;"
+    [style.background]="filter === 'open' ? '#3b82f6' : '#f1f5f9'"
+    [style.color]="filter === 'open' ? '#ffffff' : '#475569'">
+    Open
+  </button>
+  <button
+    (click)="setFilter('resolved')"
+    style="border:none; padding:8px 18px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;"
+    [style.background]="filter === 'resolved' ? '#3b82f6' : '#f1f5f9'"
+    [style.color]="filter === 'resolved' ? '#ffffff' : '#475569'">
+    Resolved
+  </button>
+</div>
+
+@if (loading) {
+  <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:64px 24px; color:#718096;">
+    <span class="material-icons" style="font-size:48px; margin-bottom:12px;">hourglass_empty</span>
+    <span style="font-size:15px;">Loading complaints...</span>
+  </div>
+} @else {
+  @if (filtered.length === 0) {
+    <mat-card style="border-radius:12px;">
+      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:64px 24px; color:#718096; text-align:center;">
+        <span class="material-icons" style="font-size:48px; margin-bottom:12px;">flag</span>
+        <span style="font-size:15px;">No complaints found.</span>
+      </div>
+    </mat-card>
+  } @else {
+    <mat-card style="border-radius:12px; overflow:hidden;">
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr style="text-align:left; border-bottom:1px solid #e2e8f0;">
+            <th style="padding:14px 16px; font-size:13px; font-weight:600; color:#718096;">Subject</th>
+            <th style="padding:14px 16px; font-size:13px; font-weight:600; color:#718096;">Message</th>
+            <th style="padding:14px 16px; font-size:13px; font-weight:600; color:#718096;">From</th>
+            <th style="padding:14px 16px; font-size:13px; font-weight:600; color:#718096;">Status</th>
+            <th style="padding:14px 16px; font-size:13px; font-weight:600; color:#718096;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of filtered; track c.id) {
+            <tr style="border-bottom:1px solid #f1f5f9;">
+              <td style="padding:14px 16px; font-size:14px; color:#1a1f36;">{{ c.subject || c.title || '—' }}</td>
+              <td style="padding:14px 16px; font-size:14px; color:#475569; max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ c.message || c.description || '—' }}</td>
+              <td style="padding:14px 16px; font-size:14px; color:#475569;">{{ c.email || c.userEmail || c.name || '—' }}</td>
+              <td style="padding:14px 16px;">
+                @if (c.status === 'resolved') {
+                  <span style="padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600;" [style.background]="'#dcfce7'" [style.color]="'#16a34a'">Resolved</span>
+                } @else {
+                  <span style="padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600;" [style.background]="'#fef9c3'" [style.color]="'#ca8a04'">Open</span>
+                }
+              </td>
+              <td style="padding:14px 16px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  @if (c.status === 'resolved') {
+                    <button mat-flat-button (click)="reopen(c)" style="background:#fef9c3; color:#ca8a04;">Reopen</button>
+                  } @else {
+                    <button mat-flat-button (click)="markResolved(c)" style="background:#dcfce7; color:#16a34a;">Resolve</button>
+                  }
+                  <button mat-icon-button (click)="remove(c)" aria-label="Delete complaint">
+                    <span class="material-icons" style="color:#ef4444;">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </mat-card>
+  }
+}

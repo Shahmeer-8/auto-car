@@ -1,4 +1,4 @@
-import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -11,6 +11,9 @@ import { AppUser } from '../../../models/user.model';
   imports: [CommonModule, RouterModule],
   templateUrl: './header.html',
   styleUrls: ['./header.css'],
+  host: {
+    '(document:click)': 'onDocumentClick()',
+  },
 })
 export class Header implements OnInit, OnDestroy {
   researchOpen = false;
@@ -80,7 +83,6 @@ export class Header implements OnInit, OnDestroy {
     this.mobileShopOpen = false;
   }
 
-  @HostListener('document:click')
   onDocumentClick() {
     this.closeAll();
   }

@@ -48,8 +48,8 @@ export class Login {
     if (!this.password) {
       this.passwordError = 'Password is required.';
       valid = false;
-    } else if (this.password.length < 6) {
-      this.passwordError = 'Password must be at least 6 characters.';
+    } else if (this.password.length < 8) {
+      this.passwordError = 'Password must be at least 8 characters.';
       valid = false;
     }
 
@@ -63,8 +63,17 @@ export class Login {
     this.isLoading = true;
 
     try {
-      await this.authService.login(this.email, this.password);
-      this.router.navigate(['/dashboard']);
+      const profile = await this.authService.login(this.email, this.password);
+
+      if (profile?.isActive === false) {
+        await this.authService.logout();
+        this.submitError = 'Your account has been deactivated. Please contact support.';
+        return;
+      }
+
+      // Route by role: admins land on the admin dashboard, everyone else on the user dashboard.
+      const target = profile?.userType === 'admin' ? '/admin/dashboard' : '/dashboard';
+      this.router.navigate([target]);
     } catch (err) {
       const code = err instanceof FirebaseError ? err.code : '';
       this.submitError = this.authService.mapAuthError(code);

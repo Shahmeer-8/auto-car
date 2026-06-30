@@ -82,10 +82,10 @@
     <!-- Bottom user profile -->
     <div class="sidebar-footer">
       <div class="user-profile">
-        <div class="user-avatar">SA</div>
+        <div class="user-avatar">{{ adminInitials }}</div>
         <div class="user-info">
-          <span class="user-name">Super Admin</span>
-          <span class="user-email">admin&#64;carsite.com</span>
+          <span class="user-name">{{ adminName }}</span>
+          <span class="user-email">{{ adminEmail }}</span>
         </div>
       </div>
       <button (click)="logout()" class="logout-icon-btn" title="Logout">

@@ -1,0 +1,60 @@
+<h2 style="font-size:22px; font-weight:600; color:#1a1f36; margin:0 0 24px;">Category &amp; attributes</h2>
+
+@if (loading) {
+  <div style="display:flex; align-items:center; gap:8px; color:#718096;">
+    <span class="material-icons">hourglass_empty</span>
+    <span>Loading attributes...</span>
+  </div>
+} @else {
+  <mat-card style="border-radius:12px; margin-bottom:20px; padding:20px;">
+    <h3 style="font-size:16px; font-weight:600; color:#1a1f36; margin:0 0 16px;">Car Makes</h3>
+    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+      @for (item of makes; track item; let i = $index) {
+        <span style="display:inline-flex; align-items:center; gap:6px; background:#f1f5f9; color:#1a1f36; padding:6px 12px; border-radius:20px; font-size:13px;">{{ item }} <span class="material-icons" style="font-size:16px; cursor:pointer;" (click)="removeMake(i)">close</span></span>
+      } @empty {
+        <span style="color:#718096; font-size:13px;">No makes yet.</span>
+      }
+    </div>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <input [(ngModel)]="newMake" placeholder="Add make..." style="padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px;">
+      <button mat-flat-button style="background:#3b82f6; color:white;" (click)="addMake()">Add</button>
+    </div>
+  </mat-card>
+
+  <mat-card style="border-radius:12px; margin-bottom:20px; padding:20px;">
+    <h3 style="font-size:16px; font-weight:600; color:#1a1f36; margin:0 0 16px;">Body Types</h3>
+    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+      @for (item of bodyTypes; track item; let i = $index) {
+        <span style="display:inline-flex; align-items:center; gap:6px; background:#f1f5f9; color:#1a1f36; padding:6px 12px; border-radius:20px; font-size:13px;">{{ item }} <span class="material-icons" style="font-size:16px; cursor:pointer;" (click)="removeBodyType(i)">close</span></span>
+      } @empty {
+        <span style="color:#718096; font-size:13px;">No body types yet.</span>
+      }
+    </div>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <input [(ngModel)]="newBodyType" placeholder="Add body type..." style="padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px;">
+      <button mat-flat-button style="background:#3b82f6; color:white;" (click)="addBodyType()">Add</button>
+    </div>
+  </mat-card>
+
+  <mat-card style="border-radius:12px; margin-bottom:20px; padding:20px;">
+    <h3 style="font-size:16px; font-weight:600; color:#1a1f36; margin:0 0 16px;">Fuel Types</h3>
+    <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+      @for (item of fuelTypes; track item; let i = $index) {
+        <span style="display:inline-flex; align-items:center; gap:6px; background:#f1f5f9; color:#1a1f36; padding:6px 12px; border-radius:20px; font-size:13px;">{{ item }} <span class="material-icons" style="font-size:16px; cursor:pointer;" (click)="removeFuelType(i)">close</span></span>
+      } @empty {
+        <span style="color:#718096; font-size:13px;">No fuel types yet.</span>
+      }
+    </div>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <input [(ngModel)]="newFuelType" placeholder="Add fuel type..." style="padding:8px 12px; border:1px solid #e2e8f0; border-radius:8px;">
+      <button mat-flat-button style="background:#3b82f6; color:white;" (click)="addFuelType()">Add</button>
+    </div>
+  </mat-card>
+
+  <div style="position:sticky; bottom:0; display:flex; align-items:center; gap:16px; padding:16px 0; background:#ffffff; border-top:1px solid #e2e8f0;">
+    <button mat-flat-button style="background:#16a34a; color:white;" [disabled]="saving" (click)="save()">{{ saving ? 'Saving...' : 'Save changes' }}</button>
+    @if (saved) {
+      <span style="color:#16a34a; font-size:14px; font-weight:500;">&#10003; Saved</span>
+    }
+  </div>
+}

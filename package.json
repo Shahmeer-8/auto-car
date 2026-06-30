@@ -11,7 +11,8 @@
     "build:dev": "node scripts/load-env.mjs && ng build --configuration development",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "firebase:rules": "firebase deploy --only firestore:rules,storage:rules,firestore:indexes"
+    "firebase:rules": "firebase deploy --only firestore:rules,storage:rules,firestore:indexes",
+    "deploy": "npm run build && firebase deploy"
   },
   "prettier": {
     "printWidth": 100,
@@ -28,22 +29,22 @@
   "private": true,
   "packageManager": "npm@11.6.2",
   "dependencies": {
-    "@angular/cdk": "~21.2.14",
-    "@angular/common": "^21.1.0",
-    "@angular/compiler": "^21.1.0",
-    "@angular/core": "^21.1.0",
-    "@angular/forms": "^21.1.0",
-    "@angular/material": "~21.2.14",
-    "@angular/platform-browser": "^21.1.0",
-    "@angular/router": "^21.1.0",
+    "@angular/animations": "^21.2.17",
+    "@angular/cdk": "^21.2.14",
+    "@angular/common": "^21.2.0",
+    "@angular/compiler": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/forms": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/router": "^21.2.0",
     "firebase": "^12.14.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@angular/build": "^21.1.1",
-    "@angular/cli": "^21.1.1",
-    "@angular/compiler-cli": "^21.1.0",
+    "@angular/build": "^21.2.0",
+    "@angular/cli": "^21.2.0",
+    "@angular/compiler-cli": "^21.2.0",
     "@angular/material": "^21.2.14",
     "jsdom": "^27.1.0",
     "typescript": "~5.9.2",

@@ -100,7 +100,7 @@
         ('car') {
         <div class="card card--car">
           <div class="card__image-wrap card__image-wrap--car">
-            <img [src]="item.image" [alt]="item.title" class="card__image" />
+            <img [src]="item.image" [alt]="item.title" class="card__image" (error)="onImgError($event)" />
             @if (item.badge) {
             <span class="card__badge">{{ item.badge }}</span>
             }
@@ -122,7 +122,7 @@
           [queryParams]="getQueryParams(item)"
         >
           <div class="card__image-wrap card__image-wrap--article">
-            <img [src]="item.image" [alt]="item.title" class="card__image" />
+            <img [src]="item.image" [alt]="item.title" class="card__image" (error)="onImgError($event)" />
           </div>
           <div class="card__body card__body--article">
             <h3 class="card__title card__title--article">{{ item.title }}</h3>
@@ -138,7 +138,7 @@
           [queryParams]="getQueryParams(item)"
         >
           <div class="card__image-wrap card__image-wrap--category">
-            <img [src]="item.image" [alt]="item.title" class="card__image" />
+            <img [src]="item.image" [alt]="item.title" class="card__image" (error)="onImgError($event)" />
           </div>
           <div class="card__body card__body--category">
             <h3 class="card__title card__title--category">{{ item.title }}</h3>
@@ -152,7 +152,7 @@
           [queryParams]="getQueryParams(item)"
         >
           <div class="card__image-wrap card__image-wrap--comparison">
-            <img [src]="item.image" [alt]="item.title" class="card__image" />
+            <img [src]="item.image" [alt]="item.title" class="card__image" (error)="onImgError($event)" />
           </div>
           <h3 class="card__title card__title--comparison">{{ item.title }}</h3>
         </div>

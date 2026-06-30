@@ -10,7 +10,10 @@ export const authGuard: CanActivateFn = () => {
   return auth.authReady$.pipe(
     filter((ready) => ready),
     take(1),
-    map(() => (auth.isAuthenticated ? true : router.createUrlTree(['/login']))),
+    map(() => {
+      if (!auth.isAuthenticated || !auth.isActive) return router.createUrlTree(['/login']);
+      return true;
+    }),
   );
 };
 
@@ -37,7 +40,7 @@ export const adminGuard: CanActivateFn = () => {
     filter((ready) => ready),
     take(1),
     map(() => {
-      if (!auth.isAuthenticated) return router.createUrlTree(['/login']);
+      if (!auth.isAuthenticated || !auth.isActive) return router.createUrlTree(['/login']);
       if (!auth.isAdmin) return router.createUrlTree(['/']);
       return true;
     }),

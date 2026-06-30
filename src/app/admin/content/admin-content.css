@@ -1,0 +1,9 @@
+:host {
+  display: block;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+}

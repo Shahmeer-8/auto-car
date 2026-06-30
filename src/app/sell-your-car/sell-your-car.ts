@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { CarService } from '../services/car.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-sell-your-car',
@@ -59,7 +60,8 @@ export class SellYourCar implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,  // ✅ Added
-    private carService: CarService
+    private carService: CarService,
+    private authService: AuthService,
   ) {}
 
   // ✅ Edit mode check
@@ -74,29 +76,25 @@ export class SellYourCar implements OnInit {
     });
   }
 
-  // ✅ Form pre-fill for edit
-  loadListingForEdit(id: string) {
-    const stored = localStorage.getItem('carListings');
-    if (stored) {
-      const all = JSON.parse(stored);
-      const listing = all.find((l: any) => l.id === id);
-      if (listing) {
-        this.make         = listing.make;
-        this.model        = listing.model;
-        this.year         = listing.year.toString();
-        this.mileage      = listing.mileage.toString();
-        this.transmission = listing.transmission;
-        this.fuelType     = listing.fuelType;
-        this.color        = listing.color;
-        this.condition    = listing.condition;
-        this.bodyType     = listing.bodyType;
-        this.price        = listing.price.toString();
-        this.description  = listing.description;
-        this.location     = listing.location;
-        this.phone        = listing.phone;
-        this.images       = listing.images;
-      }
-    }
+  // ✅ Form pre-fill for edit (from Firestore)
+  async loadListingForEdit(id: string) {
+    const listing = await this.carService.getCarById(id);
+    if (!listing) return;
+
+    this.make         = listing.make;
+    this.model        = listing.model;
+    this.year         = listing.year?.toString() ?? '';
+    this.mileage      = listing.mileage?.toString() ?? '';
+    this.transmission = listing.transmission;
+    this.fuelType     = listing.fuelType;
+    this.color        = listing.color;
+    this.condition    = listing.condition;
+    this.bodyType     = listing.bodyType;
+    this.price        = listing.price?.toString() ?? '';
+    this.description  = listing.description;
+    this.location     = listing.location;
+    this.phone        = listing.phone;
+    this.images       = listing.images ?? [];
   }
 
   nextStep() {
@@ -220,70 +218,55 @@ export class SellYourCar implements OnInit {
 
   async onSubmit() {
     if (!this.validateStep()) return;
+
+    await this.authService.waitUntilReady();
+    if (!this.authService.isAuthenticated) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
     this.isLoading = true;
 
     try {
-      const userEmail = localStorage.getItem('userEmail') || '';
-      const userName  = localStorage.getItem('userName')  || '';
-      const existing  = JSON.parse(localStorage.getItem('carListings') || '[]');
+      const user = this.authService.currentUser!;
+      const ownerName = this.authService.getUserDisplayName();
+      const email = this.authService.getUserEmail();
 
-      if (this.isEditMode) {
-        // ✅ EDIT: existing listing update karo
-        const index = existing.findIndex((l: any) => l.id === this.editListingId);
-        if (index !== -1) {
-          existing[index] = {
-            ...existing[index],       // id, email, ownerName, submittedAt same rahega
-            make:         this.make,
-            model:        this.model,
-            year:         parseInt(this.year),
-            mileage:      parseInt(this.mileage),
-            transmission: this.transmission,
-            fuelType:     this.fuelType,
-            color:        this.color || 'Not specified',
-            condition:    this.condition,
-            bodyType:     this.bodyType || 'Not specified',
-            price:        parseFloat(this.price),
-            description:  this.description,
-            location:     this.location,
-            phone:        this.phone,
-            images:       this.images,
-            status:       'pending'   // ✅ Edit ke baad wapas pending
-          };
-        }
+      const data = {
+        make:         this.make,
+        model:        this.model,
+        year:         parseInt(this.year),
+        mileage:      parseInt(this.mileage),
+        transmission: this.transmission,
+        fuelType:     this.fuelType,
+        color:        this.color || 'Not specified',
+        condition:    this.condition,
+        bodyType:     this.bodyType || 'Not specified',
+        price:        parseFloat(this.price),
+        description:  this.description,
+        location:     this.location,
+        phone:        this.phone,
+        images:       this.images,
+      };
+
+      if (this.isEditMode && this.editListingId) {
+        // Edit: update fields and reset to pending for re-moderation.
+        await this.carService.updateCar(this.editListingId, { ...data, status: 'pending' });
       } else {
-        // ✅ NEW: nai listing add karo
-        const newListing = {
-          id:           Date.now().toString(),
-          make:         this.make,
-          model:        this.model,
-          year:         parseInt(this.year),
-          mileage:      parseInt(this.mileage),
-          transmission: this.transmission,
-          fuelType:     this.fuelType,
-          color:        this.color || 'Not specified',
-          condition:    this.condition,
-          bodyType:     this.bodyType || 'Not specified',
-          price:        parseFloat(this.price),
-          description:  this.description,
-          location:     this.location,
-          phone:        this.phone,
-          images:       this.images,
-          ownerName:    userName,
-          email:        userEmail,
-          submittedAt:  new Date().toISOString(),
-          status:       'pending'
-        };
-        existing.push(newListing);
+        // New listing: createCar sets sellerId/email/status server-side requirements.
+        await this.carService.createCar({
+          ...data,
+          sellerId: user.uid,
+          ownerName,
+          email,
+        });
       }
 
-      localStorage.setItem('carListings', JSON.stringify(existing));
-      this.carService.notifyUpdate();
-
-      // ✅ Seller dashboard pe wapas jao
-      this.router.navigate(['/seller-dashboard']);
-
+      // Back to the user dashboard.
+      this.router.navigate(['/dashboard']);
     } catch (err) {
       console.error(err);
+      this.errors = { submit: 'Failed to save your listing. Please try again.' };
     } finally {
       this.isLoading = false;
     }

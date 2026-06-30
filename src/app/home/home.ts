@@ -133,7 +133,7 @@ export class Home implements OnInit, OnDestroy {
       price: '$' + Number(l.price)?.toLocaleString(),
       meta: `${Number(l.mileage)?.toLocaleString()} km • ${l.transmission} • ${l.bodyType || 'Car'}`,
       badge: 'New Listing',
-      image: l.images?.[0] || 'assets/placeholder-car.jpg',
+      image: l.images?.[0] || 'placeholder-car.svg',
       isUserListing: true,
     }));
 

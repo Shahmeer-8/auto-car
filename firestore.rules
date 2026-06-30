@@ -11,10 +11,37 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    // Reads the signed-in user's own profile document.
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // Server-side admin check (cannot be spoofed from the client).
+    function isAdmin() {
+      return isSignedIn() && userDoc().userType == 'admin';
+    }
+
+    // Active (non-banned) signed-in user.
+    function isActiveUser() {
+      return isSignedIn() && userDoc().isActive == true;
+    }
+
     match /users/{userId} {
-      allow read: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
+      // Owner reads own profile; admins read everyone.
+      allow read: if isOwner(userId) || isAdmin();
+
+      // Self-registration only as buyer/seller — never admin — and must start active.
+      allow create: if isOwner(userId)
+        && request.resource.data.userType in ['buyer', 'seller']
+        && request.resource.data.isActive == true;
+
+      // Admins may change anything (role, ban status).
+      // Owners may edit their own profile but CANNOT change their userType.
+      allow update: if isAdmin()
+        || (isOwner(userId)
+            && request.resource.data.userType == resource.data.userType);
+
+      allow delete: if isAdmin();
 
       match /savedCars/{carId} {
         allow read, write: if isOwner(userId);
@@ -22,15 +49,43 @@ service cloud.firestore {
     }
 
     match /cars/{carId} {
+      // Anyone can see approved cars; owners see their own; admins see all.
       allow read: if resource.data.status == 'approved'
-        || (isSignedIn() && resource.data.sellerId == request.auth.uid);
+        || (isSignedIn() && resource.data.sellerId == request.auth.uid)
+        || isAdmin();
 
-      allow create: if isSignedIn()
+      // Create: active owner, email must match the auth token, must start as 'pending'.
+      allow create: if isActiveUser()
         && request.resource.data.sellerId == request.auth.uid
-        && request.resource.data.email == request.auth.token.email;
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.status == 'pending';
 
-      allow update, delete: if isSignedIn()
-        && resource.data.sellerId == request.auth.uid;
+      // Update: admins moderate freely (approve/reject).
+      // Owners may edit their own listing but CANNOT self-approve — it stays 'pending'
+      // and ownership cannot be reassigned.
+      allow update: if isAdmin()
+        || (isSignedIn()
+            && resource.data.sellerId == request.auth.uid
+            && request.resource.data.sellerId == resource.data.sellerId
+            && request.resource.data.status == 'pending');
+
+      // Owners can delete their own listing; admins can delete any.
+      allow delete: if isAdmin()
+        || (isSignedIn() && resource.data.sellerId == request.auth.uid);
+    }
+
+    // Site configuration: car attributes (makes/body/fuel) and CMS content.
+    // Publicly readable so the storefront can render; only admins can change it.
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // User complaints: any signed-in user can file one; only admins manage them.
+    match /complaints/{complaintId} {
+      allow create: if isSignedIn()
+        && request.resource.data.status == 'open';
+      allow read, update, delete: if isAdmin();
     }
   }
 }

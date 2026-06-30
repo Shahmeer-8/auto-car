@@ -184,7 +184,7 @@ export class CarDetail implements OnInit {
       body: found.bodyType || 'N/A',
       grade: 'N/A',
       badge: found.status === 'approved' ? 'Approved' : 'Pending',
-      image: found.images?.[0] || 'assets/placeholder-car.jpg',
+      image: found.images?.[0] || 'placeholder-car.svg',
       fuelType: found.fuelType,
       color: found.color,
       condition: found.condition,
@@ -196,7 +196,7 @@ export class CarDetail implements OnInit {
       isUserListing: true,
     };
     this.images =
-      found.images?.length > 0 ? found.images : ['assets/placeholder-car.jpg'];
+      found.images?.length > 0 ? found.images : ['placeholder-car.svg'];
     this.selectedImage = this.images[0];
   }
 

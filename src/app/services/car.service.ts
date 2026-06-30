@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, map, Observable, switchMap } from 'rxjs';
-import { collection, doc, getDoc, getDocs, deleteDoc, updateDoc, addDoc, serverTimestamp, query, where } from 'firebase/firestore';
+import { BehaviorSubject, Observable, switchMap } from 'rxjs';
+import { collection, doc, getDoc, getDocs, deleteDoc, updateDoc, addDoc, setDoc, query, where } from 'firebase/firestore';
 import { getFirebaseDb } from '../core/firebase/firebase';
-import { CarListing, SavedCar } from '../models/car.model';
+import { CarListing, CreateCarListingInput, SavedCar } from '../models/car.model';
 
 @Injectable({ providedIn: 'root' })
 export class CarService {
@@ -37,6 +37,20 @@ export class CarService {
   // ✅ 3. Get listed cars (used elsewhere)
   async getListedCars(): Promise<CarListing[]> {
     return this.fetchApprovedCars();
+  }
+
+  // Create a new listing in Firestore. Always starts as 'pending' for admin moderation.
+  async createCar(input: CreateCarListingInput): Promise<string> {
+    const payload = {
+      ...input,
+      color: input.color ?? 'Not specified',
+      status: 'pending' as const,
+      submittedAt: new Date().toISOString(),
+    };
+
+    const ref = await addDoc(collection(this.db, 'cars'), payload);
+    this.notifyUpdate();
+    return ref.id;
   }
 
   // ✅ 4. Single car by ID
@@ -96,17 +110,21 @@ export class CarService {
   // ------------------------------
   // Dashboard: saved cars
   // ------------------------------
-  // Assumed Firestore structure:
-  // - collection: users_saved_cars/{userId}/items/{carId}
-  // where each item stores SavedCar (at least carId, make, model, year, price, image, savedAt)
+  // Firestore structure: users/{userId}/savedCars/{carId}  (matches firestore.rules)
   private savedCarsCol(userId: string) {
-    return collection(this.db, 'users_saved_cars', userId, 'items');
+    return collection(this.db, 'users', userId, 'savedCars');
   }
 
   async getSavedCars(userId: string): Promise<SavedCar[]> {
     if (!userId) return [];
     const qSnap = await getDocs(this.savedCarsCol(userId));
     return qSnap.docs.map((d) => d.data() as SavedCar);
+  }
+
+  async addSavedCar(userId: string, car: SavedCar): Promise<void> {
+    if (!userId || !car?.carId) return;
+    await setDoc(doc(this.savedCarsCol(userId), car.carId), car);
+    this.notifyUpdate();
   }
 
   async removeSavedCar(userId: string, carId: string): Promise<void> {

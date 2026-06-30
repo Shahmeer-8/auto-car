@@ -20,12 +20,36 @@ export const adminRoutes: Routes = [
         loadComponent: () => import('./cars/admin-cars').then((m) => m.AdminCars),
       },
       {
+        path: 'users',
+        loadComponent: () => import('./users/admin-users').then((m) => m.AdminUsers),
+      },
+      {
+        path: 'analytics',
+        loadComponent: () => import('./analytics/admin-analytics').then((m) => m.AdminAnalytics),
+      },
+      {
         path: 'reviews',
         loadComponent: () => import('./reviews/admin-reviews').then((m) => m.AdminReviews),
       },
       {
-        path: 'users',
-        loadComponent: () => import('./users/admin-users').then((m) => m.AdminUsers),
+        path: 'featured',
+        loadComponent: () => import('./featured/admin-featured').then((m) => m.AdminFeatured),
+      },
+      {
+        path: 'categories',
+        loadComponent: () => import('./categories/admin-categories').then((m) => m.AdminCategories),
+      },
+      {
+        path: 'complaints',
+        loadComponent: () => import('./complaints/admin-complaints').then((m) => m.AdminComplaints),
+      },
+      {
+        path: 'content',
+        loadComponent: () => import('./content/admin-content').then((m) => m.AdminContent),
+      },
+      {
+        path: 'roles',
+        loadComponent: () => import('./roles/admin-roles').then((m) => m.AdminRoles),
       },
     ],
   },

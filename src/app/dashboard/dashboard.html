@@ -70,7 +70,7 @@
 
           <div class="listing-image">
             <img
-              [src]="listing.images[0] || 'assets/placeholder-car.jpg'"
+              [src]="listing.images[0] || 'placeholder-car.svg'"
               [alt]="listing.make + ' ' + listing.model">
             <div class="status-badge" [ngClass]="getStatusClass(listing.status)">
               {{ getStatusText(listing.status) }}
@@ -135,7 +135,7 @@
 
           <div class="listing-image">
             <img
-              [src]="car.image || 'assets/placeholder-car.jpg'"
+              [src]="car.image || 'placeholder-car.svg'"
               [alt]="car.make + ' ' + car.model">
           </div>
 

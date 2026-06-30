@@ -24,7 +24,7 @@ export class AdminDashboard implements OnInit, OnDestroy {
     { label: 'Total cars',  value: '0',  icon: 'directions_car', color: '#3b82f6', change: '', changeUp: true },
     { label: 'Total users', value: '0',  icon: 'people',         color: '#22c55e', change: '', changeUp: true },
     { label: 'Active ads',  value: '0',  icon: 'campaign',       color: '#f97316', change: '', changeUp: true },
-    { label: 'Revenue',     value: '¥0', icon: 'attach_money',   color: '#a855f7', change: '', changeUp: true },
+    { label: 'Revenue',     value: 'PKR 0', icon: 'attach_money',   color: '#a855f7', change: '', changeUp: true },
   ];
 
   recentAds: { car: string; user: string; status: string }[] = [];
@@ -75,9 +75,6 @@ export class AdminDashboard implements OnInit, OnDestroy {
   }
 
 private recompute() {
-  console.log('allCars:', this.allCars);
-  console.log('allUsers:', this.allUsers);
-
   this.stats[0].value = this.allCars.length.toString();
   this.stats[1].value = this.allUsers.length.toString();
 
@@ -85,7 +82,7 @@ private recompute() {
   this.stats[2].value = approvedCars.length.toString();
 
   const total = approvedCars.reduce((sum, c) => sum + (c.price || 0), 0);
-  this.stats[3].value = '¥' + total.toLocaleString();
+  this.stats[3].value = 'PKR ' + total.toLocaleString();
 
   this.recentAds = [...this.allCars]
     .sort((a, b) => this.getTime(b.submittedAt) - this.getTime(a.submittedAt))
@@ -96,23 +93,18 @@ private recompute() {
       status: c.status || 'pending'
     }));
 
-  console.log('recentAds:', this.recentAds);
-
   this.recentUsers = [...this.allUsers]
     .sort((a, b) => this.getTime(b.createdAt) - this.getTime(a.createdAt))
     .slice(0, 5)
     .map(u => {
       const userId = u.uid || u.id;
       const adsCount = this.allCars.filter(c => c.sellerId === userId).length;
-      console.log(`User ${u.name}: userId=${userId}, adsCount=${adsCount}`);
       return {
         name: u.name || 'Unknown',
         ads: adsCount,
         status: u.isActive === false ? 'banned' : 'active'
       };
     });
-
-  console.log('recentUsers:', this.recentUsers);
 
   this.loading = false;
   this.cdr.detectChanges();

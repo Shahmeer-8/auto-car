@@ -109,6 +109,16 @@ export class Slider implements OnInit, OnDestroy, OnChanges {
     return ['/car-detail', item.isUserListing ? item.id : index + 1];
   }
 
+  readonly placeholderImage = 'placeholder-car.svg';
+
+  // Swap any image that fails to load (dead URL, blocked host, empty base64) for the placeholder.
+  onImgError(event: Event): void {
+    const img = event.target as HTMLImageElement | null;
+    if (img && !img.src.endsWith(this.placeholderImage)) {
+      img.src = this.placeholderImage;
+    }
+  }
+
   private updateHostClasses(): void {
     const classes = ['slider-host'];
     if (this.config.sectionClass) {
