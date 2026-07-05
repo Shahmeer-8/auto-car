@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { collection, onSnapshot, query, where, Unsubscribe } from 'firebase/firestore';
 import { getFirebaseDb } from '../../core/firebase/firebase';
+import { DemoSeedService } from '../../core/services/demo-seed.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -39,7 +40,27 @@ export class AdminDashboard implements OnInit, OnDestroy {
     { month: 'Jun', value: '0', percent: 10, active: true  },
   ];
 
+  private demoSeed = inject(DemoSeedService);
+  seeding = false;
+
   constructor(private cdr: ChangeDetectorRef) {}
+
+  async loadDemoData() {
+    if (this.seeding) return;
+    if (!confirm('Load demo data into this project? This adds sample cars, complaints, roles, notifications and activity logs.')) return;
+    this.seeding = true;
+    this.cdr.detectChanges();
+    try {
+      await this.demoSeed.seedAll();
+      alert('Demo data loaded! The dashboard and all pages will now show data.');
+    } catch (err) {
+      console.error('Demo seed failed:', err);
+      alert('Failed to load demo data. Make sure you are logged in as an admin.');
+    } finally {
+      this.seeding = false;
+      this.cdr.detectChanges();
+    }
+  }
 
   ngOnInit() {
     // Real-time listener for cars

@@ -84,7 +84,7 @@ service cloud.firestore {
       allow write: if hasPerm('roles.manage') || isAdmin();
     }
 
-    // Immutable audit trail: only Cloud Functions (Admin SDK) write; audit.view reads.
+    // Immutable audit trail: only Cloud Functions (Admin SDK) write; audit.view/admin reads.
     match /auditLogs/{logId} {
       allow read: if hasPerm('audit.view') || isAdmin();
       allow write: if false;

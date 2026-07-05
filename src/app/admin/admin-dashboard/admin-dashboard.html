@@ -1,3 +1,14 @@
+<!-- Demo data loader -->
+<div style="display:flex; justify-content:flex-end; margin-bottom:16px;">
+  <button type="button"
+          (click)="loadDemoData()"
+          [disabled]="seeding"
+          style="display:inline-flex; align-items:center; gap:8px; background:#3b82f6; color:white; border:none; padding:10px 16px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer;">
+    <span class="material-icons" style="font-size:18px;">{{ seeding ? 'hourglass_empty' : 'cloud_download' }}</span>
+    {{ seeding ? 'Loading demo data...' : 'Load demo data' }}
+  </button>
+</div>
+
 <!-- Stat Cards -->
 <div class="stats-grid">
   <div class="stat-card" *ngFor="let stat of stats">
