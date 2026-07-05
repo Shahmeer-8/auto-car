@@ -16,7 +16,7 @@
     "functions:build": "cd functions && npm run build",
     "emulate": "firebase emulators:start --import=./.emulator-data --export-on-exit=./.emulator-data",
     "seed": "node scripts/seed.mjs",
-    "review": "firebase emulators:exec --import=./.emulator-data --export-on-exit=./.emulator-data \"npm start\""
+    "review": "node scripts/dev-review.mjs"
   },
   "prettier": {
     "printWidth": 100,
