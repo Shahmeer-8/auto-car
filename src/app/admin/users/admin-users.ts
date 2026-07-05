@@ -1,90 +1,78 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { collection, getDocs, query, where, orderBy, doc, updateDoc } from 'firebase/firestore';
-import { getFirebaseDb } from '../../core/firebase/firebase';
+import { UsersData } from '../../core/rbac/users.data';
+import { RolesFacade } from '../../core/rbac/roles.facade';
+import { AppUser } from '../../models/user.model';
+import { HasPermissionDirective } from '../../core/directives/has-permission.directive';
 
+/** User management: list staff, assign a role (server-side via Cloud Function), ban/unban. */
 @Component({
   selector: 'app-admin-users',
-  standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, FormsModule, MatCardModule, MatButtonModule, MatIconModule, HasPermissionDirective],
   templateUrl: './admin-users.html',
-  styleUrl: './admin-users.css'
+  styleUrl: './admin-users.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminUsers implements OnInit {
-  private db = getFirebaseDb();
-  users: any[] = [];
-  loading = true;
+  private readonly usersData = inject(UsersData);
+  private readonly rolesFacade = inject(RolesFacade);
 
-  // For viewing a specific seller's cars
-  selectedUser: any = null;
-  userCars: any[] = [];
-  loadingCars = false;
+  readonly users = signal<AppUser[]>([]);
+  readonly loading = signal(true);
+  readonly busyUid = signal<string | null>(null);
+  readonly roles = this.rolesFacade.roles;
 
-  constructor(private cdr: ChangeDetectorRef) {}
-
-  async ngOnInit() {
-    await this.loadUsers();
+  async ngOnInit(): Promise<void> {
+    await Promise.all([this.rolesFacade.load(), this.load()]);
   }
 
-  async loadUsers() {
-    this.loading = true;
+  async load(): Promise<void> {
+    this.loading.set(true);
     try {
-      const snap = await getDocs(collection(this.db, 'users'));
-      this.users = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-      // For each user, count their cars
-      for (const user of this.users) {
-        const q = query(collection(this.db, 'cars'), where('sellerId', '==', user.uid));
-        const carsSnap = await getDocs(q);
-        user.carsCount = carsSnap.size;
-      }
-    } catch (err) {
-      console.error('Error loading users:', err);
+      this.users.set(await this.usersData.listUsers());
+    } catch {
+      this.users.set([]);
+    } finally {
+      this.loading.set(false);
     }
-    this.loading = false;
-    this.cdr.detectChanges();
   }
 
-  async viewListings(user: any) {
-  this.selectedUser = user;
-  this.loadingCars = true;
-  this.userCars = [];
-  this.cdr.detectChanges();
-
-  try {
-    const q = query(
-      collection(this.db, 'cars'),
-      where('sellerId', '==', user.uid)
-    );
-    const snap = await getDocs(q);
-    this.userCars = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch (err) {
-    console.error('Error loading user cars:', err);
-  }
-  this.loadingCars = false;
-  this.cdr.detectChanges();
-}
-
-  closeListings() {
-    this.selectedUser = null;
-    this.userCars = [];
+  async assignRole(user: AppUser, roleId: string): Promise<void> {
+    if (!roleId || roleId === user.roleId) return;
+    this.busyUid.set(user.uid);
+    try {
+      await this.usersData.assignRole(user.uid, roleId);
+      const role = this.roles().find((r) => r.id === roleId);
+      this.users.update((list) =>
+        list.map((u) =>
+          u.uid === user.uid
+            ? { ...u, roleId, roleName: role?.name, permissions: role?.permissions ?? [] }
+            : u,
+        ),
+      );
+    } catch {
+      alert('Failed to change role. Please try again.');
+    } finally {
+      this.busyUid.set(null);
+    }
   }
 
-  async updateCarStatus(carId: string, status: string) {
-    await updateDoc(doc(this.db, 'cars', carId), { status });
-    // refresh
-    const idx = this.userCars.findIndex(c => c.id === carId);
-    if (idx !== -1) this.userCars[idx].status = status;
-    this.cdr.detectChanges();
-  }
-
-  async toggleUserActive(user: any) {
-    const newStatus = !user.isActive;
-    await updateDoc(doc(this.db, 'users', user.id), { isActive: newStatus });
-    user.isActive = newStatus;
-    this.cdr.detectChanges();
+  async toggleActive(user: AppUser): Promise<void> {
+    const next = !user.isActive;
+    this.busyUid.set(user.uid);
+    try {
+      await this.usersData.setActive(user.uid, next);
+      this.users.update((list) =>
+        list.map((u) => (u.uid === user.uid ? { ...u, isActive: next } : u)),
+      );
+    } catch {
+      alert('Failed to update status. Please try again.');
+    } finally {
+      this.busyUid.set(null);
+    }
   }
 }

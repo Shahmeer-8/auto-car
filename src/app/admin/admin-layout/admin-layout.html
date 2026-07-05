@@ -13,27 +13,27 @@
       </div>
     </div>
 
-    <!-- Nav -->
+    <!-- Nav (permission-driven) -->
     <nav class="sidebar-nav">
 
       <div class="nav-group">
         <span class="nav-group-label">MAIN</span>
-        <a routerLink="/admin/dashboard" routerLinkActive="active">
+        <a *appHasPermission="'dashboard.view'" routerLink="/admin/dashboard" routerLinkActive="active">
           <span class="material-icons">dashboard</span>
           Dashboard
         </a>
-        <a routerLink="/admin/cars" routerLinkActive="active">
+        <a *appHasPermission="'ads.view'" routerLink="/admin/cars" routerLinkActive="active">
           <span class="material-icons">directions_car</span>
           Car listings
           @if (carListingsCount > 0) {
             <span class="nav-badge">{{ carListingsCount }}</span>
           }
         </a>
-        <a routerLink="/admin/users" routerLinkActive="active">
+        <a *appHasPermission="'users.view'" routerLink="/admin/users" routerLinkActive="active">
           <span class="material-icons">manage_accounts</span>
           User management
         </a>
-        <a routerLink="/admin/analytics" routerLinkActive="active">
+        <a *appHasPermission="'reports.view'" routerLink="/admin/analytics" routerLinkActive="active">
           <span class="material-icons">bar_chart</span>
           Reports & analytics
         </a>
@@ -41,14 +41,14 @@
 
       <div class="nav-group">
         <span class="nav-group-label">AD MANAGEMENT</span>
-        <a routerLink="/admin/reviews" routerLinkActive="active">
+        <a *appHasPermission="'ads.moderate'" routerLink="/admin/reviews" routerLinkActive="active">
           <span class="material-icons">check_circle</span>
           Ad review
           @if (adReviewCount > 0) {
             <span class="nav-badge nav-badge--red">{{ adReviewCount }}</span>
           }
         </a>
-        <a routerLink="/admin/featured" routerLinkActive="active">
+        <a *appHasPermission="'ads.feature'" routerLink="/admin/featured" routerLinkActive="active">
           <span class="material-icons">star</span>
           Featured / sponsored
         </a>
@@ -56,24 +56,32 @@
 
       <div class="nav-group">
         <span class="nav-group-label">SYSTEM</span>
-        <a routerLink="/admin/categories" routerLinkActive="active">
+        <a *appHasPermission="'cms.edit'" routerLink="/admin/categories" routerLinkActive="active">
           <span class="material-icons">category</span>
           Category & attributes
         </a>
-        <a routerLink="/admin/complaints" routerLinkActive="active">
+        <a *appHasPermission="'customers.manage'" routerLink="/admin/complaints" routerLinkActive="active">
           <span class="material-icons">flag</span>
           Complaints
           @if (complaintsCount > 0) {
             <span class="nav-badge nav-badge--red">{{ complaintsCount }}</span>
           }
         </a>
-        <a routerLink="/admin/content" routerLinkActive="active">
+        <a *appHasPermission="'cms.edit'" routerLink="/admin/content" routerLinkActive="active">
           <span class="material-icons">article</span>
           Content management
         </a>
-        <a routerLink="/admin/roles" routerLinkActive="active">
+        <a *appHasPermission="'roles.manage'" routerLink="/admin/roles" routerLinkActive="active">
           <span class="material-icons">shield</span>
           Roles & permissions
+        </a>
+        <a *appHasPermission="'audit.view'" routerLink="/admin/audit" routerLinkActive="active">
+          <span class="material-icons">history</span>
+          Activity logs
+        </a>
+        <a routerLink="/admin/notifications" routerLinkActive="active">
+          <span class="material-icons">notifications</span>
+          Notifications
         </a>
       </div>
 

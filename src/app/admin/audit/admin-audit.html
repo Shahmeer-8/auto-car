@@ -1,0 +1,42 @@
+<h2 style="font-size:22px; font-weight:600; color:#1a1f36; margin:0 0 20px;">Activity logs</h2>
+
+<mat-card style="border-radius:12px; overflow:hidden;">
+  <mat-card-content style="padding:0;">
+    @if (loading()) {
+      <div style="padding:40px; text-align:center; color:#718096;">
+        <span class="material-icons" style="font-size:40px;">hourglass_empty</span>
+        <p>Loading activity...</p>
+      </div>
+    } @else if (logs().length === 0) {
+      <div style="padding:40px; text-align:center; color:#718096;">
+        <span class="material-icons" style="font-size:40px;">history</span>
+        <p>No activity recorded yet.</p>
+      </div>
+    } @else {
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr style="background:#f8fafc; text-align:left;">
+            <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">When</th>
+            <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Actor</th>
+            <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Action</th>
+            <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Resource</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (log of logs(); track log.id) {
+            <tr style="border-bottom:1px solid #f1f5f9;">
+              <td style="padding:10px 16px; color:#475569; white-space:nowrap;">{{ formatDate(log.at) }}</td>
+              <td style="padding:10px 16px;"><strong>{{ log.actorName }}</strong></td>
+              <td style="padding:10px 16px;">
+                <span style="padding:3px 8px; border-radius:6px; background:#eef2f7; color:#334155; font-size:12px; font-family:monospace;">
+                  {{ log.action }}
+                </span>
+              </td>
+              <td style="padding:10px 16px; color:#475569;">{{ log.resource }}/{{ log.resourceId }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </mat-card-content>
+</mat-card>

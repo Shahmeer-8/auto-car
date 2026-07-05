@@ -1,149 +1,67 @@
-@if (!selectedUser) {
-  <h2 style="font-size:22px; font-weight:600; color:#1a1f36; margin:0 0 24px;">
-    Users Management
-  </h2>
+<h2 style="font-size:22px; font-weight:600; color:#1a1f36; margin:0 0 8px;">User management</h2>
+<p style="color:#718096; font-size:13px; margin:0 0 20px;">
+  Assign a role to grant permissions. Changes take effect the next time the user signs in.
+</p>
 
-  <mat-card style="border-radius:12px; overflow:hidden;">
-    <mat-card-content style="padding:0;">
-
-      @if (loading) {
-        <div style="padding:40px; text-align:center; color:#718096;">
-          <span class="material-icons" style="font-size:40px;">hourglass_empty</span>
-          <p>Loading users...</p>
-        </div>
-      } @else {
-        <table style="width:100%; border-collapse:collapse;">
-          <thead>
-            <tr style="background:#f8fafc; text-align:left;">
-              <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Name</th>
-              <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Email</th>
-              <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Phone</th>
-              <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Type</th>
-              <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Listings</th>
-              <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Status</th>
-              <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (user of users; track user.id) {
-              <tr style="border-bottom:1px solid #f1f5f9;">
-                <td style="padding:10px 16px;"><strong>{{user.name}}</strong></td>
-                <td style="padding:10px 16px;">{{user.email}}</td>
-                <td style="padding:10px 16px;">{{user.phone}}</td>
-                <td style="padding:10px 16px;">
-                  <span style="padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600;"
-                        [style.background]="user.userType === 'admin' ? '#ede9fe' : user.userType === 'seller' ? '#dbeafe' : '#f1f5f9'"
-                        [style.color]="user.userType === 'admin' ? '#7c3aed' : user.userType === 'seller' ? '#2563eb' : '#475569'">
-                    {{user.userType | titlecase}}
-                  </span>
-                </td>
-                <td style="padding:10px 16px;">
-                  @if (user.carsCount > 0) {
-                    <button mat-button style="color:#3b82f6;" (click)="viewListings(user)">
-                      {{user.carsCount}} car(s)
-                    </button>
-                  } @else {
-                    <span style="color:#cbd5e1;">—</span>
+<mat-card style="border-radius:12px; overflow:hidden;">
+  <mat-card-content style="padding:0;">
+    @if (loading()) {
+      <div style="padding:40px; text-align:center; color:#718096;">
+        <span class="material-icons" style="font-size:40px;">hourglass_empty</span>
+        <p>Loading users...</p>
+      </div>
+    } @else if (users().length === 0) {
+      <div style="padding:40px; text-align:center; color:#718096;">
+        <span class="material-icons" style="font-size:40px;">group</span>
+        <p>No users found.</p>
+      </div>
+    } @else {
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr style="background:#f8fafc; text-align:left;">
+            <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Name</th>
+            <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Email</th>
+            <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Role</th>
+            <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Status</th>
+            <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users(); track user.uid) {
+            <tr style="border-bottom:1px solid #f1f5f9;">
+              <td style="padding:10px 16px;"><strong>{{ user.name }}</strong></td>
+              <td style="padding:10px 16px; color:#475569;">{{ user.email }}</td>
+              <td style="padding:10px 16px;">
+                <select [ngModel]="user.roleId ?? ''"
+                        (ngModelChange)="assignRole(user, $event)"
+                        [disabled]="busyUid() === user.uid"
+                        style="padding:6px 10px; border:1px solid #e2e8f0; border-radius:8px;">
+                  <option value="" disabled>— select role —</option>
+                  @for (role of roles(); track role.id) {
+                    <option [value]="role.id">{{ role.name }}</option>
                   }
-                </td>
-                <td style="padding:10px 16px;">
-                  <span [style.background]="user.isActive ? '#dcfce7' : '#fee2e2'"
-                        [style.color]="user.isActive ? '#16a34a' : '#dc2626'"
-                        style="padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600;">
-                    {{user.isActive ? 'Active' : 'Banned'}}
-                  </span>
-                </td>
-                <td style="padding:10px 16px;">
-                  <button mat-icon-button [style.color]="user.isActive ? '#dc2626' : '#16a34a'"
-                          [title]="user.isActive ? 'Ban user' : 'Unban user'"
-                          (click)="toggleUserActive(user)">
-                    <span class="material-icons">{{user.isActive ? 'block' : 'check_circle'}}</span>
-                  </button>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      }
-
-    </mat-card-content>
-  </mat-card>
-}
-
-<!-- Selected user's listings -->
-@if (selectedUser) {
-  <div style="display:flex; align-items:center; gap:12px; margin-bottom:24px;">
-    <button mat-icon-button (click)="closeListings()">
-      <span class="material-icons">arrow_back</span>
-    </button>
-    <h2 style="font-size:22px; font-weight:600; color:#1a1f36; margin:0;">
-      {{selectedUser.name}}'s Listings
-    </h2>
-  </div>
-
-  @if (loadingCars) {
-    <div style="padding:40px; text-align:center; color:#718096;">
-      <span class="material-icons" style="font-size:40px;">hourglass_empty</span>
-      <p>Loading...</p>
-    </div>
-  } @else if (userCars.length === 0) {
-    <div style="padding:60px; text-align:center; color:#718096; background:white; border-radius:12px;">
-      <p>No listings found for this user.</p>
-    </div>
-  } @else {
-    <div style="display:grid; gap:16px;">
-      @for (car of userCars; track car.id) {
-        <mat-card style="border-radius:12px;">
-          <mat-card-content>
-            <div style="display:flex; gap:20px; align-items:flex-start;">
-
-              <img [src]="car.images?.[0] || 'placeholder-car.svg'"
-                   style="width:140px; height:100px; object-fit:cover; border-radius:8px; flex-shrink:0;">
-
-              <div style="flex:1;">
-                <h3 style="margin:0 0 6px; font-size:17px; font-weight:700; color:#1a1f36;">
-                  {{car.year}} {{car.make}} {{car.model}}
-                </h3>
-                <p style="margin:0 0 8px; color:#3b82f6; font-weight:700;">
-                  PKR {{car.price | number}}
-                </p>
-                <p style="margin:0; color:#718096; font-size:13px;">
-                  {{car.location}} • {{car.mileage | number}} km • {{car.transmission}}
-                </p>
-                <div style="margin-top:10px;">
-                  <span [style.background]="car.status === 'approved' ? '#dcfce7' : car.status === 'pending' ? '#fef9c3' : '#fee2e2'"
-                        [style.color]="car.status === 'approved' ? '#16a34a' : car.status === 'pending' ? '#ca8a04' : '#dc2626'"
-                        style="padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600;">
-                    {{car.status | titlecase}}
-                  </span>
-                </div>
-              </div>
-
-              <div style="display:flex; flex-direction:column; gap:8px; min-width:130px;">
-                @if (car.status !== 'approved') {
-                  <button mat-flat-button style="background:#16a34a; color:white;"
-                          (click)="updateCarStatus(car.id, 'approved')">
-                    Approve
-                  </button>
-                }
-                @if (car.status !== 'pending') {
-                  <button mat-flat-button style="background:#ca8a04; color:white;"
-                          (click)="updateCarStatus(car.id, 'pending')">
-                    Set Pending
-                  </button>
-                }
-                @if (car.status !== 'rejected') {
-                  <button mat-flat-button style="background:#dc2626; color:white;"
-                          (click)="updateCarStatus(car.id, 'rejected')">
-                    Reject
-                  </button>
-                }
-              </div>
-
-            </div>
-          </mat-card-content>
-        </mat-card>
-      }
-    </div>
-  }
-}
+                </select>
+              </td>
+              <td style="padding:10px 16px;">
+                <span style="padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600;"
+                      [style.background]="user.isActive ? '#dcfce7' : '#fee2e2'"
+                      [style.color]="user.isActive ? '#16a34a' : '#dc2626'">
+                  {{ user.isActive ? 'Active' : 'Banned' }}
+                </span>
+              </td>
+              <td style="padding:10px 16px;">
+                <button *appHasPermission="'users.manage'" mat-icon-button
+                        [style.color]="user.isActive ? '#dc2626' : '#16a34a'"
+                        [disabled]="busyUid() === user.uid"
+                        [title]="user.isActive ? 'Ban user' : 'Unban user'"
+                        (click)="toggleActive(user)">
+                  <span class="material-icons">{{ user.isActive ? 'block' : 'check_circle' }}</span>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </mat-card-content>
+</mat-card>

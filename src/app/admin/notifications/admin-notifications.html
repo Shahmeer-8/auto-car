@@ -1,0 +1,40 @@
+<h2 style="font-size:22px; font-weight:600; color:#1a1f36; margin:0 0 20px;">Notifications</h2>
+
+@if (loading()) {
+  <div style="padding:40px; text-align:center; color:#718096;">
+    <span class="material-icons" style="font-size:40px;">hourglass_empty</span>
+    <p>Loading...</p>
+  </div>
+} @else if (items().length === 0) {
+  <mat-card style="border-radius:12px;">
+    <mat-card-content>
+      <div style="padding:40px; text-align:center; color:#718096;">
+        <span class="material-icons" style="font-size:40px;">notifications_none</span>
+        <p>You're all caught up.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+} @else {
+  <div style="display:flex; flex-direction:column; gap:10px;">
+    @for (n of items(); track n.id) {
+      <mat-card style="border-radius:12px;" [style.opacity]="n.read ? 0.65 : 1">
+        <mat-card-content>
+          <div style="display:flex; align-items:flex-start; gap:12px;">
+            <span class="material-icons"
+                  [style.color]="n.type === 'error' ? '#dc2626' : n.type === 'warning' ? '#ca8a04' : n.type === 'success' ? '#16a34a' : '#3b82f6'">
+              {{ n.type === 'error' ? 'error' : n.type === 'warning' ? 'warning' : n.type === 'success' ? 'check_circle' : 'info' }}
+            </span>
+            <div style="flex:1;">
+              <div style="font-weight:600; color:#1a1f36;">{{ n.title }}</div>
+              <div style="color:#475569; font-size:14px;">{{ n.body }}</div>
+              <div style="color:#94a3b8; font-size:12px; margin-top:4px;">{{ formatDate(n.createdAt) }}</div>
+            </div>
+            @if (!n.read) {
+              <button mat-button style="color:#3b82f6;" (click)="markRead(n)">Mark read</button>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+}

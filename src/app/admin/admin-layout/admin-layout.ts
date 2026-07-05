@@ -4,11 +4,12 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { collection, getCountFromServer, query, where } from 'firebase/firestore';
 import { getFirebaseDb } from '../../core/firebase/firebase';
+import { HasPermissionDirective } from '../../core/directives/has-permission.directive';
 
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule, HasPermissionDirective],
   templateUrl: './admin-layout.html',
   styleUrl: './admin-layout.css'
 })
