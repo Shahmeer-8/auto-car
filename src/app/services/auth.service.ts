@@ -70,7 +70,11 @@ export class AuthService {
 
   /** Current user's effective permissions (empty when signed out). Used by RBAC guards/directive. */
   get permissions(): string[] {
-    return this.userProfile?.permissions ?? [];
+    const explicit = this.userProfile?.permissions;
+    if (explicit && explicit.length) return explicit;
+    // Legacy fallback: a userType 'admin' account (no RBAC permissions yet) gets full access,
+    // so existing admins keep working without a migration.
+    return this.userProfile?.userType === 'admin' ? ['*'] : [];
   }
 
   waitUntilReady(): Promise<void> {
