@@ -1,0 +1,19 @@
+{
+  "name": "functions",
+  "description": "AutoCar Cloud Functions (business logic, RBAC claims, audit, notifications)",
+  "engines": { "node": "20" },
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc -w",
+    "serve": "npm run build && firebase emulators:start --only functions"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^6.1.0"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.2"
+  },
+  "private": true
+}

@@ -12,7 +12,10 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "firebase:rules": "firebase deploy --only firestore:rules,storage:rules,firestore:indexes",
-    "deploy": "npm run build && firebase deploy"
+    "deploy": "npm run build && firebase deploy",
+    "functions:build": "cd functions && npm run build",
+    "emulate": "firebase emulators:start --import=./.emulator-data --export-on-exit=./.emulator-data",
+    "seed": "node scripts/seed.mjs"
   },
   "prettier": {
     "printWidth": 100,

@@ -68,6 +68,11 @@ export class AuthService {
     return this.userProfile?.isActive !== false;
   }
 
+  /** Current user's effective permissions (empty when signed out). Used by RBAC guards/directive. */
+  get permissions(): string[] {
+    return this.userProfile?.permissions ?? [];
+  }
+
   waitUntilReady(): Promise<void> {
     return firstValueFrom(
       this.authReady$.pipe(
@@ -176,6 +181,9 @@ export class AuthService {
       userType: data['userType'] ?? 'buyer',
       createdAt: data['createdAt']?.toDate?.()?.toISOString?.() ?? data['createdAt'] ?? '',
       isActive: data['isActive'] ?? true,
+      roleId: data['roleId'] ?? undefined,
+      roleName: data['roleName'] ?? undefined,
+      permissions: data['permissions'] ?? [],
     };
   }
 }

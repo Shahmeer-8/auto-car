@@ -50,3 +50,8 @@ local.env
 
 # Generated environment (built from local.env)
 src/environments/environment.ts
+
+# Firebase local
+.emulator-data/
+functions/lib/
+functions/node_modules/

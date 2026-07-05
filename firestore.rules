@@ -11,37 +11,44 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Reads the signed-in user's own profile document.
+    // Reads the signed-in user's own profile document (legacy userType checks).
     function userDoc() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
 
-    // Server-side admin check (cannot be spoofed from the client).
+    // Legacy admin check (kept for backward compatibility during RBAC migration).
     function isAdmin() {
       return isSignedIn() && userDoc().userType == 'admin';
     }
 
-    // Active (non-banned) signed-in user.
     function isActiveUser() {
       return isSignedIn() && userDoc().isActive == true;
     }
 
+    // RBAC: permissions come from Auth custom claims (set only by a Cloud Function).
+    function hasPerm(p) {
+      return isSignedIn()
+        && request.auth.token.permissions != null
+        && (request.auth.token.permissions.hasAny(['*'])
+            || request.auth.token.permissions.hasAny([p]));
+    }
+
     match /users/{userId} {
-      // Owner reads own profile; admins read everyone.
-      allow read: if isOwner(userId) || isAdmin();
+      allow read: if isOwner(userId) || isAdmin() || hasPerm('users.view');
 
       // Self-registration only as buyer/seller — never admin — and must start active.
       allow create: if isOwner(userId)
         && request.resource.data.userType in ['buyer', 'seller']
         && request.resource.data.isActive == true;
 
-      // Admins may change anything (role, ban status).
-      // Owners may edit their own profile but CANNOT change their userType.
-      allow update: if isAdmin()
+      // Staff with users.manage (or legacy admin) may change anything, including role fields.
+      // Owners may edit their own profile but CANNOT touch privileged fields.
+      allow update: if hasPerm('users.manage') || isAdmin()
         || (isOwner(userId)
-            && request.resource.data.userType == resource.data.userType);
+            && !request.resource.data.diff(resource.data).affectedKeys()
+                 .hasAny(['userType', 'roleId', 'roleName', 'permissions', 'isActive']));
 
-      allow delete: if isAdmin();
+      allow delete: if hasPerm('users.manage') || isAdmin();
 
       match /savedCars/{carId} {
         allow read, write: if isOwner(userId);
@@ -49,43 +56,61 @@ service cloud.firestore {
     }
 
     match /cars/{carId} {
-      // Anyone can see approved cars; owners see their own; admins see all.
       allow read: if resource.data.status == 'approved'
         || (isSignedIn() && resource.data.sellerId == request.auth.uid)
-        || isAdmin();
+        || isAdmin() || hasPerm('ads.view');
 
-      // Create: active owner, email must match the auth token, must start as 'pending'.
       allow create: if isActiveUser()
         && request.resource.data.sellerId == request.auth.uid
         && request.resource.data.email == request.auth.token.email
         && request.resource.data.status == 'pending';
 
-      // Update: admins moderate freely (approve/reject).
-      // Owners may edit their own listing but CANNOT self-approve — it stays 'pending'
-      // and ownership cannot be reassigned.
-      allow update: if isAdmin()
+      // Moderators (ads.moderate) or legacy admins moderate freely.
+      // Owners may edit their own listing but it stays 'pending' and ownership can't move.
+      allow update: if isAdmin() || hasPerm('ads.moderate') || hasPerm('ads.edit')
         || (isSignedIn()
             && resource.data.sellerId == request.auth.uid
             && request.resource.data.sellerId == resource.data.sellerId
             && request.resource.data.status == 'pending');
 
-      // Owners can delete their own listing; admins can delete any.
-      allow delete: if isAdmin()
+      allow delete: if isAdmin() || hasPerm('ads.delete')
         || (isSignedIn() && resource.data.sellerId == request.auth.uid);
     }
 
-    // Site configuration: car attributes (makes/body/fuel) and CMS content.
-    // Publicly readable so the storefront can render; only admins can change it.
-    match /config/{docId} {
-      allow read: if true;
-      allow write: if isAdmin();
+    // Dynamic RBAC roles: readable by any signed-in user (needed to render menus/labels);
+    // only roles.manage may change them.
+    match /roles/{roleId} {
+      allow read: if isSignedIn();
+      allow write: if hasPerm('roles.manage') || isAdmin();
     }
 
-    // User complaints: any signed-in user can file one; only admins manage them.
+    // Immutable audit trail: only Cloud Functions (Admin SDK) write; audit.view reads.
+    match /auditLogs/{logId} {
+      allow read: if hasPerm('audit.view') || isAdmin();
+      allow write: if false;
+    }
+
+    // In-app notifications: recipients read their own; a user may mark their own as read.
+    // Creation/deletion is server-side only (Cloud Functions).
+    match /notifications/{notifId} {
+      allow read: if isSignedIn()
+        && (resource.data.userId == request.auth.uid || hasPerm('notifications.view') || isAdmin());
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow create, delete: if false;
+    }
+
+    // Site configuration + CMS content: public read; cms.edit / settings.manage write.
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if hasPerm('cms.edit') || hasPerm('settings.manage') || isAdmin();
+    }
+
+    // Complaints: any signed-in user can file; staff manage.
     match /complaints/{complaintId} {
       allow create: if isSignedIn()
         && request.resource.data.status == 'open';
-      allow read, update, delete: if isAdmin();
+      allow read, update, delete: if hasPerm('customers.manage') || isAdmin();
     }
   }
 }
