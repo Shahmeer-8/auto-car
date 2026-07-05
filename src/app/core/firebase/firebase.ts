@@ -18,7 +18,7 @@ let functionsInstance: Functions;
  *   - in the browser console run: localStorage.setItem('autocar_use_emulators','1')
  * (then run `npm run emulate` + `npm run seed`). Never used in production builds.
  */
-const USE_EMULATORS = false;
+const USE_EMULATORS = true;
 
 function emulatorsEnabled(): boolean {
   if (environment.production) return false;
