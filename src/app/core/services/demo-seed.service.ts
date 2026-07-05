@@ -1,5 +1,15 @@
 import { Injectable, inject } from '@angular/core';
-import { addDoc, collection, doc, setDoc, updateDoc } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 import { getFirebaseDb } from '../firebase/firebase';
 import { AuthService } from '../../services/auth.service';
 
@@ -18,12 +28,38 @@ export class DemoSeedService {
     return new Date(Date.now() - n * 86400000).toISOString();
   }
 
+  /** Deletes previously-seeded demo docs (tagged demo:true) from a collection. */
+  private async clearDemo(coll: string): Promise<void> {
+    const snap = await getDocs(query(collection(this.db, coll), where('demo', '==', true)));
+    for (const d of snap.docs) {
+      await deleteDoc(doc(this.db, coll, d.id));
+    }
+  }
+
+  /**
+   * Deletes demo cars: those tagged demo:true AND legacy ones from earlier seed runs
+   * (identified by an "AD-2026-" refCode, which real user listings never have).
+   */
+  private async clearDemoCars(): Promise<void> {
+    const snap = await getDocs(collection(this.db, 'cars'));
+    for (const d of snap.docs) {
+      const data = d.data() as { demo?: boolean; refCode?: string };
+      const isDemo = data.demo === true
+        || (typeof data.refCode === 'string' && data.refCode.startsWith('AD-2026-'));
+      if (isDemo) await deleteDoc(doc(this.db, 'cars', d.id));
+    }
+  }
+
   async seedAll(): Promise<void> {
     const user = this.auth.currentUser;
     if (!user) throw new Error('Not signed in');
     const uid = user.uid;
     const email = this.auth.getUserEmail() || user.email || '';
     const ownerName = this.auth.getUserDisplayName() || 'Admin';
+
+    // Remove any demo docs from previous runs so re-running doesn't pile up duplicates.
+    await this.clearDemoCars();
+    await this.clearDemo('complaints');
 
     await this.seedConfig();
     await this.seedRoles();
@@ -107,7 +143,7 @@ export class DemoSeedService {
         description: `${c.year} ${c.make} ${c.model} in excellent condition, well maintained.`,
         images: [c.img], coverImage: c.img,
         sellerId: uid, ownerName, email, phone: '+92 300 1112223',
-        status: 'pending', featured: false,
+        status: 'pending', featured: false, demo: true,
         submittedAt: this.daysAgo(cars.length - i), createdAt: this.daysAgo(cars.length - i), updatedAt: new Date().toISOString(),
       });
       // Move to its demo status / featured flag (admin update allowed).
@@ -122,12 +158,20 @@ export class DemoSeedService {
   }
 
   private async seedComplaints(email: string, name: string): Promise<void> {
+    // Security rules allow CREATE only with status 'open'; a resolved one is created open
+    // then updated (admin update is allowed).
     const complaints = [
-      { subject: 'Seller not responding', message: 'Called the Civic seller, no response for 2 days.', email, name, status: 'open', createdAt: this.daysAgo(3) },
-      { subject: 'Wrong mileage listed', message: 'The Corolla mileage seems higher than advertised.', email: 'faisal@example.com', name: 'Faisal Iqbal', status: 'open', createdAt: this.daysAgo(1) },
-      { subject: 'Great experience', message: 'Bought a Yaris, smooth process. Thanks!', email: 'nida@example.com', name: 'Nida Aslam', status: 'resolved', createdAt: this.daysAgo(9) },
+      { subject: 'Seller not responding', message: 'Called the Civic seller, no response for 2 days.', email, name, resolved: false, createdAt: this.daysAgo(3) },
+      { subject: 'Wrong mileage listed', message: 'The Corolla mileage seems higher than advertised.', email: 'faisal@example.com', name: 'Faisal Iqbal', resolved: false, createdAt: this.daysAgo(1) },
+      { subject: 'Great experience', message: 'Bought a Yaris, smooth process. Thanks!', email: 'nida@example.com', name: 'Nida Aslam', resolved: true, createdAt: this.daysAgo(9) },
     ];
-    for (const c of complaints) await addDoc(collection(this.db, 'complaints'), c);
+    for (const c of complaints) {
+      const ref = await addDoc(collection(this.db, 'complaints'), {
+        subject: c.subject, message: c.message, email: c.email, name: c.name,
+        status: 'open', demo: true, createdAt: c.createdAt,
+      });
+      if (c.resolved) await updateDoc(ref, { status: 'resolved' });
+    }
   }
 
   private async seedNotifications(uid: string): Promise<void> {

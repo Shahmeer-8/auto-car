@@ -55,7 +55,8 @@ export class AdminDashboard implements OnInit, OnDestroy {
       alert('Demo data loaded! The dashboard and all pages will now show data.');
     } catch (err) {
       console.error('Demo seed failed:', err);
-      alert('Failed to load demo data. Make sure you are logged in as an admin.');
+      const e = err as { code?: string; message?: string };
+      alert('Failed to load demo data.\n\nError: ' + (e?.code || e?.message || String(err)));
     } finally {
       this.seeding = false;
       this.cdr.detectChanges();
