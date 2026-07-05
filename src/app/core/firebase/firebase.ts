@@ -11,9 +11,27 @@ let dbInstance: Firestore;
 let storageInstance: FirebaseStorage;
 let functionsInstance: Functions;
 
-// Connect to local emulators exactly once, only in dev.
-let emulatorsConnected = false;
-const useEmulators = !environment.production;
+/**
+ * Emulator use is OPT-IN. By default `npm start` talks to the real cloud project
+ * (so login works out of the box). To use the LOCAL emulator instead, EITHER:
+ *   - set USE_EMULATORS = true below, OR
+ *   - in the browser console run: localStorage.setItem('autocar_use_emulators','1')
+ * (then run `npm run emulate` + `npm run seed`). Never used in production builds.
+ */
+const USE_EMULATORS = false;
+
+function emulatorsEnabled(): boolean {
+  if (environment.production) return false;
+  if (USE_EMULATORS) return true;
+  try {
+    return typeof localStorage !== 'undefined'
+      && localStorage.getItem('autocar_use_emulators') === '1';
+  } catch {
+    return false;
+  }
+}
+
+const useEmulators = emulatorsEnabled();
 
 export function getFirebaseApp(): FirebaseApp {
   if (!app) {
