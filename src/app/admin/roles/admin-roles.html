@@ -1,61 +1,120 @@
-<h2 style="font-size:22px; font-weight:600; color:#1a1f36; margin:0 0 24px;">Roles &amp; permissions</h2>
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+  <h2 style="font-size:22px; font-weight:600; color:#1a1f36; margin:0;">Roles &amp; permissions</h2>
+  <button *appHasPermission="'roles.manage'" mat-flat-button
+          style="background:#3b82f6; color:white;" (click)="startCreate()">
+    <span class="material-icons" style="vertical-align:middle; font-size:18px;">add</span> New role
+  </button>
+</div>
 
-<p style="font-size:13px; color:#718096; margin:0 0 20px;">Role changes take effect the next time the user signs in.</p>
+<p style="color:#718096; font-size:13px; margin:0 0 16px;">
+  Permission changes take effect the next time the affected user signs in.
+</p>
 
-@if (loading) {
-  <div style="display:flex; align-items:center; gap:8px; color:#718096; padding:24px 0;">
-    <span class="material-icons">hourglass_empty</span>
-    <span>Loading users...</span>
-  </div>
-} @else {
-  <mat-card style="border-radius:12px; overflow:hidden;">
-    <table style="width:100%; border-collapse:collapse;">
-      <thead>
-        <tr style="background:#f8fafc; text-align:left;">
-          <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Name</th>
-          <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Email</th>
-          <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Current role</th>
-          <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Change role</th>
-          <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Status</th>
-          <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (user of users; track user.id) {
-          <tr style="border-bottom:1px solid #f1f5f9;">
-            <td style="padding:10px 16px;"><strong>{{ user.name }}</strong></td>
-            <td style="padding:10px 16px;">{{ user.email }}</td>
-            <td style="padding:10px 16px;">
-              @if (user.userType === 'admin') {
-                <span style="display:inline-block; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:600; background:#ede9fe; color:#7c3aed;">Admin</span>
-              } @else if (user.userType === 'seller') {
-                <span style="display:inline-block; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:600; background:#dbeafe; color:#2563eb;">Seller</span>
-              } @else {
-                <span style="display:inline-block; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:600; background:#f1f5f9; color:#475569;">Buyer</span>
-              }
-            </td>
-            <td style="padding:10px 16px;">
-              <select [ngModel]="user.userType" (ngModelChange)="changeRole(user, $event)" style="padding:6px 10px; border:1px solid #e2e8f0; border-radius:8px;">
-                @for (r of roleOptions; track r) {
-                  <option [value]="r">{{ r | titlecase }}</option>
-                }
-              </select>
-            </td>
-            <td style="padding:10px 16px;">
-              @if (user.isActive) {
-                <span style="display:inline-block; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:600; background:#dcfce7; color:#16a34a;">Active</span>
-              } @else {
-                <span style="display:inline-block; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:600; background:#fee2e2; color:#dc2626;">Banned</span>
-              }
-            </td>
-            <td style="padding:10px 16px;">
-              <button mat-icon-button [style.color]="user.isActive ? '#dc2626' : '#16a34a'" [title]="user.isActive ? 'Ban' : 'Unban'" (click)="toggleActive(user)">
-                <span class="material-icons">{{ user.isActive ? 'block' : 'check_circle' }}</span>
-              </button>
-            </td>
-          </tr>
+@if (editing(); as role) {
+  <!-- Editor -->
+  <mat-card style="border-radius:12px; margin-bottom:24px;">
+    <mat-card-content>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+        <div>
+          <label style="display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px;">Role name</label>
+          <input [(ngModel)]="role.name" [disabled]="role.isSystem" placeholder="e.g. Branch Manager"
+                 style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box;" />
+        </div>
+        <div>
+          <label style="display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px;">Description</label>
+          <input [(ngModel)]="role.description"
+                 style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; box-sizing:border-box;" />
+        </div>
+      </div>
+
+      @if (role.isSystem) {
+        <p style="color:#ca8a04; font-size:13px; margin:0 0 12px;">This is a system role — permissions are read-only.</p>
+      }
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:16px;">
+        @for (key of groupKeys; track key) {
+          <div style="border:1px solid #eef2f7; border-radius:10px; padding:12px;">
+            <label style="display:flex; align-items:center; gap:8px; font-weight:700; color:#1a1f36; text-transform:capitalize; margin-bottom:8px;">
+              <input type="checkbox" [disabled]="role.isSystem"
+                     [checked]="groupAllChecked(key)"
+                     (change)="toggleGroup(key, $any($event.target).checked)" />
+              {{ key }}
+            </label>
+            @for (p of groups[key]; track p) {
+              <label style="display:flex; align-items:center; gap:8px; font-size:13px; color:#475569; padding:3px 0;">
+                <input type="checkbox" [disabled]="role.isSystem"
+                       [checked]="hasPermission(p)"
+                       (change)="togglePermission(p, $any($event.target).checked)" />
+                {{ p }}
+              </label>
+            }
+          </div>
         }
-      </tbody>
-    </table>
+      </div>
+
+      <div style="display:flex; gap:12px; margin-top:20px;">
+        @if (!role.isSystem) {
+          <button mat-flat-button style="background:#16a34a; color:white;" [disabled]="saving()" (click)="save()">
+            {{ saving() ? 'Saving...' : 'Save role' }}
+          </button>
+        }
+        <button mat-stroked-button (click)="cancel()">Close</button>
+      </div>
+    </mat-card-content>
   </mat-card>
 }
+
+<!-- Roles list -->
+<mat-card style="border-radius:12px; overflow:hidden;">
+  <mat-card-content style="padding:0;">
+    @if (loading()) {
+      <div style="padding:40px; text-align:center; color:#718096;">
+        <span class="material-icons" style="font-size:40px;">hourglass_empty</span>
+        <p>Loading roles...</p>
+      </div>
+    } @else {
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr style="background:#f8fafc; text-align:left;">
+            <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Role</th>
+            <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Permissions</th>
+            <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Type</th>
+            <th style="padding:12px 16px; font-size:13px; color:#718096; font-weight:600;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (role of roles(); track role.id) {
+            <tr style="border-bottom:1px solid #f1f5f9;">
+              <td style="padding:10px 16px;">
+                <strong>{{ role.name }}</strong><br />
+                <small style="color:#718096;">{{ role.description }}</small>
+              </td>
+              <td style="padding:10px 16px; color:#475569;">
+                {{ role.permissions.includes('*') ? 'All permissions' : role.permissions.length + ' permission(s)' }}
+              </td>
+              <td style="padding:10px 16px;">
+                <span style="padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600;"
+                      [style.background]="role.isSystem ? '#ede9fe' : '#dbeafe'"
+                      [style.color]="role.isSystem ? '#7c3aed' : '#2563eb'">
+                  {{ role.isSystem ? 'System' : 'Custom' }}
+                </span>
+              </td>
+              <td style="padding:10px 16px;">
+                <button *appHasPermission="'roles.manage'" mat-icon-button style="color:#3b82f6;"
+                        title="Edit" (click)="startEdit(role)">
+                  <span class="material-icons">edit</span>
+                </button>
+                @if (!role.isSystem) {
+                  <button *appHasPermission="'roles.manage'" mat-icon-button style="color:#dc2626;"
+                          title="Delete" (click)="remove(role)">
+                    <span class="material-icons">delete</span>
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </mat-card-content>
+</mat-card>
