@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { CarService } from '../services/car.service';
 import { AuthService } from '../services/auth.service';
+import { ImageUploadService } from '../services/image-upload.service';
 
 @Component({
   selector: 'app-sell-your-car',
@@ -62,6 +63,7 @@ export class SellYourCar implements OnInit {
     private route: ActivatedRoute,  // ✅ Added
     private carService: CarService,
     private authService: AuthService,
+    private imageUpload: ImageUploadService,
   ) {}
 
   // ✅ Edit mode check
@@ -142,8 +144,8 @@ export class SellYourCar implements OnInit {
     const files = event.target.files;
     this.imageError = '';
 
-    if (this.images.length + files.length > 50) {
-      this.imageError = `Maximum 50 photos allowed. You can add ${50 - this.images.length} more.`;
+    if (this.images.length + files.length > 20) {
+      this.imageError = `Maximum 20 photos allowed. You can add ${20 - this.images.length} more.`;
       return;
     }
 
@@ -232,6 +234,12 @@ export class SellYourCar implements OnInit {
       const ownerName = this.authService.getUserDisplayName();
       const email = this.authService.getUserEmail();
 
+      // New listing: allocate id first so photos land under cars/{uid}/{listingId}/
+      const listingId = this.isEditMode && this.editListingId
+        ? this.editListingId
+        : this.carService.newCarId();
+      const uploadedImages = await this.imageUpload.uploadListingImages(user.uid, listingId, this.images);
+
       const data = {
         make:         this.make,
         model:        this.model,
@@ -246,15 +254,15 @@ export class SellYourCar implements OnInit {
         description:  this.description,
         location:     this.location,
         phone:        this.phone,
-        images:       this.images,
+        images:       uploadedImages,
       };
 
       if (this.isEditMode && this.editListingId) {
         // Edit: update fields and reset to pending for re-moderation.
         await this.carService.updateCar(this.editListingId, { ...data, status: 'pending' });
       } else {
-        // New listing: createCar sets sellerId/email/status server-side requirements.
-        await this.carService.createCar({
+        // New listing: createCarWithId sets sellerId/email/status server-side requirements.
+        await this.carService.createCarWithId(listingId, {
           ...data,
           sellerId: user.uid,
           ownerName,

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, switchMap } from 'rxjs';
-import { collection, doc, getDoc, getDocs, deleteDoc, updateDoc, addDoc, setDoc, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, deleteDoc, updateDoc, setDoc, query, where } from 'firebase/firestore';
 import { getFirebaseDb } from '../core/firebase/firebase';
 import { CarListing, CreateCarListingInput, SavedCar } from '../models/car.model';
 
@@ -41,16 +41,24 @@ export class CarService {
 
   // Create a new listing in Firestore. Always starts as 'pending' for admin moderation.
   async createCar(input: CreateCarListingInput): Promise<string> {
+    return this.createCarWithId(this.newCarId(), input);
+  }
+
+  /** Pre-allocate a listing id so photos can be uploaded under it before the doc exists. */
+  newCarId(): string {
+    return doc(collection(this.db, 'cars')).id;
+  }
+
+  async createCarWithId(id: string, input: CreateCarListingInput): Promise<string> {
     const payload = {
       ...input,
       color: input.color ?? 'Not specified',
       status: 'pending' as const,
       submittedAt: new Date().toISOString(),
     };
-
-    const ref = await addDoc(collection(this.db, 'cars'), payload);
+    await setDoc(doc(this.db, 'cars', id), payload);
     this.notifyUpdate();
-    return ref.id;
+    return id;
   }
 
   // ✅ 4. Single car by ID
