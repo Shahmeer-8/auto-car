@@ -21,6 +21,7 @@ export const routes: Routes = [
   { path: 'login', component: Login, canActivate: [guestGuard] },
   { path: 'register', component: Register, canActivate: [guestGuard] },
   { path: 'guides', component: Guides },
+  { path: 'guides/:slug', loadComponent: () => import('./guides/guide-detail').then((m) => m.GuideDetail) },
   { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
   { path: 'sell-your-car', component: SellYourCar, canActivate: [authGuard] },
   {
@@ -30,5 +31,8 @@ export const routes: Routes = [
   },
   { path: 'privacy', loadComponent: () => import('./legal/privacy').then((m) => m.PrivacyPage) },
   { path: 'terms', loadComponent: () => import('./legal/terms').then((m) => m.TermsPage) },
+  { path: 'calculator', loadComponent: () => import('./tools/loan-calculator').then((m) => m.LoanCalculator) },
+  { path: 'checklist', loadComponent: () => import('./tools/inspection-checklist').then((m) => m.InspectionChecklist) },
+  { path: 'decoder', loadComponent: () => import('./tools/chassis-decoder').then((m) => m.ChassisDecoder) },
   { path: '**', redirectTo: '' },
 ];

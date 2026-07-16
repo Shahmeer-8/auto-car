@@ -1,4 +1,15 @@
 import { SliderConfig, SliderItem } from '../components/slider/slider.types';
+import { GUIDES_DATA, guideSlug } from '../guides/guides.data';
+
+/**
+ * Slider items (GUIDES/STUDIES/RESOURCES below) don't carry real guide slugs.
+ * When an item's title matches a real guide, link straight to its detail page;
+ * otherwise fall back to the guides listing page.
+ */
+function guideRouterLink(item: SliderItem): string | any[] {
+  const match = GUIDES_DATA.find((g) => g.title === item.title);
+  return match ? ['/guides', guideSlug(match.title)] : ['/guides'];
+}
 
 export const HARDCODED_CARS: SliderItem[] = [
   {
@@ -390,7 +401,7 @@ export const GUIDES_CONFIG: SliderConfig = {
   headerLayout: 'stacked',
   bordered: true,
   autoPlayMs: 4000,
-  getRouterLink: (_item, index) => ['/guide', index],
+  getRouterLink: (item) => guideRouterLink(item),
 };
 
 export const RANKINGS_CONFIG: SliderConfig = {
@@ -418,7 +429,7 @@ export const STUDIES_CONFIG: SliderConfig = {
   compactPadding: true,
   showDivider: true,
   autoPlayMs: 5000,
-  getRouterLink: (_item, index) => ['/guide', index],
+  getRouterLink: (item) => guideRouterLink(item),
 };
 
 export const RESOURCES_CONFIG: SliderConfig = {
@@ -426,7 +437,7 @@ export const RESOURCES_CONFIG: SliderConfig = {
   compactPadding: true,
   showDivider: true,
   autoPlayMs: 5000,
-  getRouterLink: (_item, index) => ['/guide', index],
+  getRouterLink: (item) => guideRouterLink(item),
 };
 
 export const BEST_USED_CONFIG: SliderConfig = {

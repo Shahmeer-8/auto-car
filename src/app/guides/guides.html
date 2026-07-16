@@ -60,7 +60,7 @@
 
     <!-- Guides Grid -->
     <div class="guides-grid" *ngIf="filteredGuides.length > 0">
-      <div class="guide-card" *ngFor="let guide of filteredGuides" [routerLink]="['/guide', guide.slug]">
+      <div class="guide-card" *ngFor="let guide of filteredGuides" [routerLink]="['/guides', slugOf(guide)]">
         <div class="guide-image-wrap">
           <img [src]="guide.image" [alt]="guide.title" class="guide-image">
           <div class="guide-overlay"></div>
