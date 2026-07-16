@@ -2,6 +2,17 @@ import { CarListing } from '../models/car.model';
 
 export type SortKey = 'newest' | 'price-asc' | 'price-desc' | 'year-desc' | 'mileage-asc';
 
+/** submittedAt can be an ISO string or a Firestore Timestamp — normalize to epoch ms. */
+function toTime(v: unknown): number {
+  if (typeof v === 'string') {
+    const t = Date.parse(v);
+    return isNaN(t) ? 0 : t;
+  }
+  const obj = v as { toDate?: () => Date } | null | undefined;
+  if (obj && typeof obj.toDate === 'function') return obj.toDate().getTime();
+  return 0;
+}
+
 export interface CarFilters {
   make: string;
   model: string;
@@ -45,7 +56,7 @@ export function applyFilters(cars: CarListing[], f: CarFilters): CarListing[] {
   });
 
   const by = {
-    'newest': (a: CarListing, b: CarListing) => (b.submittedAt || '').localeCompare(a.submittedAt || ''),
+    'newest': (a: CarListing, b: CarListing) => toTime(b.submittedAt) - toTime(a.submittedAt),
     'price-asc': (a: CarListing, b: CarListing) => Number(a.price) - Number(b.price),
     'price-desc': (a: CarListing, b: CarListing) => Number(b.price) - Number(a.price),
     'year-desc': (a: CarListing, b: CarListing) => Number(b.year) - Number(a.year),

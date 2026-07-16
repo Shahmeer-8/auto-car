@@ -59,4 +59,13 @@ describe('applyFilters', () => {
     ];
     expect(applyFilters(list, EMPTY_FILTERS).map(c => c.id)).toEqual(['new', 'old']);
   });
+
+  it('sorts newest with mixed string and Timestamp submittedAt values', () => {
+    const ts = { toDate: () => new Date('2026-07-01T00:00:00.000Z') } as unknown as string;
+    const list = [
+      car({ id: 'str', submittedAt: '2026-01-01T00:00:00.000Z' }),
+      car({ id: 'ts', submittedAt: ts }),
+    ];
+    expect(applyFilters(list, EMPTY_FILTERS).map(c => c.id)).toEqual(['ts', 'str']);
+  });
 });
