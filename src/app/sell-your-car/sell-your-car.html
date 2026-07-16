@@ -208,7 +208,7 @@
           </div>
           <input #fileInput type="file" accept="image/*" multiple
             (change)="onImageUpload($event)" style="display:none">
-          <span class="error-msg" *ngIf="imageError">{{ imageError }}</span>
+          <span class="error-msg" *ngIf="imageError()">{{ imageError() }}</span>
         </div>
 
         <!-- ✅ Image Count Bar -->
@@ -293,9 +293,9 @@
 
         <div class="form-actions">
           <button class="btn-back" (click)="prevStep()">← Back</button>
-          <button class="btn-submit" (click)="onSubmit()" [disabled]="isLoading">
-            <span *ngIf="!isLoading">🚀 Submit Listing</span>
-            <span *ngIf="isLoading">Submitting...</span>
+          <button class="btn-submit" (click)="onSubmit()" [disabled]="isLoading()">
+            <span *ngIf="!isLoading()">🚀 Submit Listing</span>
+            <span *ngIf="isLoading()">Submitting...</span>
           </button>
         </div>
       </div>

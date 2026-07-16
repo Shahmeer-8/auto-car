@@ -8,6 +8,8 @@ import {
   HostListener,
   signal,
   computed,
+  input,
+  effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -25,7 +27,7 @@ import { SliderConfig, SliderItem } from './slider.types';
 })
 export class Slider implements OnInit, OnDestroy, OnChanges {
   @Input({ required: true }) title!: string;
-  @Input({ required: true }) items: SliderItem[] = [];
+  items = input.required<SliderItem[]>();
   @Input({ required: true }) config!: SliderConfig;
 
   currentIndex = signal(0);
@@ -33,10 +35,11 @@ export class Slider implements OnInit, OnDestroy, OnChanges {
   readonly cardGap = 16;
 
   private interval: ReturnType<typeof setInterval> | null = null;
+  private itemsInitialized = false;
 
   hostClasses = '';
 
-  maxIndex = computed(() => Math.max(0, this.items.length - this.visibleCards()));
+  maxIndex = computed(() => Math.max(0, this.items().length - this.visibleCards()));
 
   translateX = computed(() => {
     const index = this.currentIndex();
@@ -49,6 +52,23 @@ export class Slider implements OnInit, OnDestroy, OnChanges {
 
   dots = computed(() => Array.from({ length: this.maxIndex() + 1 }, (_, i) => i));
 
+  constructor() {
+    // Signal inputs don't surface in ngOnChanges/SimpleChanges, so react to `items`
+    // changing (e.g. async data arriving) here instead. Skip the initial run — that
+    // case is already handled by ngOnInit's own updateVisibleCards/startAutoSlide.
+    effect(() => {
+      this.items();
+      if (!this.itemsInitialized) {
+        this.itemsInitialized = true;
+        return;
+      }
+      if (this.currentIndex() > this.maxIndex()) {
+        this.currentIndex.set(0);
+      }
+      this.restartAutoSlide();
+    });
+  }
+
   ngOnInit(): void {
     this.updateHostClasses();
     this.updateVisibleCards();
@@ -56,7 +76,7 @@ export class Slider implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['config'] || changes['items']) {
+    if (changes['config']) {
       this.updateHostClasses();
       if (this.currentIndex() > this.maxIndex()) {
         this.currentIndex.set(0);

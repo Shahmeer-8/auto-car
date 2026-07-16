@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -32,8 +32,8 @@ export class Guides implements OnInit {
   searchQuery = '';
   selectedCategory = 'all';
   sortBy = 'latest';
-  newsletterSuccess = false;
-  newsletterError = '';
+  newsletterSuccess = signal(false);
+  newsletterError = signal('');
   private db = getFirebaseDb();
 
   allGuides: Guide[] = GUIDES_DATA;
@@ -186,11 +186,11 @@ export class Guides implements OnInit {
     const form = event.target as HTMLFormElement;
     const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement;
     const email = emailInput?.value?.trim();
-    this.newsletterSuccess = false;
-    this.newsletterError = '';
+    this.newsletterSuccess.set(false);
+    this.newsletterError.set('');
 
     if (!email || !/.+@.+\..+/.test(email)) {
-      this.newsletterError = 'Please enter a valid email address.';
+      this.newsletterError.set('Please enter a valid email address.');
       return;
     }
 
@@ -200,11 +200,11 @@ export class Guides implements OnInit {
         source: 'guides',
         createdAt: serverTimestamp(),
       });
-      this.newsletterSuccess = true;
+      this.newsletterSuccess.set(true);
       form.reset();
     } catch (err) {
       console.error('Newsletter subscribe failed:', err);
-      this.newsletterError = 'Subscription failed. Please try again.';
+      this.newsletterError.set('Subscription failed. Please try again.');
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -35,7 +35,7 @@ import {
   styleUrls: ['./home.css'],
 })
 export class Home implements OnInit, OnDestroy {
-  popularCars: SliderItem[] = [];
+  readonly popularCars = signal<SliderItem[]>([]);
   guides = GUIDES;
   rankings = RANKINGS;
   reliableCars = RELIABLE_CARS;
@@ -66,7 +66,7 @@ export class Home implements OnInit, OnDestroy {
     { logo: '🚐', name: 'Isuzu' },
   ];
 
-  private brandCounts = new Map<string, number>();
+  private readonly brandCounts = signal(new Map<string, number>());
 
   bodyTypes = [
     { icon: '🚗', name: 'Sedan' },
@@ -129,16 +129,17 @@ export class Home implements OnInit, OnDestroy {
   }
 
   countFor(name: string): number {
-    return this.brandCounts.get(name.toLowerCase()) ?? 0;
+    return this.brandCounts().get(name.toLowerCase()) ?? 0;
   }
 
   private buildPopularCars(listedCars: CarListing[]): void {
-    this.brandCounts = new Map();
+    const counts = new Map<string, number>();
     for (const l of listedCars) {
       const key = (l.make || '').trim().toLowerCase();
       if (!key) continue;
-      this.brandCounts.set(key, (this.brandCounts.get(key) ?? 0) + 1);
+      counts.set(key, (counts.get(key) ?? 0) + 1);
     }
+    this.brandCounts.set(counts);
 
     const firestoreItems: SliderItem[] = listedCars.map((l) => ({
       id: l.id,
@@ -150,6 +151,6 @@ export class Home implements OnInit, OnDestroy {
       isUserListing: true,
     }));
 
-    this.popularCars = [...firestoreItems, ...HARDCODED_CARS];
+    this.popularCars.set([...firestoreItems, ...HARDCODED_CARS]);
   }
 }

@@ -147,11 +147,11 @@
         <input type="email" placeholder="Enter your email address" required>
         <button type="submit" class="btn-subscribe">Subscribe</button>
       </form>
-      @if (newsletterSuccess) {
+      @if (newsletterSuccess()) {
         <p class="newsletter-msg success" role="status">Thank you for subscribing! You'll receive our weekly JDM insights.</p>
       }
-      @if (newsletterError) {
-        <p class="newsletter-msg error" role="alert">{{ newsletterError }}</p>
+      @if (newsletterError()) {
+        <p class="newsletter-msg error" role="alert">{{ newsletterError() }}</p>
       }
     </div>
   </div>

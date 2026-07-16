@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
@@ -15,7 +15,7 @@ import { ImageUploadService } from '../services/image-upload.service';
 })
 export class SellYourCar implements OnInit {
 
-  isLoading = false;
+  isLoading = signal(false);
   currentStep = 1;
   totalSteps = 3;
 
@@ -42,7 +42,7 @@ export class SellYourCar implements OnInit {
   // Step 3
   phone = '';
   images: string[] = [];
-  imageError = '';
+  imageError = signal('');
 
   // Drag & Drop
   dragIndex: number | null = null;
@@ -142,10 +142,10 @@ export class SellYourCar implements OnInit {
   // ✅ Image upload with compression
   onImageUpload(event: any) {
     const files = event.target.files;
-    this.imageError = '';
+    this.imageError.set('');
 
     if (this.images.length + files.length > 20) {
-      this.imageError = `Maximum 20 photos allowed. You can add ${20 - this.images.length} more.`;
+      this.imageError.set(`Maximum 20 photos allowed. You can add ${20 - this.images.length} more.`);
       return;
     }
 
@@ -227,7 +227,7 @@ export class SellYourCar implements OnInit {
       return;
     }
 
-    this.isLoading = true;
+    this.isLoading.set(true);
 
     try {
       const user = this.authService.currentUser!;
@@ -276,7 +276,7 @@ export class SellYourCar implements OnInit {
       console.error(err);
       this.errors = { submit: 'Failed to save your listing. Please try again.' };
     } finally {
-      this.isLoading = false;
+      this.isLoading.set(false);
     }
   }
 

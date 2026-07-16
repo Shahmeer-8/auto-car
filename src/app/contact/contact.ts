@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -18,9 +18,9 @@ export class Contact {
   readonly savedContent = inject(ContentService).saved;
 
   contactForm: FormGroup;
-  isSubmitting = false;
-  submitSuccess = false;
-  submitError = false;
+  isSubmitting = signal(false);
+  submitSuccess = signal(false);
+  submitError = signal(false);
   private db = getFirebaseDb();
 
   constructor(private fb: FormBuilder) {
@@ -44,8 +44,8 @@ export class Contact {
       return;
     }
 
-    this.isSubmitting = true;
-    this.submitError = false;
+    this.isSubmitting.set(true);
+    this.submitError.set(false);
     const v = this.contactForm.value;
 
     try {
@@ -69,14 +69,14 @@ export class Contact {
         } catch { /* newsletter opt-in failure must not fail the contact submit */ }
       }
 
-      this.submitSuccess = true;
+      this.submitSuccess.set(true);
       this.contactForm.reset();
-      setTimeout(() => { this.submitSuccess = false; }, 5000);
+      setTimeout(() => { this.submitSuccess.set(false); }, 5000);
     } catch (err) {
       console.error('Contact submit failed:', err);
-      this.submitError = true;
+      this.submitError.set(true);
     } finally {
-      this.isSubmitting = false;
+      this.isSubmitting.set(false);
     }
   }
 

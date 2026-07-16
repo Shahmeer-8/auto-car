@@ -109,15 +109,15 @@
             </label>
           </div>
 
-          @if (submitSuccess) {
+          @if (submitSuccess()) {
             <p class="form-message success" role="status">Thank you! Your message has been sent — our team will get back to you within 24 hours.</p>
           }
-          @if (submitError) {
+          @if (submitError()) {
             <p class="form-message error" role="alert">Something went wrong sending your message. Please try again or reach us via WhatsApp/email.</p>
           }
 
-          <button type="submit" class="btn-submit" [disabled]="isSubmitting">
-            <span>{{ isSubmitting ? 'Sending...' : 'Send Message' }}</span>
+          <button type="submit" class="btn-submit" [disabled]="isSubmitting()">
+            <span>{{ isSubmitting() ? 'Sending...' : 'Send Message' }}</span>
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path d="M4 10h12m0 0l-6-6m6 6l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
