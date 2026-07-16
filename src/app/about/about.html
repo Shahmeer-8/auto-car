@@ -45,7 +45,11 @@
     <div class="intro-text">
       <span class="eyebrow-tag">Who We Are</span>
       <h2 class="section-title">A Decade of Excellence<br>in Japanese Automotive<br>Exports.</h2>
-      <p>AutoFlex was born in 2014 from a simple conviction — that buyers worldwide deserve access to Japan's exceptional used car market without the uncertainty, the hidden costs, or the unreliable middlemen that plagued the industry.</p>
+      @if (content().aboutText) {
+        <p>{{ content().aboutText }}</p>
+      } @else {
+        <p>AutoFlex was born in 2014 from a simple conviction — that buyers worldwide deserve access to Japan's exceptional used car market without the uncertainty, the hidden costs, or the unreliable middlemen that plagued the industry.</p>
+      }
       <p>Operating from our headquarters in Koshigaya, Saitama, Japan, we immerse ourselves daily in Japan's world-class auction ecosystem — hand-selecting vehicles with Grade 4.0 and above ratings, verified mileage, and clean histories that meet our exacting standards before a single listing goes live.</p>
       <p>A decade later, we have served over 8,000 satisfied buyers across 50+ countries, built a team of dedicated export specialists, and earned a reputation that speaks for itself — one delivered car at a time.</p>
       <div class="divider-line"></div>

@@ -17,8 +17,12 @@
   <!-- Content -->
   <div class="hero-content">
     <div class="hero-tag">🇯🇵 Direct from Japan</div>
-    <h1 class="hero-title">Find Your Perfect<br><span class="hero-highlight">Japanese Car</span></h1>
-    <p class="hero-subtitle">1,200+ Quality JDM Vehicles — Low Mileage, Inspected & Ready to Ship</p>
+    @if (content().heroTitle) {
+      <h1 class="hero-title">{{ content().heroTitle }}</h1>
+    } @else {
+      <h1 class="hero-title">Find Your Perfect<br><span class="hero-highlight">Japanese Car</span></h1>
+    }
+    <p class="hero-subtitle">{{ content().heroSubtitle }}</p>
 
     <!-- Search Bar -->
     <div class="search-bar">

@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ContentService } from '../core/services/content.service';
 
 @Component({
   selector: 'app-contact',
@@ -11,6 +12,8 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
   styleUrls: ['./contact.css']
 })
 export class Contact {
+  readonly content = inject(ContentService).content;
+
   contactForm: FormGroup;
   isSubmitting = false;
   submitSuccess = false;

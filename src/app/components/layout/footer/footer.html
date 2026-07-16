@@ -46,8 +46,14 @@
           </div>
           <div class="bc-row">
             <span class="ico">📞</span>
-            <span>+81 48 990 6633</span>
+            <span>{{ content().contactPhone }}</span>
           </div>
+          @if (content().contactEmail) {
+            <div class="bc-row">
+              <span class="ico">📧</span>
+              <a href="mailto:{{ content().contactEmail }}">{{ content().contactEmail }}</a>
+            </div>
+          }
           <div class="bc-row">
             <span class="ico">📍</span>
             <span>Koshigaya, Saitama, Japan</span>
@@ -123,7 +129,7 @@
   <!-- Bottom Bar -->
   <div class="footer-bottom-bg">
     <div class="footer-bottom">
-      <p class="copy">© 2025 <em>AutoFlex</em> — Motors Co., Ltd. All rights reserved.</p>
+      <p class="copy">{{ content().footerText }}</p>
       <div class="bot-links">
         <a routerLink="/privacy">Privacy</a>
         <a routerLink="/terms">Terms</a>

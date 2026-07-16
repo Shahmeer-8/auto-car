@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ContentService } from '../../core/services/content.service';
 
 @Component({
   selector: 'app-hero-slider',
@@ -11,6 +12,8 @@ import { Router } from '@angular/router';
   styleUrls: ['./hero-slider.css']
 })
 export class HeroSlider implements OnInit, OnDestroy {
+  readonly content = inject(ContentService).content;
+
   currentSlide = 0;
   private interval: any;
 

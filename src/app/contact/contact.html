@@ -111,14 +111,22 @@
         <div class="info-card">
           <div class="info-icon">📧</div>
           <h3>Email Us</h3>
-          <a href="mailto:info@autoflex-japan.com">info@autoflex-japan.com</a>
-          <a href="mailto:sales@autoflex-japan.com">sales@autoflex-japan.com</a>
+          @if (content().contactEmail) {
+            <a href="mailto:{{ content().contactEmail }}">{{ content().contactEmail }}</a>
+          } @else {
+            <a href="mailto:info@autoflex-japan.com">info@autoflex-japan.com</a>
+            <a href="mailto:sales@autoflex-japan.com">sales@autoflex-japan.com</a>
+          }
         </div>
-        
+
         <div class="info-card">
           <div class="info-icon">📞</div>
           <h3>Call Us</h3>
-          <a href="tel:+923403024197">+92 3403024197</a>
+          @if (content().contactPhone) {
+            <a href="tel:{{ content().contactPhone }}">{{ content().contactPhone }}</a>
+          } @else {
+            <a href="tel:+923403024197">+92 3403024197</a>
+          }
           <p class="small-text">Mon-Fri: 9:00 AM - 6:00 PM JST<br>Sat: 9:00 AM - 1:00 PM JST</p>
         </div>
         

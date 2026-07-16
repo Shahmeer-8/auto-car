@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { ContentService } from '../core/services/content.service';
 
 @Component({
   selector: 'app-about',
@@ -10,6 +11,7 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./about.css']
 })
 export class About {
+  readonly content = inject(ContentService).content;
 
   features = [
     { icon: '🏆', title: 'Auction-Certified Quality',    desc: 'Every vehicle passes Japan\'s rigorous official auction grading. We stock only Grade 4.0 and above — guaranteed.' },
