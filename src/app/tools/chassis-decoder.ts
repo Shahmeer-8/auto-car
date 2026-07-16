@@ -11,7 +11,7 @@ import { RouterModule } from '@angular/router';
     <div class="tool-page">
       <h1>JDM Chassis Code Decoder</h1>
       <p class="sub">Japanese-market cars use a chassis code (e.g. <code>JZX100-0012345</code>) instead of a 17-digit VIN. Enter one to break it down.</p>
-      <input class="code-input" type="text" placeholder="e.g. JZX100-0012345"
+      <input class="code-input" type="text" placeholder="e.g. JZX100-0012345" aria-label="Chassis code"
              [ngModel]="code()" (ngModelChange)="code.set($event)" name="code" />
       @if (parsed(); as p) {
         <div class="breakdown">
