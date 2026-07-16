@@ -212,16 +212,16 @@
         </div>
 
         <!-- ✅ Image Count Bar -->
-        <div class="image-count-bar" *ngIf="images.length > 0">
-          <span>{{ images.length }} / 50 photos uploaded</span>
+        <div class="image-count-bar" *ngIf="images().length > 0">
+          <span>{{ images().length }} / 50 photos uploaded</span>
           <span class="drag-hint">🖱️ Drag to reorder • First photo = Main Photo</span>
         </div>
 
         <!-- ✅ Drag & Drop Image Preview -->
-        <div class="image-preview-grid" *ngIf="images.length > 0">
+        <div class="image-preview-grid" *ngIf="images().length > 0">
           <div
             class="preview-item"
-            *ngFor="let img of images; let i = index"
+            *ngFor="let img of images(); let i = index"
             [class.dragging]="dragIndex === i"
             [class.drag-over]="dragOverIndex === i"
             draggable="true"
@@ -286,7 +286,7 @@
             </div>
             <div class="summary-item">
               <span>Photos</span>
-              <strong>{{ images.length }} uploaded</strong>
+              <strong>{{ images().length }} uploaded</strong>
             </div>
           </div>
         </div>

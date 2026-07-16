@@ -41,7 +41,7 @@ export class SellYourCar implements OnInit {
 
   // Step 3
   phone = '';
-  images: string[] = [];
+  readonly images = signal<string[]>([]);
   imageError = signal('');
 
   // Drag & Drop
@@ -96,7 +96,7 @@ export class SellYourCar implements OnInit {
     this.description  = listing.description;
     this.location     = listing.location;
     this.phone        = listing.phone;
-    this.images       = listing.images ?? [];
+    this.images.set(listing.images ?? []);
   }
 
   nextStep() {
@@ -144,8 +144,8 @@ export class SellYourCar implements OnInit {
     const files = event.target.files;
     this.imageError.set('');
 
-    if (this.images.length + files.length > 20) {
-      this.imageError.set(`Maximum 20 photos allowed. You can add ${20 - this.images.length} more.`);
+    if (this.images().length + files.length > 20) {
+      this.imageError.set(`Maximum 20 photos allowed. You can add ${20 - this.images().length} more.`);
       return;
     }
 
@@ -173,7 +173,7 @@ export class SellYourCar implements OnInit {
           ctx.drawImage(img, 0, 0, width, height);
 
           const compressed = canvas.toDataURL('image/jpeg', 0.7);
-          this.images.push(compressed);
+          this.images.update(list => [...list, compressed]);
         };
         img.src = e.target.result;
       };
@@ -182,7 +182,7 @@ export class SellYourCar implements OnInit {
   }
 
   removeImage(index: number) {
-    this.images.splice(index, 1);
+    this.images.update(list => list.filter((_, i) => i !== index));
   }
 
   // ✅ Drag & Drop
@@ -199,9 +199,13 @@ export class SellYourCar implements OnInit {
     event.preventDefault();
     if (this.dragIndex === null || this.dragIndex === dropIndex) return;
 
-    const draggedImage = this.images[this.dragIndex];
-    this.images.splice(this.dragIndex, 1);
-    this.images.splice(dropIndex, 0, draggedImage);
+    const dragIndex = this.dragIndex;
+    this.images.update(list => {
+      const updated = [...list];
+      const [draggedImage] = updated.splice(dragIndex, 1);
+      updated.splice(dropIndex, 0, draggedImage);
+      return updated;
+    });
 
     this.dragIndex = null;
     this.dragOverIndex = null;
@@ -214,8 +218,12 @@ export class SellYourCar implements OnInit {
 
   setMainPhoto(index: number) {
     if (index === 0) return;
-    const main = this.images.splice(index, 1)[0];
-    this.images.unshift(main);
+    this.images.update(list => {
+      const updated = [...list];
+      const [main] = updated.splice(index, 1);
+      updated.unshift(main);
+      return updated;
+    });
   }
 
   async onSubmit() {
@@ -238,7 +246,7 @@ export class SellYourCar implements OnInit {
       const listingId = this.isEditMode && this.editListingId
         ? this.editListingId
         : this.carService.newCarId();
-      const uploadedImages = await this.imageUpload.uploadListingImages(user.uid, listingId, this.images);
+      const uploadedImages = await this.imageUpload.uploadListingImages(user.uid, listingId, this.images());
 
       const data = {
         make:         this.make,
