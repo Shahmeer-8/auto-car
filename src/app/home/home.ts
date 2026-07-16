@@ -54,17 +54,19 @@ export class Home implements OnInit, OnDestroy {
   comparisonsConfig = COMPARISONS_CONFIG;
 
   brands = [
-    { logo: '🚗', name: 'Toyota', count: '1,240' },
-    { logo: '🏎️', name: 'Honda', count: '980' },
-    { logo: '🚙', name: 'Nissan', count: '850' },
-    { logo: '🚘', name: 'Mazda', count: '620' },
-    { logo: '🏔️', name: 'Subaru', count: '430' },
-    { logo: '⚡', name: 'Mitsubishi', count: '380' },
-    { logo: '🛻', name: 'Suzuki', count: '290' },
-    { logo: '💎', name: 'Lexus', count: '310' },
-    { logo: '🌟', name: 'Daihatsu', count: '180' },
-    { logo: '🚐', name: 'Isuzu', count: '140' },
+    { logo: '🚗', name: 'Toyota' },
+    { logo: '🏎️', name: 'Honda' },
+    { logo: '🚙', name: 'Nissan' },
+    { logo: '🚘', name: 'Mazda' },
+    { logo: '🏔️', name: 'Subaru' },
+    { logo: '⚡', name: 'Mitsubishi' },
+    { logo: '🛻', name: 'Suzuki' },
+    { logo: '💎', name: 'Lexus' },
+    { logo: '🌟', name: 'Daihatsu' },
+    { logo: '🚐', name: 'Isuzu' },
   ];
+
+  private brandCounts = new Map<string, number>();
 
   bodyTypes = [
     { icon: '🚗', name: 'Sedan' },
@@ -126,7 +128,18 @@ export class Home implements OnInit, OnDestroy {
     this.sub?.unsubscribe();
   }
 
+  countFor(name: string): number {
+    return this.brandCounts.get(name.toLowerCase()) ?? 0;
+  }
+
   private buildPopularCars(listedCars: CarListing[]): void {
+    this.brandCounts = new Map();
+    for (const l of listedCars) {
+      const key = (l.make || '').trim().toLowerCase();
+      if (!key) continue;
+      this.brandCounts.set(key, (this.brandCounts.get(key) ?? 0) + 1);
+    }
+
     const firestoreItems: SliderItem[] = listedCars.map((l) => ({
       id: l.id,
       title: `${l.year} ${l.make} ${l.model}`,

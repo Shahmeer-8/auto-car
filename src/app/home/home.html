@@ -16,7 +16,7 @@
         >
           <div class="brand-logo">{{ brand.logo }}</div>
           <span class="brand-name">{{ brand.name }}</span>
-          <span class="brand-count">{{ brand.count }} cars</span>
+          <span class="brand-count">{{ countFor(brand.name) }} {{ countFor(brand.name) === 1 ? 'car' : 'cars' }}</span>
         </a>
       </div>
     </div>
