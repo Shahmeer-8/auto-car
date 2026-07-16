@@ -108,10 +108,24 @@ service cloud.firestore {
       allow write: if hasPerm('cms.edit') || hasPerm('settings.manage') || isAdmin();
     }
 
-    // Complaints: any signed-in user can file; staff manage.
+    // Complaints & contact messages: signed-in users file complaints; the public
+    // contact form may also create (validated, always 'open'); staff manage.
     match /complaints/{complaintId} {
-      allow create: if isSignedIn()
-        && request.resource.data.status == 'open';
+      allow create: if request.resource.data.status == 'open'
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.message.size() <= 5000
+        && request.resource.data.subject is string
+        && request.resource.data.subject.size() <= 300;
+      allow read, update, delete: if hasPerm('customers.manage') || isAdmin();
+    }
+
+    // Newsletter signups: public create (email only), staff read/manage.
+    match /newsletterSubscribers/{subId} {
+      allow create: if request.resource.data.email is string
+        && request.resource.data.email.size() >= 5
+        && request.resource.data.email.size() <= 200
+        && request.resource.data.email.matches('.*@.*[.].*');
       allow read, update, delete: if hasPerm('customers.manage') || isAdmin();
     }
   }

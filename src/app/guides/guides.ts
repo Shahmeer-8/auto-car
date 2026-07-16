@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { getFirebaseDb } from '../core/firebase/firebase';
 
 interface Guide {
   id: number;
@@ -43,7 +45,10 @@ export class Guides implements OnInit {
   searchQuery = '';
   selectedCategory = 'all';
   sortBy = 'latest';
-  
+  newsletterSuccess = false;
+  newsletterError = '';
+  private db = getFirebaseDb();
+
   allGuides: Guide[] = [
     {
       id: 1,
@@ -303,22 +308,30 @@ export class Guides implements OnInit {
     this.filterGuides();
   }
 
-  subscribeNewsletter(event: Event): void {
+  async subscribeNewsletter(event: Event): Promise<void> {
     event.preventDefault();
     const form = event.target as HTMLFormElement;
     const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement;
-    
-    console.log('Newsletter subscription:', emailInput.value);
-    
-    // Show success message (you can implement a toast/notification here)
-    alert('Thank you for subscribing! You\'ll receive our weekly JDM insights.');
-    
-    form.reset();
-    
-    // In real application:
-    // this.newsletterService.subscribe(emailInput.value).subscribe({
-    //   next: () => { /* success */ },
-    //   error: () => { /* error */ }
-    // });
+    const email = emailInput?.value?.trim();
+    this.newsletterSuccess = false;
+    this.newsletterError = '';
+
+    if (!email || !/.+@.+\..+/.test(email)) {
+      this.newsletterError = 'Please enter a valid email address.';
+      return;
+    }
+
+    try {
+      await addDoc(collection(this.db, 'newsletterSubscribers'), {
+        email,
+        source: 'guides',
+        createdAt: serverTimestamp(),
+      });
+      this.newsletterSuccess = true;
+      form.reset();
+    } catch (err) {
+      console.error('Newsletter subscribe failed:', err);
+      this.newsletterError = 'Subscription failed. Please try again.';
+    }
   }
 }

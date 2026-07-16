@@ -687,6 +687,10 @@ body {
   box-shadow: 0 8px 24px rgba(232,75,43,0.4);
 }
 
+.newsletter-msg { margin-top: 10px; font-size: 14px; }
+.newsletter-msg.success { color: #16a34a; }
+.newsletter-msg.error { color: #dc2626; }
+
 /* =============================================
    CTA SECTION
 ============================================= */

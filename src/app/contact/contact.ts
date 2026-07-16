@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { getFirebaseDb } from '../core/firebase/firebase';
 import { ContentService } from '../core/services/content.service';
 
 @Component({
@@ -19,6 +21,7 @@ export class Contact {
   isSubmitting = false;
   submitSuccess = false;
   submitError = false;
+  private db = getFirebaseDb();
 
   constructor(private fb: FormBuilder) {
     this.contactForm = this.fb.group({
@@ -33,43 +36,47 @@ export class Contact {
     });
   }
 
-  onSubmit() {
-    if (this.contactForm.valid) {
-      this.isSubmitting = true;
-      this.submitError = false;
-
-      // Simulate API call
-      setTimeout(() => {
-        console.log('Form Data:', this.contactForm.value);
-        
-        // Success
-        this.isSubmitting = false;
-        this.submitSuccess = true;
-        this.contactForm.reset();
-
-        // Hide success message after 5 seconds
-        setTimeout(() => {
-          this.submitSuccess = false;
-        }, 5000);
-      }, 1500);
-
-      // In real application, you would do:
-      // this.contactService.submitForm(this.contactForm.value).subscribe({
-      //   next: (response) => {
-      //     this.isSubmitting = false;
-      //     this.submitSuccess = true;
-      //     this.contactForm.reset();
-      //   },
-      //   error: (error) => {
-      //     this.isSubmitting = false;
-      //     this.submitError = true;
-      //   }
-      // });
-    } else {
-      // Mark all fields as touched to show validation errors
+  async onSubmit() {
+    if (!this.contactForm.valid) {
       Object.keys(this.contactForm.controls).forEach(key => {
         this.contactForm.get(key)?.markAsTouched();
       });
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.submitError = false;
+    const v = this.contactForm.value;
+
+    try {
+      await addDoc(collection(this.db, 'complaints'), {
+        subject: `[Contact] ${v.subject}`,
+        message: `${v.message}\n\nPhone: ${v.phone || '—'} | Country: ${v.country}`,
+        email: v.email,
+        name: `${v.firstName} ${v.lastName}`.trim(),
+        status: 'open',
+        source: 'contact',
+        createdAt: serverTimestamp(),
+      });
+
+      if (v.newsletter && v.email) {
+        try {
+          await addDoc(collection(this.db, 'newsletterSubscribers'), {
+            email: v.email,
+            source: 'contact',
+            createdAt: serverTimestamp(),
+          });
+        } catch { /* newsletter opt-in failure must not fail the contact submit */ }
+      }
+
+      this.submitSuccess = true;
+      this.contactForm.reset();
+      setTimeout(() => { this.submitSuccess = false; }, 5000);
+    } catch (err) {
+      console.error('Contact submit failed:', err);
+      this.submitError = true;
+    } finally {
+      this.isSubmitting = false;
     }
   }
 
