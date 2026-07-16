@@ -20,7 +20,7 @@
 }
 
 .cars-header .sub {
-  color: #999;
+  color: #595f6b;
   font-size: 0.92rem;
   margin: 0;
 }
@@ -145,7 +145,7 @@
 .state-msg {
   text-align: center;
   padding: 60px 20px;
-  color: #999;
+  color: #595f6b;
   font-size: 0.95rem;
 }
 
@@ -227,13 +227,13 @@
 
 .card-body .meta {
   font-size: 0.8rem;
-  color: #888;
+  color: #595f6b;
   margin: 0 0 8px;
 }
 
 .card-body .loc {
   font-size: 0.8rem;
-  color: #888;
+  color: #595f6b;
   margin: 0;
 }
 

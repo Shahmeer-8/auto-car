@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CarService } from '../services/car.service';
@@ -9,7 +8,7 @@ import { CarFilters, EMPTY_FILTERS, SortKey, applyFilters, slugify } from './car
 
 @Component({
   selector: 'app-cars',
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './cars.html',
   styleUrls: ['./cars.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
