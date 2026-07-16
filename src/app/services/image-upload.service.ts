@@ -13,7 +13,7 @@ export class ImageUploadService {
       images.map(async (img, i) => {
         if (!img.startsWith('data:')) return img; // already a URL (edit mode)
         try {
-          const r = ref(storage, `cars/${userId}/${listingId}/photo-${i}.jpg`);
+          const r = ref(storage, `cars/${userId}/${listingId}/photo-${Date.now()}-${i}.jpg`);
           await uploadString(r, img, 'data_url');
           return await getDownloadURL(r);
         } catch {

@@ -43,6 +43,7 @@ export class SellYourCar implements OnInit {
   phone = '';
   readonly images = signal<string[]>([]);
   imageError = signal('');
+  readonly submitError = signal('');
 
   // Drag & Drop
   dragIndex: number | null = null;
@@ -229,6 +230,8 @@ export class SellYourCar implements OnInit {
   async onSubmit() {
     if (!this.validateStep()) return;
 
+    this.submitError.set('');
+
     await this.authService.waitUntilReady();
     if (!this.authService.isAuthenticated) {
       this.router.navigate(['/login']);
@@ -247,6 +250,22 @@ export class SellYourCar implements OnInit {
         ? this.editListingId
         : this.carService.newCarId();
       const uploadedImages = await this.imageUpload.uploadListingImages(user.uid, listingId, this.images());
+
+      // Storage upload can silently fall back to base64 (e.g. Storage not enabled on the
+      // project). If enough photos fall back, the combined base64 payload can exceed
+      // Firestore's 1 MB document limit and the save would fail. Abort with a clear
+      // message instead of silently dropping photos.
+      const base64Total = uploadedImages
+        .filter(img => img.startsWith('data:'))
+        .reduce((sum, img) => sum + img.length, 0);
+      if (base64Total > 900_000) {
+        this.submitError.set(
+          'Image hosting is unavailable and your photos are too large to save directly. ' +
+          'Please remove some photos (keep under ~6) and try again.'
+        );
+        this.isLoading.set(false);
+        return;
+      }
 
       const data = {
         make:         this.make,
@@ -282,7 +301,7 @@ export class SellYourCar implements OnInit {
       this.router.navigate(['/dashboard']);
     } catch (err) {
       console.error(err);
-      this.errors = { submit: 'Failed to save your listing. Please try again.' };
+      this.submitError.set('Failed to save your listing. Please try again.');
     } finally {
       this.isLoading.set(false);
     }

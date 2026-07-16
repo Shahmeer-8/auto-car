@@ -200,11 +200,11 @@
 
         <!-- ✅ Photo Upload - 50 limit -->
         <div class="form-group">
-          <label>Upload Photos (Max 50)</label>
+          <label>Upload Photos (Max 20)</label>
           <div class="upload-area" (click)="fileInput.click()">
             <div class="upload-icon">📷</div>
             <p>Click to upload photos</p>
-            <span>JPG, PNG — Max 50 photos</span>
+            <span>JPG, PNG — Max 20 photos</span>
           </div>
           <input #fileInput type="file" accept="image/*" multiple
             (change)="onImageUpload($event)" style="display:none">
@@ -213,7 +213,7 @@
 
         <!-- ✅ Image Count Bar -->
         <div class="image-count-bar" *ngIf="images().length > 0">
-          <span>{{ images().length }} / 50 photos uploaded</span>
+          <span>{{ images().length }} / 20 photos uploaded</span>
           <span class="drag-hint">🖱️ Drag to reorder • First photo = Main Photo</span>
         </div>
 
@@ -298,6 +298,9 @@
             <span *ngIf="isLoading()">Submitting...</span>
           </button>
         </div>
+        @if (submitError()) {
+          <div class="submit-error" role="alert">{{ submitError() }}</div>
+        }
       </div>
 
     </div>
