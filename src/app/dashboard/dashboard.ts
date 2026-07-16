@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
@@ -30,6 +30,7 @@ export class Dashboard implements OnInit {
     private router: Router,
     private authService: AuthService,
     private carService: CarService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   async ngOnInit() {
@@ -46,6 +47,8 @@ export class Dashboard implements OnInit {
     this.userType = this.authService.getUserType();
 
     this.activeTab = this.userType === 'seller' ? 'listings' : 'saved';
+    // Firebase auth resolves outside Angular's change detection — render the header info now.
+    this.cdr.detectChanges();
 
     await this.loadData();
   }
@@ -60,6 +63,8 @@ export class Dashboard implements OnInit {
       this.loadError = 'Failed to load dashboard data. Please refresh the page.';
     } finally {
       this.isLoading = false;
+      // Firestore reads resolve outside Angular's zone; force the view to update.
+      this.cdr.detectChanges();
     }
   }
 
@@ -81,6 +86,7 @@ export class Dashboard implements OnInit {
     try {
       await this.carService.deleteCar(id);
       await this.loadListings();
+      this.cdr.detectChanges();
     } catch {
       alert('Failed to delete listing. Please try again.');
     }
@@ -98,6 +104,7 @@ export class Dashboard implements OnInit {
     try {
       await this.carService.removeSavedCar(this.userId, carId);
       this.savedCars = this.savedCars.filter((c) => c.carId !== carId);
+      this.cdr.detectChanges();
     } catch {
       alert('Failed to remove saved car. Please try again.');
     }

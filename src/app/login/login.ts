@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
@@ -26,6 +26,7 @@ export class Login {
   constructor(
     private router: Router,
     private authService: AuthService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   clearError(field: 'email' | 'password') {
@@ -79,6 +80,8 @@ export class Login {
       this.submitError = this.authService.mapAuthError(code);
     } finally {
       this.isLoading = false;
+      // Firebase auth resolves outside Angular's zone; force the view to update.
+      this.cdr.detectChanges();
     }
   }
 }

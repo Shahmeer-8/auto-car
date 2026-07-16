@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -23,8 +23,9 @@ export class Header implements OnInit, OnDestroy {
   mobileResearchOpen = false;
   mobileShopOpen = false;
 
-  isLoggedIn = false;
-  userName = '';
+  // Signals so the auth state renders reactively — Firebase auth resolves outside Angular's zone.
+  readonly isLoggedIn = signal(false);
+  readonly userName = signal('');
 
   private sub?: Subscription;
 
@@ -32,8 +33,8 @@ export class Header implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.sub = this.authService.userProfile$.subscribe((profile: AppUser | null) => {
-      this.isLoggedIn = !!profile;
-      this.userName = profile?.name ?? '';
+      this.isLoggedIn.set(!!profile);
+      this.userName.set(profile?.name ?? '');
     });
   }
 

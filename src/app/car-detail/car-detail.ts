@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { CarService } from '../services/car.service';
@@ -133,6 +133,7 @@ export class CarDetail implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private carService: CarService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   async ngOnInit() {
@@ -140,6 +141,7 @@ export class CarDetail implements OnInit {
     if (!id) {
       this.notFound = true;
       this.isLoading = false;
+      this.cdr.detectChanges();
       return;
     }
 
@@ -171,6 +173,8 @@ export class CarDetail implements OnInit {
       this.notFound = true;
     } finally {
       this.isLoading = false;
+      // Firestore reads resolve outside Angular's zone; force the view to update.
+      this.cdr.detectChanges();
     }
   }
 
