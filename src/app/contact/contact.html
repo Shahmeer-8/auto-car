@@ -122,8 +122,8 @@
         <div class="info-card">
           <div class="info-icon">📞</div>
           <h3>Call Us</h3>
-          @if (content().contactPhone) {
-            <a href="tel:{{ content().contactPhone }}">{{ content().contactPhone }}</a>
+          @if (savedContent().contactPhone) {
+            <a href="tel:{{ savedContent().contactPhone }}">{{ savedContent().contactPhone }}</a>
           } @else {
             <a href="tel:+923403024197">+92 3403024197</a>
           }

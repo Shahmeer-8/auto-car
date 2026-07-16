@@ -13,6 +13,7 @@ import { ContentService } from '../core/services/content.service';
 })
 export class Contact {
   readonly content = inject(ContentService).content;
+  readonly savedContent = inject(ContentService).saved;
 
   contactForm: FormGroup;
   isSubmitting = false;

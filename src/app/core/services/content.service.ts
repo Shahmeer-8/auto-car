@@ -27,6 +27,9 @@ export const DEFAULT_CONTENT: SiteContent = {
 export class ContentService {
   private readonly db = getFirebaseDb();
   readonly content = signal<SiteContent>(DEFAULT_CONTENT);
+  /** Only the fields actually saved in Firestore (non-empty) — lets pages
+   *  distinguish admin-provided values from built-in defaults. */
+  readonly saved = signal<Partial<SiteContent>>({});
 
   constructor() {
     void this.load();
@@ -38,10 +41,15 @@ export class ContentService {
       if (!snap.exists()) return;
       const data = snap.data() as Partial<SiteContent>;
       const merged: SiteContent = { ...DEFAULT_CONTENT };
+      const savedFields: Partial<SiteContent> = {};
       (Object.keys(merged) as (keyof SiteContent)[]).forEach((k) => {
         const v = data[k];
-        if (typeof v === 'string' && v.trim()) merged[k] = v;
+        if (typeof v === 'string' && v.trim()) {
+          merged[k] = v;
+          savedFields[k] = v;
+        }
       });
+      this.saved.set(savedFields);
       this.content.set(merged);
     } catch {
       // offline or rules issue: keep defaults
