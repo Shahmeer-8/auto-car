@@ -28,5 +28,7 @@ export const routes: Routes = [
     canActivate: [adminGuard],
     loadChildren: () => import('./admin/admin.routes').then((m) => m.adminRoutes),
   },
+  { path: 'privacy', loadComponent: () => import('./legal/privacy').then((m) => m.PrivacyPage) },
+  { path: 'terms', loadComponent: () => import('./legal/terms').then((m) => m.TermsPage) },
   { path: '**', redirectTo: '' },
 ];
