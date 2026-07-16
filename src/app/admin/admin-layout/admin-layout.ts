@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { collection, getCountFromServer, query, where } from 'firebase/firestore';
 import { getFirebaseDb } from '../../core/firebase/firebase';
 import { HasPermissionDirective } from '../../core/directives/has-permission.directive';
+import { NotificationData } from '../../core/services/notification.data';
 
 @Component({
   selector: 'app-admin-layout',
@@ -19,6 +20,7 @@ export class AdminLayout implements OnInit {
   carListingsCount = 0;
   adReviewCount = 0;
   complaintsCount = 0;
+  unreadCount = 0;
   pageTitle = 'Main dashboard';
 
   get adminName(): string {
@@ -51,7 +53,12 @@ export class AdminLayout implements OnInit {
     'roles': 'Roles & permissions',
   };
 
-  constructor(private auth: AuthService, private router: Router, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private notificationData: NotificationData,
+  ) {}
 
   async ngOnInit() {
     await this.loadBadgeCounts();
@@ -62,6 +69,11 @@ export class AdminLayout implements OnInit {
         this.updateTitle(event.urlAfterRedirects);
         this.cdr.detectChanges();
       }
+    });
+
+    this.notificationData.unreadCountForCurrentUser().then((c) => {
+      this.unreadCount = c;
+      this.cdr.detectChanges();
     });
   }
 

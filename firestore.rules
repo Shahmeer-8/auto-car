@@ -90,13 +90,15 @@ service cloud.firestore {
       allow write: if false;
     }
 
-    // In-app notifications: recipients read their own; a user may mark their own as read.
-    // Creation/deletion is server-side only (Cloud Functions).
+    // In-app notifications: recipients read their own; admins also read/mark-read
+    // role-targeted ones. Creation/deletion is server-side only (Cloud Functions).
     match /notifications/{notifId} {
       allow read: if isSignedIn()
         && (resource.data.userId == request.auth.uid || hasPerm('notifications.view') || isAdmin());
-      allow update: if isSignedIn() && resource.data.userId == request.auth.uid
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow update: if isSignedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read'])
+        && (resource.data.userId == request.auth.uid
+            || ((hasPerm('notifications.view') || isAdmin()) && resource.data.role != null));
       allow create, delete: if false;
     }
 
