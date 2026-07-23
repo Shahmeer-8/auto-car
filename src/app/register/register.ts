@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { FirebaseError } from 'firebase/app';
+import { filter, firstValueFrom, take } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -18,7 +19,8 @@ export class Register {
   password = '';
   confirmPassword = '';
   phone = '';
-  userType: 'buyer' | 'seller' = 'buyer';
+  // Every account can both buy and sell — no buyer/seller choice at sign-up.
+  userType: 'buyer' | 'seller' = 'seller';
   acceptTerms = false;
 
   nameError = '';
@@ -59,8 +61,16 @@ export class Register {
     this.submitError = '';
   }
 
-  selectUserType(type: 'buyer' | 'seller') {
-    this.userType = type;
+  /** Real-time email validation (runs on blur). */
+  validateEmail() {
+    const email = this.email.trim();
+    if (!email) {
+      this.emailError = 'Email address is required.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      this.emailError = 'Please enter a valid email address.';
+    } else {
+      this.emailError = '';
+    }
   }
 
   validate(): boolean {
@@ -130,7 +140,18 @@ export class Register {
         userType: this.userType,
       });
 
-      this.router.navigate(['/dashboard']);
+      // Firebase signs the new user in automatically. Sign them back out and send
+      // them to the login page to sign in explicitly. Wait for the auth state to
+      // clear first, otherwise the login page's guest guard bounces them back.
+      await this.authService.logout();
+      await firstValueFrom(
+        this.authService.currentUser$.pipe(
+          filter((u) => u === null),
+          take(1),
+        ),
+      );
+
+      this.router.navigate(['/login'], { queryParams: { registered: '1' } });
     } catch (err) {
       const code = err instanceof FirebaseError ? err.code : '';
       this.submitError = this.authService.mapAuthError(code);

@@ -127,14 +127,18 @@
         <!-- CTA Buttons -->
         <div class="detail-actions">
           <a *ngIf="car.isUserListing"
-            [href]="'https://wa.me/' + car.phone"
+            [href]="whatsappUrl()"
+            target="_blank"
+            rel="noopener"
             class="btn-primary">
-            💬 WhatsApp Seller
+            💬 Chat on WhatsApp
           </a>
           <a *ngIf="!car.isUserListing"
             href="https://wa.me/818027439931"
+            target="_blank"
+            rel="noopener"
             class="btn-primary">
-            💬 Enquire on WhatsApp
+            💬 Chat on WhatsApp
           </a>
           <a *ngIf="!car.isUserListing" href="tel:+81489906633" class="btn-secondary">
             📞 Call Us

@@ -1,9 +1,10 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { CarService } from '../services/car.service';
-import { CarListing, SavedCar } from '../models/car.model';
+import { CarListing } from '../models/car.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,28 +13,39 @@ import { CarListing, SavedCar } from '../models/car.model';
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
-export class Dashboard implements OnInit {
+export class Dashboard implements OnInit, OnDestroy {
   userName = '';
   userEmail = '';
   userType = '';
   isLoading = true;
   loadError = '';
+  submittedMsg = '';
 
-  activeTab: 'listings' | 'saved' | 'profile' = 'listings';
+  activeTab: 'listings' | 'profile' = 'listings';
 
   listings: CarListing[] = [];
-  savedCars: SavedCar[] = [];
 
   private userId = '';
+  private readonly sub = new Subscription();
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService,
     private carService: CarService,
     private cdr: ChangeDetectorRef,
   ) {}
 
   async ngOnInit() {
+    // Success banner after submitting/updating a listing from the Sell Your Car flow.
+    const flag = this.route.snapshot.queryParamMap.get('submitted');
+    if (flag === 'new') {
+      this.submittedMsg =
+        '🎉 Your car has been submitted for review! It will appear below shortly and go live once approved.';
+    } else if (flag === 'updated') {
+      this.submittedMsg = '✅ Your listing has been updated and resubmitted for review.';
+    }
+
     await this.authService.waitUntilReady();
 
     if (!this.authService.isAuthenticated) {
@@ -45,31 +57,37 @@ export class Dashboard implements OnInit {
     this.userName = this.authService.getUserDisplayName();
     this.userEmail = this.authService.getUserEmail();
     this.userType = this.authService.getUserType();
-
-    this.activeTab = this.userType === 'seller' ? 'listings' : 'saved';
-    // Firebase auth resolves outside Angular's change detection — render the header info now.
+    // Firebase auth resolves outside Angular's zone; render the header info now.
     this.cdr.detectChanges();
 
-    await this.loadData();
+    await this.loadListings();
+    this.isLoading = false;
+    this.cdr.detectChanges();
+
+    // Refresh whenever a listing changes anywhere — e.g. the Sell Your Car flow's
+    // background save completing after we've already navigated here.
+    this.sub.add(
+      this.carService.carsUpdated$.subscribe(() => {
+        this.loadListings().then(() => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        });
+      }),
+    );
   }
 
-  async loadData() {
-    this.isLoading = true;
-    this.loadError = '';
-
-    try {
-      await Promise.all([this.loadListings(), this.loadSavedCars()]);
-    } catch {
-      this.loadError = 'Failed to load dashboard data. Please refresh the page.';
-    } finally {
-      this.isLoading = false;
-      // Firestore reads resolve outside Angular's zone; force the view to update.
-      this.cdr.detectChanges();
-    }
+  ngOnDestroy() {
+    this.sub.unsubscribe();
   }
 
   async loadListings() {
-    this.listings = await this.carService.getUserListings(this.userId);
+    if (!this.userId) return;
+    try {
+      this.listings = await this.carService.getUserListings(this.userId);
+      this.loadError = '';
+    } catch {
+      this.loadError = 'Failed to load your listings. Please refresh the page.';
+    }
   }
 
   get pendingListings() {
@@ -94,20 +112,6 @@ export class Dashboard implements OnInit {
 
   viewDetails(id: string) {
     this.router.navigate(['/car-detail', id]);
-  }
-
-  async loadSavedCars() {
-    this.savedCars = await this.carService.getSavedCars(this.userId);
-  }
-
-  async removeSavedCar(carId: string) {
-    try {
-      await this.carService.removeSavedCar(this.userId, carId);
-      this.savedCars = this.savedCars.filter((c) => c.carId !== carId);
-      this.cdr.detectChanges();
-    } catch {
-      alert('Failed to remove saved car. Please try again.');
-    }
   }
 
   async logout() {

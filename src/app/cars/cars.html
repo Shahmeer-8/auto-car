@@ -37,13 +37,17 @@
       </div>
 
       <div class="filter-group">
-        <label for="f-price">Max Price</label>
-        <select id="f-price" (change)="onNumber('maxPrice', $event)">
-          <option value="" [selected]="filters().maxPrice === null">No Limit</option>
-          @for (p of [5000, 10000, 15000, 20000, 30000, 50000, 100000]; track p) {
-            <option [value]="p" [selected]="filters().maxPrice === p">{{ priceLabel(p) }}</option>
-          }
-        </select>
+        <label for="f-price">Max Price ($)</label>
+        <input
+          id="f-price"
+          type="number"
+          min="0"
+          step="1000"
+          inputmode="numeric"
+          placeholder="No limit"
+          [value]="filters().maxPrice ?? ''"
+          (input)="onNumber('maxPrice', $event)"
+        />
       </div>
 
       <div class="filter-group">

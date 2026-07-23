@@ -207,4 +207,20 @@ export class CarDetail implements OnInit {
   selectImage(img: string) {
     this.selectedImage = img;
   }
+
+  /**
+   * Builds a working wa.me link from the seller's phone number.
+   * Strips formatting; treats a local leading-zero number as Pakistani (+92);
+   * falls back to the AutoFlex business line if no usable number is present.
+   */
+  whatsappUrl(): string {
+    let digits = (this.car?.phone ?? '').replace(/\D/g, '');
+    if (digits.startsWith('00')) digits = digits.slice(2);
+    else if (digits.startsWith('0')) digits = '92' + digits.slice(1);
+    const number = digits.length >= 8 ? digits : '818027439931';
+    const text = encodeURIComponent(
+      `Hi, I'm interested in your ${this.car?.name ?? 'car'} listed on AutoFlex.`,
+    );
+    return `https://wa.me/${number}?text=${text}`;
+  }
 }

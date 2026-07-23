@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FirebaseError } from 'firebase/app';
 import { AuthService } from '../services/auth.service';
 
@@ -23,11 +23,17 @@ export class Login {
   submitError = '';
   isLoading = false;
 
+  // Shown when arriving here right after creating an account.
+  justRegistered = false;
+
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
-  ) {}
+  ) {
+    this.justRegistered = this.route.snapshot.queryParamMap.get('registered') === '1';
+  }
 
   clearError(field: 'email' | 'password') {
     if (field === 'email') this.emailError = '';

@@ -378,6 +378,20 @@
   font-weight: 500;
 }
 
+.submit-success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #16a34a;
+  font-weight: 500;
+}
+
 /* Submit Button */
 .submit-btn {
   width: 100%;

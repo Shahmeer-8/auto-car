@@ -5,10 +5,13 @@
     <div class="page-header">
       <div class="header-content">
         <h1>Welcome, {{ userName }}! 👋</h1>
-        <p>{{ userType === 'seller' ? 'Manage your listings' : 'Browse your saved cars' }}</p>
+        <p>Manage your listings</p>
       </div>
       <button class="btn-logout" (click)="logout()">Logout</button>
     </div>
+
+    <!-- Submitted success banner -->
+    <div class="dash-success" *ngIf="submittedMsg" role="status">{{ submittedMsg }}</div>
 
     <!-- Tabs -->
     <div class="tabs">
@@ -17,12 +20,6 @@
         [class.active]="activeTab === 'listings'"
         (click)="activeTab = 'listings'">
         🚗 My Listings ({{ listings.length }})
-      </button>
-      <button
-        class="tab-btn"
-        [class.active]="activeTab === 'saved'"
-        (click)="activeTab = 'saved'">
-        ❤️ Saved Cars ({{ savedCars.length }})
       </button>
       <button
         class="tab-btn"
@@ -37,7 +34,7 @@
 
       <!-- Add New Button -->
       <div class="tab-action-bar">
-        <a routerLink="/sell-your-car" class="btn-add-new">+ Add New Listing</a>
+        <a routerLink="/sell-your-car" class="btn-add-new">+ Sell Your Car</a>
       </div>
 
       <!-- Stats -->
@@ -118,46 +115,7 @@
       </div>
     </div>
 
-    <!-- ═══ TAB 2: SAVED CARS ═══ -->
-    <div *ngIf="activeTab === 'saved'">
-
-      <!-- Empty State -->
-      <div class="empty-state" *ngIf="savedCars.length === 0">
-        <div class="empty-icon">❤️</div>
-        <h2>No Saved Cars</h2>
-        <p>Browse cars and save your favourites here.</p>
-        <a routerLink="/cars" class="btn-primary">Browse Cars</a>
-      </div>
-
-      <!-- Saved Cars Grid -->
-      <div class="listings-grid" *ngIf="savedCars.length > 0">
-        <div class="listing-card" *ngFor="let car of savedCars">
-
-          <div class="listing-image">
-            <img
-              [src]="car.image || 'placeholder-car.svg'"
-              [alt]="car.make + ' ' + car.model">
-          </div>
-
-          <div class="listing-content">
-            <h3 class="listing-title">
-              {{ car.year }} {{ car.make }} {{ car.model }}
-            </h3>
-            <div class="listing-price">{{ formatPrice(car.price) }}</div>
-            <div class="listing-meta">
-              <span class="meta-date">📅 Saved: {{ formatDate(car.savedAt) }}</span>
-            </div>
-            <div class="listing-actions">
-              <button class="btn-view" (click)="viewDetails(car.carId)">View Details</button>
-              <button class="btn-delete" (click)="removeSavedCar(car.carId)">Remove</button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══ TAB 3: PROFILE ═══ -->
+    <!-- ═══ TAB 2: PROFILE ═══ -->
     <div *ngIf="activeTab === 'profile'">
       <div class="profile-card">
         <div class="profile-avatar">{{ userName.charAt(0).toUpperCase() }}</div>
@@ -172,8 +130,8 @@
             <span>Listings</span>
           </div>
           <div class="profile-stat">
-            <strong>{{ savedCars.length }}</strong>
-            <span>Saved Cars</span>
+            <strong>{{ approvedListings.length }}</strong>
+            <span>Approved</span>
           </div>
         </div>
       </div>

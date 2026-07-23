@@ -93,8 +93,9 @@ export class CarsPage implements OnInit, OnDestroy {
   }
 
   onNumber(key: 'maxPrice' | 'minYear', ev: Event): void {
-    const v = (ev.target as HTMLSelectElement).value;
-    this.set(key, v ? Number(v) : null);
+    const v = (ev.target as HTMLInputElement | HTMLSelectElement).value;
+    const n = Number(v);
+    this.set(key, v !== '' && !isNaN(n) && n >= 0 ? n : null);
   }
 
   onSearch(ev: Event): void {

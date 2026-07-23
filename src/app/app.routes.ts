@@ -20,6 +20,7 @@ export const routes: Routes = [
   { path: 'contact', component: Contact },
   { path: 'login', component: Login, canActivate: [guestGuard] },
   { path: 'register', component: Register, canActivate: [guestGuard] },
+  { path: 'forgot-password', loadComponent: () => import('./forgot-password/forgot-password').then((m) => m.ForgotPassword) },
   { path: 'guides', component: Guides },
   { path: 'guides/:slug', loadComponent: () => import('./guides/guide-detail').then((m) => m.GuideDetail) },
   { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },

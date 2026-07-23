@@ -69,6 +69,17 @@
 }
 
 /* Tabs */
+.dash-success {
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
 .tabs {
   display: flex;
   gap: 8px;
