@@ -262,32 +262,44 @@ export class SellYourCar implements OnInit {
       phone:        this.phone,
     };
 
-    // Photo upload can take several seconds. Don't block the UI on it: run the whole
-    // save (Storage upload + Firestore write) in the background and take the user to
-    // their dashboard immediately with a success banner. The listing appears there
-    // once the write completes (the dashboard listens for listing updates). The
-    // promise keeps running even after this component is destroyed by the navigation.
+    // Photo upload can take several seconds (and may fail if Storage isn't configured).
+    // Don't block the UI or the listing on it: write the listing FIRST so it appears on
+    // the dashboard immediately, then upload the photos and patch them in afterwards.
+    // Everything runs in the background — the promise keeps going even after this
+    // component is destroyed by the navigation below.
     void (async () => {
       try {
-        const uploadedImages = await this.imageUpload.uploadListingImages(user.uid, listingId, images);
+        // Photos already hosted (edit mode) go in right away; base64 ones upload next.
+        const hostedImages = images.filter((img) => !img.startsWith('data:'));
 
-        // If Storage is unavailable the uploader falls back to base64. Drop any base64
-        // images that would push the document past Firestore's ~1 MB limit so the write
-        // still succeeds (the listing simply saves with fewer/no photos).
-        const base64Total = uploadedImages
-          .filter((img) => img.startsWith('data:'))
-          .reduce((sum, img) => sum + img.length, 0);
-        const safeImages =
-          base64Total > 900_000 ? uploadedImages.filter((img) => !img.startsWith('data:')) : uploadedImages;
-
-        const data = { ...baseData, images: safeImages };
-
+        // 1) Create/update the listing NOW (fast, no Storage) so it shows up at once.
         if (isEdit) {
-          // Edit: update fields and reset to pending for re-moderation.
-          await this.carService.updateCar(listingId, { ...data, status: 'pending' });
+          await this.carService.updateCar(listingId, { ...baseData, images: hostedImages, status: 'pending' });
         } else {
-          // New listing: createCarWithId sets sellerId/email/status server-side requirements.
-          await this.carService.createCarWithId(listingId, { ...data, sellerId: user.uid, ownerName, email });
+          await this.carService.createCarWithId(listingId, {
+            ...baseData,
+            images: hostedImages,
+            sellerId: user.uid,
+            ownerName,
+            email,
+          });
+        }
+
+        // 2) Upload the photos, then patch them onto the listing (best effort).
+        if (images.some((img) => img.startsWith('data:'))) {
+          const uploadedImages = await this.imageUpload.uploadListingImages(user.uid, listingId, images);
+
+          // If Storage was unavailable the uploader keeps base64. Drop any base64 that
+          // would push the doc past Firestore's ~1 MB limit so the patch still succeeds.
+          const base64Total = uploadedImages
+            .filter((img) => img.startsWith('data:'))
+            .reduce((sum, img) => sum + img.length, 0);
+          const safeImages =
+            base64Total > 900_000 ? uploadedImages.filter((img) => !img.startsWith('data:')) : uploadedImages;
+
+          if (safeImages.length && JSON.stringify(safeImages) !== JSON.stringify(hostedImages)) {
+            await this.carService.updateCar(listingId, { images: safeImages });
+          }
         }
       } catch (err) {
         console.error('Background listing save failed:', err);

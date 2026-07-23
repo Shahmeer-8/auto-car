@@ -9,6 +9,10 @@ import { getFirebaseStorage } from '../core/firebase/firebase';
 export class ImageUploadService {
   async uploadListingImages(userId: string, listingId: string, images: string[]): Promise<string[]> {
     const storage = getFirebaseStorage();
+    // Fail fast instead of retrying for ~2 minutes if Storage is misconfigured
+    // (e.g. CORS not set / bucket not enabled) — the caller falls back gracefully.
+    storage.maxUploadRetryTime = 12_000;
+    storage.maxOperationRetryTime = 12_000;
     return Promise.all(
       images.map(async (img, i) => {
         if (!img.startsWith('data:')) return img; // already a URL (edit mode)
