@@ -1,0 +1,198 @@
+<div class="checkout-page">
+  @if (loading()) {
+    <p class="state-msg">Loading your booking…</p>
+  } @else if (notFound()) {
+    <div class="state-msg empty">
+      <h1>Car not found</h1>
+      <p>This listing may have been removed.</p>
+      <a routerLink="/cars" class="btn primary">Browse cars for sale</a>
+    </div>
+  } @else if (car(); as c) {
+    <header class="checkout-header">
+      <a class="back-link" [routerLink]="['/car-detail', c.id]">← Back to car</a>
+      <h1>Reserve this car</h1>
+      <div class="steps">
+        <span class="step" [class.active]="step() === 1" [class.done]="step() > 1">1. Your details</span>
+        <span class="step-sep"></span>
+        <span class="step" [class.active]="step() === 2">2. Review &amp; confirm</span>
+      </div>
+    </header>
+
+    @if (unavailable()) {
+      <div class="alert warn" role="alert">
+        {{ unavailable() }}
+        <a routerLink="/cars" class="btn ghost">Browse other cars</a>
+      </div>
+    }
+
+    <div class="checkout-layout">
+      <!-- MAIN -->
+      <section class="checkout-main">
+        @if (step() === 1) {
+          <div class="card">
+            <h2>Your details</h2>
+            <p class="card-sub">We share these with the seller only after your booking is confirmed.</p>
+
+            <div class="field-grid">
+              <div class="field">
+                <label for="co-name">Full name *</label>
+                <input id="co-name" type="text" name="fullName" placeholder="e.g. Ahmed Khan"
+                  [ngModel]="fullName()" (ngModelChange)="fullName.set($event)" />
+                @if (errors()['fullName']) { <span class="err">{{ errors()['fullName'] }}</span> }
+              </div>
+
+              <div class="field">
+                <label for="co-email">Email *</label>
+                <input id="co-email" type="email" name="email" placeholder="you@example.com"
+                  [ngModel]="email()" (ngModelChange)="email.set($event)" />
+                @if (errors()['email']) { <span class="err">{{ errors()['email'] }}</span> }
+              </div>
+
+              <div class="field">
+                <label for="co-phone">Contact number *</label>
+                <input id="co-phone" type="tel" name="phone" placeholder="+92 300 1234567"
+                  [ngModel]="phone()" (ngModelChange)="phone.set($event)" />
+                @if (errors()['phone']) { <span class="err">{{ errors()['phone'] }}</span> }
+              </div>
+
+              <div class="field">
+                <label for="co-cnic">CNIC / ID number</label>
+                <input id="co-cnic" type="text" name="cnic" placeholder="Optional — speeds up transfer paperwork"
+                  [ngModel]="cnic()" (ngModelChange)="cnic.set($event)" />
+              </div>
+            </div>
+
+            <h3 class="section-label">How would you like to take delivery?</h3>
+            <div class="choice-row">
+              <button type="button" class="choice" [class.selected]="deliveryMethod() === 'pickup'"
+                (click)="setDelivery('pickup')">
+                <span class="choice-icon">🏬</span>
+                <strong>Pick up</strong>
+                <span>Inspect and collect from the seller's location</span>
+              </button>
+              <button type="button" class="choice" [class.selected]="deliveryMethod() === 'delivery'"
+                (click)="setDelivery('delivery')">
+                <span class="choice-icon">🚚</span>
+                <strong>Home delivery</strong>
+                <span>We arrange transport to your address (charges may apply)</span>
+              </button>
+            </div>
+
+            <div class="field-grid">
+              <div class="field">
+                <label for="co-city">City *</label>
+                <input id="co-city" type="text" name="city" placeholder="e.g. Lahore"
+                  [ngModel]="city()" (ngModelChange)="city.set($event)" />
+                @if (errors()['city']) { <span class="err">{{ errors()['city'] }}</span> }
+              </div>
+
+              @if (deliveryMethod() === 'delivery') {
+                <div class="field">
+                  <label for="co-address">Delivery address *</label>
+                  <input id="co-address" type="text" name="address" placeholder="House / street / area"
+                    [ngModel]="address()" (ngModelChange)="address.set($event)" />
+                  @if (errors()['address']) { <span class="err">{{ errors()['address'] }}</span> }
+                </div>
+              }
+            </div>
+
+            <div class="field">
+              <label for="co-notes">Anything for the seller?</label>
+              <textarea id="co-notes" name="notes" rows="3"
+                placeholder="e.g. preferred inspection time, questions about service history"
+                [ngModel]="notes()" (ngModelChange)="notes.set($event)"></textarea>
+            </div>
+
+            <div class="actions">
+              <button type="button" class="btn primary" [disabled]="!!unavailable()" (click)="goToReview()">
+                Continue to review →
+              </button>
+            </div>
+          </div>
+        } @else {
+          <div class="card">
+            <h2>Review your booking</h2>
+
+            <dl class="review-list">
+              <div><dt>Name</dt><dd>{{ fullName() }}</dd></div>
+              <div><dt>Email</dt><dd>{{ email() }}</dd></div>
+              <div><dt>Phone</dt><dd>{{ phone() }}</dd></div>
+              @if (cnic()) { <div><dt>CNIC / ID</dt><dd>{{ cnic() }}</dd></div> }
+              <div>
+                <dt>Delivery</dt>
+                <dd>{{ deliveryMethod() === 'delivery' ? 'Home delivery' : 'Pick up from seller' }}</dd>
+              </div>
+              <div><dt>City</dt><dd>{{ city() }}</dd></div>
+              @if (deliveryMethod() === 'delivery' && address()) {
+                <div><dt>Address</dt><dd>{{ address() }}</dd></div>
+              }
+              @if (notes()) { <div><dt>Notes</dt><dd>{{ notes() }}</dd></div> }
+            </dl>
+
+            <h3 class="section-label">How payment works</h3>
+            <ol class="how-list">
+              <li>You place this booking and we reserve the car for you.</li>
+              <li>Transfer the <strong>{{ format(deposit()) }}</strong> booking deposit to
+                {{ settings().bankName }} — full account details appear on the next screen.</li>
+              <li>Submit your transfer reference; our team verifies it and confirms the booking.</li>
+              <li>Pay the remaining <strong>{{ format(balance()) }}</strong> at inspection / handover.</li>
+            </ol>
+            <p class="fine-print">{{ settings().instructions }}</p>
+
+            <label class="terms">
+              <input type="checkbox" name="acceptTerms"
+                [ngModel]="acceptTerms()" (ngModelChange)="acceptTerms.set($event)" />
+              <span>I understand the deposit reserves this vehicle and I have read the
+                <a routerLink="/terms" target="_blank">terms of service</a>.</span>
+            </label>
+
+            @if (submitError()) {
+              <p class="alert error" role="alert">{{ submitError() }}</p>
+            }
+
+            <div class="actions split">
+              <button type="button" class="btn ghost" (click)="backToDetails()">← Back</button>
+              <button type="button" class="btn primary" [disabled]="placing() || !!unavailable()"
+                (click)="placeBooking()">
+                {{ placing() ? 'Placing booking…' : 'Place booking' }}
+              </button>
+            </div>
+          </div>
+        }
+      </section>
+
+      <!-- SUMMARY -->
+      <aside class="summary" aria-label="Order summary">
+        <div class="summary-car">
+          <img [src]="c.images.length ? c.images[0] : 'placeholder-car.svg'"
+            [alt]="c.year + ' ' + c.make + ' ' + c.model" />
+          <div>
+            <h3>{{ c.year }} {{ c.make }} {{ c.model }}</h3>
+            <p class="meta">{{ c.mileage | number }} km • {{ c.transmission }} • {{ c.fuelType }}</p>
+            <p class="meta">📍 {{ c.location }}</p>
+          </div>
+        </div>
+
+        <dl class="price-list">
+          <div><dt>Car price</dt><dd>{{ format(c.price) }}</dd></div>
+          <div class="row-strong">
+            <dt>Booking deposit <span class="hint">({{ settings().depositPercent }}%)</span></dt>
+            <dd>{{ format(deposit()) }}</dd>
+          </div>
+          <div><dt>Balance at handover</dt><dd>{{ format(balance()) }}</dd></div>
+        </dl>
+
+        <p class="pay-now">
+          <span>Pay now to reserve</span>
+          <strong>{{ format(deposit()) }}</strong>
+        </p>
+
+        <ul class="trust">
+          <li>✅ Refundable if the car doesn't match its listing</li>
+          <li>🔒 Your details stay private until confirmation</li>
+          <li>🧾 Booking reference issued instantly</li>
+        </ul>
+      </aside>
+    </div>
+  }
+</div>

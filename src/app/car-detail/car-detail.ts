@@ -1,8 +1,10 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { CarService } from '../services/car.service';
-import { CarListing } from '../models/car.model';
+import { AuthService } from '../services/auth.service';
+import { CheckoutSettingsService } from '../core/services/checkout-settings.service';
+import { CarListing, ListingStatus } from '../models/car.model';
 
 interface CarDetailView {
   id?: string;
@@ -23,6 +25,9 @@ interface CarDetailView {
   ownerName?: string;
   submittedAt?: string;
   isUserListing?: boolean;
+  status?: ListingStatus;
+  sellerId?: string;
+  priceValue?: number;
 }
 
 @Component({
@@ -33,6 +38,10 @@ interface CarDetailView {
   styleUrls: ['./car-detail.css'],
 })
 export class CarDetail implements OnInit {
+  private readonly auth = inject(AuthService);
+  private readonly checkout = inject(CheckoutSettingsService);
+  private readonly router = inject(Router);
+
   car: CarDetailView | null = null;
   selectedImage = '';
   images: string[] = [];
@@ -187,7 +196,12 @@ export class CarDetail implements OnInit {
       transmission: found.transmission,
       body: found.bodyType || 'N/A',
       grade: 'N/A',
-      badge: found.status === 'approved' ? 'Approved' : 'Pending',
+      badge:
+        found.status === 'sold'
+          ? 'Sold'
+          : found.status === 'approved'
+            ? 'Approved'
+            : 'Pending',
       image: found.images?.[0] || 'placeholder-car.svg',
       fuelType: found.fuelType,
       color: found.color,
@@ -198,6 +212,9 @@ export class CarDetail implements OnInit {
       ownerName: found.ownerName,
       submittedAt: found.submittedAt,
       isUserListing: true,
+      status: found.status,
+      sellerId: found.sellerId,
+      priceValue: Number(found.price) || 0,
     };
     this.images =
       found.images?.length > 0 ? found.images : ['placeholder-car.svg'];
@@ -206,6 +223,42 @@ export class CarDetail implements OnInit {
 
   selectImage(img: string) {
     this.selectedImage = img;
+  }
+
+  /** A real (non-demo) listing that is still on sale and isn't the viewer's own car. */
+  get canBuy(): boolean {
+    const car = this.car;
+    if (!car?.isUserListing || !car.id) return false;
+    if (car.status !== 'approved') return false;
+    return car.sellerId !== this.auth.currentUser?.uid;
+  }
+
+  get isSold(): boolean {
+    return this.car?.status === 'sold';
+  }
+
+  get isOwnListing(): boolean {
+    return !!this.car?.sellerId && this.car.sellerId === this.auth.currentUser?.uid;
+  }
+
+  /** Booking deposit shown on the buy button, e.g. "Reserve for $25,000". */
+  get depositLabel(): string {
+    return this.checkout.format(this.checkout.depositFor(this.car?.priceValue ?? 0));
+  }
+
+  /** Buying requires an account: send guests to login and come straight back here. */
+  startPurchase(): void {
+    const id = this.car?.id;
+    if (!id) return;
+
+    if (!this.auth.isAuthenticated) {
+      void this.router.navigate(['/login'], {
+        queryParams: { returnUrl: `/checkout/${id}` },
+      });
+      return;
+    }
+
+    void this.router.navigate(['/checkout', id]);
   }
 
   /**

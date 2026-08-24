@@ -25,9 +25,13 @@
         <a *appHasPermission="'ads.view'" routerLink="/admin/cars" routerLinkActive="active">
           <span class="material-icons">directions_car</span>
           Car listings
-          @if (carListingsCount > 0) {
-            <span class="nav-badge">{{ carListingsCount }}</span>
+          @if (carListingsCount() > 0) {
+            <span class="nav-badge">{{ carListingsCount() }}</span>
           }
+        </a>
+        <a *appHasPermission="'orders.manage'" routerLink="/admin/orders" routerLinkActive="active">
+          <span class="material-icons">shopping_cart</span>
+          Car bookings
         </a>
         <a *appHasPermission="'users.view'" routerLink="/admin/users" routerLinkActive="active">
           <span class="material-icons">manage_accounts</span>
@@ -44,8 +48,8 @@
         <a *appHasPermission="'ads.moderate'" routerLink="/admin/reviews" routerLinkActive="active">
           <span class="material-icons">check_circle</span>
           Ad review
-          @if (adReviewCount > 0) {
-            <span class="nav-badge nav-badge--red">{{ adReviewCount }}</span>
+          @if (adReviewCount() > 0) {
+            <span class="nav-badge nav-badge--red">{{ adReviewCount() }}</span>
           }
         </a>
         <a *appHasPermission="'ads.feature'" routerLink="/admin/featured" routerLinkActive="active">
@@ -63,8 +67,8 @@
         <a *appHasPermission="'customers.manage'" routerLink="/admin/complaints" routerLinkActive="active">
           <span class="material-icons">flag</span>
           Complaints
-          @if (complaintsCount > 0) {
-            <span class="nav-badge nav-badge--red">{{ complaintsCount }}</span>
+          @if (complaintsCount() > 0) {
+            <span class="nav-badge nav-badge--red">{{ complaintsCount() }}</span>
           }
         </a>
         <a *appHasPermission="'cms.edit'" routerLink="/admin/content" routerLinkActive="active">
@@ -106,11 +110,11 @@
   <div class="main-area">
     <!-- Top Header -->
     <header class="top-header">
-      <h1 class="page-title">{{ pageTitle }}</h1>
+      <h1 class="page-title">{{ pageTitle() }}</h1>
       <div class="header-right">
         <button class="icon-btn" type="button" routerLink="/admin/notifications" aria-label="Notifications">
           <span class="material-icons">notifications</span>
-          @if (unreadCount > 0) { <span class="notif-dot"></span> }
+          @if (unreadCount() > 0) { <span class="notif-dot"></span> }
         </button>
         <button class="icon-btn">
           <span class="material-icons">settings</span>

@@ -1,10 +1,12 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { CarService } from '../services/car.service';
 import { AuthService } from '../services/auth.service';
 import { ImageUploadService } from '../services/image-upload.service';
+import { AttributesService } from '../core/services/attributes.service';
+import { attrKey } from '../core/catalog/catalog.util';
 
 @Component({
   selector: 'app-sell-your-car',
@@ -14,6 +16,11 @@ import { ImageUploadService } from '../services/image-upload.service';
   styleUrl: './sell-your-car.css'
 })
 export class SellYourCar implements OnInit {
+  private readonly attributesService = inject(AttributesService);
+  readonly makes = this.attributesService.makes;
+  readonly bodyTypes = this.attributesService.bodyTypes;
+  readonly fuelTypes = this.attributesService.fuelTypes;
+  readonly transmissions = this.attributesService.transmissions;
 
   isLoading = signal(false);
   currentStep = 1;
@@ -51,12 +58,6 @@ export class SellYourCar implements OnInit {
 
   errors: any = {};
 
-  carMakes = [
-    'Toyota', 'Honda', 'Nissan', 'Mazda', 'Subaru',
-    'Mitsubishi', 'Suzuki', 'Daihatsu', 'Lexus', 'Isuzu',
-    'Mercedes Benz', 'BMW', 'Volkswagen', 'Audi', 'Other'
-  ];
-
   years = Array.from({length: 30}, (_, i) => (2024 - i).toString());
 
   constructor(
@@ -84,20 +85,32 @@ export class SellYourCar implements OnInit {
     const listing = await this.carService.getCarById(id);
     if (!listing) return;
 
-    this.make         = listing.make;
+    this.make         = this.matchOption(listing.make, this.makes());
     this.model        = listing.model;
     this.year         = listing.year?.toString() ?? '';
     this.mileage      = listing.mileage?.toString() ?? '';
-    this.transmission = listing.transmission;
-    this.fuelType     = listing.fuelType;
+    this.transmission = this.matchOption(listing.transmission, this.transmissions());
+    this.fuelType     = this.matchOption(listing.fuelType, this.fuelTypes());
     this.color        = listing.color;
     this.condition    = listing.condition;
-    this.bodyType     = listing.bodyType;
+    this.bodyType     = this.matchOption(listing.bodyType, this.bodyTypes());
     this.price        = listing.price?.toString() ?? '';
     this.description  = listing.description;
     this.location     = listing.location;
     this.phone        = listing.phone;
     this.images.set(listing.images ?? []);
+  }
+
+  /**
+   * Older listings stored lowercase attribute values ('automatic'); the dropdowns now
+   * carry the admin's spelling ('Automatic'). Map a stored value onto the matching
+   * option so edit mode doesn't show an empty select.
+   */
+  private matchOption(stored: string | undefined, options: string[]): string {
+    const value = (stored ?? '').trim();
+    if (!value) return '';
+    const key = attrKey(value);
+    return options.find((o) => attrKey(o) === key) ?? value;
   }
 
   nextStep() {

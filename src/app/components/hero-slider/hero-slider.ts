@@ -3,6 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ContentService } from '../../core/services/content.service';
+import { AttributesService } from '../../core/services/attributes.service';
+import { CarService } from '../../services/car.service';
+import { CarListing } from '../../models/car.model';
+import { mergeAttrValues } from '../../core/catalog/catalog.util';
 
 @Component({
   selector: 'app-hero-slider',
@@ -13,6 +17,8 @@ import { ContentService } from '../../core/services/content.service';
 })
 export class HeroSlider implements OnInit, OnDestroy {
   readonly content = inject(ContentService).content;
+  private readonly attributesService = inject(AttributesService);
+  private readonly carService = inject(CarService);
 
   currentSlide = 0;
   private interval: any;
@@ -40,10 +46,10 @@ export class HeroSlider implements OnInit, OnDestroy {
     }
   ];
 
-  // Makes list
-  makes = ['Toyota', 'Honda', 'Nissan', 'Mazda', 'Subaru', 'Mitsubishi', 'Suzuki', 'Lexus', 'Daihatsu', 'Isuzu'];
+  // Admin-managed makes (config/attributes).
+  readonly makes = this.attributesService.makes;
 
-  // Models mapped per make
+  // Fallback models per make, used when a make has no real listings yet.
   modelsByMake: { [key: string]: string[] } = {
     'Toyota': ['Land Cruiser', 'Hilux', 'Corolla', 'Camry', 'RAV4', 'Prado', 'HiAce', 'Fortuner', 'Alphard', 'Vitz'],
     'Honda': ['Civic', 'CR-V', 'Accord', 'Fit', 'HR-V', 'Pilot', 'Freed', 'Odyssey', 'Step WGN'],
@@ -56,6 +62,9 @@ export class HeroSlider implements OnInit, OnDestroy {
     'Daihatsu': ['Mira', 'Terios', 'Move', 'Tanto', 'Rocky'],
     'Isuzu': ['D-Max', 'MU-X', 'Elf', 'Forward']
   };
+
+  // Real approved listings, loaded once, used to add live models not in the fallback map.
+  private approvedCars: CarListing[] = [];
 
   filteredModels: string[] = [];
 
@@ -80,6 +89,12 @@ export class HeroSlider implements OnInit, OnDestroy {
   ngOnInit() {
     this.startAutoSlide();
     this.generateYears();
+    this.carService.getListedCars().then((cars) => {
+      this.approvedCars = cars;
+      // Refresh the current model list (if any) without clearing the user's selection.
+      if (this.selectedMake) this.filteredModels = this.modelsFor(this.selectedMake);
+      this.cdr.detectChanges();
+    });
   }
 
   ngOnDestroy() {
@@ -95,7 +110,16 @@ export class HeroSlider implements OnInit, OnDestroy {
 
   onMakeChange() {
     this.selectedModel = '';
-    this.filteredModels = this.selectedMake ? (this.modelsByMake[this.selectedMake] || []) : [];
+    this.filteredModels = this.selectedMake ? this.modelsFor(this.selectedMake) : [];
+  }
+
+  /** Fallback models for a make, unioned with models actually found in real approved listings. */
+  private modelsFor(make: string): string[] {
+    const makeKey = make.toLowerCase().trim();
+    const listingModels = this.approvedCars
+      .filter((c) => (c.make || '').toLowerCase().trim() === makeKey)
+      .map((c) => c.model);
+    return mergeAttrValues(this.modelsByMake[make] || [], listingModels);
   }
 
   quickSearch(tag: { label: string; make: string; model: string }) {

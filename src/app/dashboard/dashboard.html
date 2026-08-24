@@ -23,6 +23,12 @@
       </button>
       <button
         class="tab-btn"
+        [class.active]="activeTab === 'orders'"
+        (click)="activeTab = 'orders'">
+        🛒 My Purchases ({{ activeOrders.length }})
+      </button>
+      <button
+        class="tab-btn"
         [class.active]="activeTab === 'profile'"
         (click)="activeTab = 'profile'">
         👤 Profile
@@ -115,7 +121,46 @@
       </div>
     </div>
 
-    <!-- ═══ TAB 2: PROFILE ═══ -->
+    <!-- ═══ TAB 2: MY PURCHASES ═══ -->
+    <div *ngIf="activeTab === 'orders'">
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="orders.length === 0">
+        <div class="empty-icon">🛒</div>
+        <h2>No purchases yet</h2>
+        <p>When you reserve a car, your booking and payment status show up here.</p>
+        <a routerLink="/cars" class="btn-primary">Browse cars for sale</a>
+      </div>
+
+      <!-- Orders -->
+      <div class="orders-list" *ngIf="orders.length > 0">
+        <div class="order-row" *ngFor="let order of orders">
+          <img class="order-thumb"
+            [src]="order.carImage || 'placeholder-car.svg'"
+            [alt]="order.carTitle">
+
+          <div class="order-info">
+            <h3>{{ order.carTitle }}</h3>
+            <p class="order-meta">
+              Ref <strong>{{ order.reference }}</strong> • {{ order.createdAt | date: 'mediumDate' }}
+            </p>
+            <p class="order-meta">
+              Deposit {{ formatMoney(order.depositAmount) }} •
+              Balance {{ formatMoney(order.balanceAmount) }}
+            </p>
+          </div>
+
+          <div class="order-side">
+            <span class="order-status" [class]="'ost-' + order.status">{{ orderStatusLabel(order) }}</span>
+            <button class="btn-view" (click)="viewOrder(order.id)">
+              {{ order.status === 'pending_payment' ? 'Complete payment' : 'View booking' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TAB 3: PROFILE ═══ -->
     <div *ngIf="activeTab === 'profile'">
       <div class="profile-card">
         <div class="profile-avatar">{{ userName.charAt(0).toUpperCase() }}</div>

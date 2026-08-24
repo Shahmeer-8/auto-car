@@ -5,6 +5,8 @@ import { Subscription } from 'rxjs';
 import { CarService } from '../services/car.service';
 import { CarListing } from '../models/car.model';
 import { CarFilters, EMPTY_FILTERS, SortKey, applyFilters, slugify } from './cars.filters';
+import { AttributesService } from '../core/services/attributes.service';
+import { mergeAttrValues } from '../core/catalog/catalog.util';
 
 @Component({
   selector: 'app-cars',
@@ -15,6 +17,7 @@ import { CarFilters, EMPTY_FILTERS, SortKey, applyFilters, slugify } from './car
 })
 export class CarsPage implements OnInit, OnDestroy {
   private readonly carService = inject(CarService);
+  private readonly attributesService = inject(AttributesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly subs = new Subscription();
@@ -25,15 +28,21 @@ export class CarsPage implements OnInit, OnDestroy {
 
   readonly filtered = computed(() => applyFilters(this.cars(), this.filters()));
 
-  readonly makes = computed(() =>
-    [...new Set(this.cars().map((c) => c.make?.trim()).filter(Boolean))].sort());
+  /** Admin-managed list (config/attributes) merged with any values found in real listings, so nothing becomes unfilterable. */
+  readonly makes = computed(() => {
+    const listingValues = [...new Set(this.cars().map((c) => c.make?.trim()).filter(Boolean))].sort();
+    return mergeAttrValues(this.attributesService.makes(), listingValues);
+  });
   readonly modelsForMake = computed(() => {
     const mk = slugify(this.filters().make);
     const pool = mk && mk !== 'all' ? this.cars().filter((c) => slugify(c.make) === mk) : this.cars();
-    return [...new Set(pool.map((c) => c.model?.trim()).filter(Boolean))].sort();
+    const models = [...new Set(pool.map((c) => c.model?.trim()).filter(Boolean))].sort();
+    return mergeAttrValues([], models);
   });
-  readonly bodyTypes = computed(() =>
-    [...new Set(this.cars().map((c) => c.bodyType?.trim()).filter(Boolean))].sort());
+  readonly bodyTypes = computed(() => {
+    const listingValues = [...new Set(this.cars().map((c) => c.bodyType?.trim()).filter(Boolean))].sort();
+    return mergeAttrValues(this.attributesService.bodyTypes(), listingValues);
+  });
 
   ngOnInit(): void {
     this.carService.getListedCars()

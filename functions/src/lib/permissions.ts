@@ -9,6 +9,7 @@ export const PERMISSIONS = [
   'sales.view', 'sales.create', 'sales.approve', 'sales.void',
   'purchase.view', 'purchase.create', 'purchase.approve',
   'customers.view', 'customers.manage',
+  'orders.view', 'orders.manage',
   'leads.view', 'leads.manage', 'leads.assign',
   'cms.view', 'cms.edit', 'media.view', 'media.manage',
   'reports.view',

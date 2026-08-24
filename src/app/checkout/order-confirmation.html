@@ -1,0 +1,189 @@
+<div class="order-page">
+  @if (loading()) {
+    <p class="state-msg">Loading your booking…</p>
+  } @else if (notFound()) {
+    <div class="state-msg empty">
+      <h1>Booking not found</h1>
+      <p>This booking may have been removed, or you may not have access to it.</p>
+      <a routerLink="/dashboard" class="btn primary">Go to dashboard</a>
+    </div>
+  } @else if (order(); as o) {
+    <!-- Hero -->
+    <header class="order-hero" [class.cancelled]="o.status === 'cancelled'">
+      @if (o.status === 'cancelled') {
+        <span class="hero-icon">🚫</span>
+        <h1>Booking cancelled</h1>
+        <p>This booking is no longer active. You can browse other cars any time.</p>
+      } @else {
+        <span class="hero-icon">🎉</span>
+        <h1>Your car is reserved!</h1>
+        <p>We've saved <strong>{{ o.carTitle }}</strong> for you. Complete the deposit to confirm.</p>
+      }
+      <div class="ref-chip">
+        <span>Booking reference</span>
+        <strong>{{ o.reference }}</strong>
+        <button type="button" class="copy-btn" (click)="copy(o.reference, 'ref')">
+          {{ copied() === 'ref' ? 'Copied' : 'Copy' }}
+        </button>
+      </div>
+    </header>
+
+    <!-- Tracker -->
+    @if (o.status !== 'cancelled') {
+      <ol class="tracker" aria-label="Booking progress">
+        @for (s of steps; track s.key; let i = $index) {
+          <li class="track-step" [class.done]="i <= currentStepIndex()">
+            <span class="dot">{{ i < currentStepIndex() ? '✓' : i + 1 }}</span>
+            <span class="track-label">{{ s.label }}</span>
+          </li>
+        }
+      </ol>
+    }
+
+    <div class="order-layout">
+      <section class="order-main">
+        <!-- Payment -->
+        @if (canSubmitPayment()) {
+          <div class="card">
+            <h2>1. Transfer the booking deposit</h2>
+            <p class="amount-line">
+              Amount due now <strong>{{ format(o.depositAmount) }}</strong>
+            </p>
+
+            <dl class="bank-list">
+              <div>
+                <dt>Bank</dt>
+                <dd>{{ settings().bankName }}</dd>
+              </div>
+              <div>
+                <dt>Account title</dt>
+                <dd>{{ settings().accountTitle }}</dd>
+              </div>
+              <div>
+                <dt>Account number</dt>
+                <dd>
+                  {{ settings().accountNumber }}
+                  <button type="button" class="copy-btn small"
+                    (click)="copy(settings().accountNumber, 'acct')">
+                    {{ copied() === 'acct' ? 'Copied' : 'Copy' }}
+                  </button>
+                </dd>
+              </div>
+              <div>
+                <dt>IBAN</dt>
+                <dd>
+                  {{ settings().iban }}
+                  <button type="button" class="copy-btn small" (click)="copy(settings().iban, 'iban')">
+                    {{ copied() === 'iban' ? 'Copied' : 'Copy' }}
+                  </button>
+                </dd>
+              </div>
+              <div>
+                <dt>Payment note</dt>
+                <dd>Use your booking reference <strong>{{ o.reference }}</strong></dd>
+              </div>
+            </dl>
+
+            <p class="fine-print">{{ settings().instructions }}</p>
+          </div>
+
+          <div class="card">
+            <h2>2. Confirm your transfer</h2>
+            <p class="card-sub">
+              Paste the transaction ID / reference from your banking app. Our team verifies it and
+              confirms your booking — usually within one business day.
+            </p>
+            <div class="pay-form">
+              <label for="pay-ref" class="sr-label">Transfer reference</label>
+              <input id="pay-ref" type="text" name="paymentRef" placeholder="e.g. TRX-99381746"
+                [ngModel]="paymentRef()" (ngModelChange)="paymentRef.set($event)" />
+              <button type="button" class="btn primary" [disabled]="saving()" (click)="submitPayment()">
+                {{ saving() ? 'Submitting…' : 'I have paid' }}
+              </button>
+            </div>
+            @if (actionError()) { <p class="alert error" role="alert">{{ actionError() }}</p> }
+          </div>
+        } @else if (o.status === 'payment_review') {
+          <div class="card status-card">
+            <h2>⏳ We're verifying your payment</h2>
+            <p>
+              Reference <strong>{{ o.paymentReference }}</strong> received. Our team is checking the
+              transfer and will confirm your booking shortly. You'll get a notification the moment
+              it's approved.
+            </p>
+            @if (actionError()) { <p class="alert error" role="alert">{{ actionError() }}</p> }
+          </div>
+        } @else if (o.status === 'confirmed') {
+          <div class="card status-card ok">
+            <h2>✅ Booking confirmed</h2>
+            <p>
+              Your deposit is verified and this car is now yours to collect. The remaining
+              <strong>{{ format(o.balanceAmount) }}</strong> is due at inspection / handover.
+            </p>
+            @if (o.statusNote) { <p class="note">Note from our team: {{ o.statusNote }}</p> }
+          </div>
+        } @else if (o.status === 'completed') {
+          <div class="card status-card ok">
+            <h2>🏁 Purchase completed</h2>
+            <p>Thanks for buying with AutoFlex. We hope you enjoy your {{ o.carTitle }}!</p>
+            @if (o.statusNote) { <p class="note">{{ o.statusNote }}</p> }
+          </div>
+        } @else {
+          <div class="card status-card">
+            <h2>Booking cancelled</h2>
+            @if (o.statusNote) { <p class="note">Reason: {{ o.statusNote }}</p> }
+            <p>If this was a mistake, contact us and we'll help you re-book.</p>
+            <a routerLink="/cars" class="btn primary">Browse cars</a>
+          </div>
+        }
+
+        <!-- Help -->
+        <div class="card help-card">
+          <h2>Need help?</h2>
+          <p class="card-sub">Message us with your booking reference and we'll pick it up straight away.</p>
+          <div class="help-actions">
+            <a [href]="whatsappUrl()" target="_blank" rel="noopener" class="btn primary">💬 Chat on WhatsApp</a>
+            <a routerLink="/contact" class="btn ghost">Contact form</a>
+            @if (canCancel()) {
+              <button type="button" class="btn danger" [disabled]="saving()" (click)="cancelBooking()">
+                Cancel booking
+              </button>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Summary -->
+      <aside class="summary" aria-label="Booking summary">
+        <div class="summary-car">
+          <img [src]="o.carImage || 'placeholder-car.svg'" [alt]="o.carTitle" />
+          <div>
+            <h3>{{ o.carTitle }}</h3>
+            <p class="meta">📍 {{ o.carLocation }}</p>
+            <a class="view-link" [routerLink]="['/car-detail', o.carId]">View listing →</a>
+          </div>
+        </div>
+
+        <dl class="price-list">
+          <div><dt>Car price</dt><dd>{{ format(o.carPrice) }}</dd></div>
+          <div class="row-strong"><dt>Booking deposit</dt><dd>{{ format(o.depositAmount) }}</dd></div>
+          <div><dt>Balance at handover</dt><dd>{{ format(o.balanceAmount) }}</dd></div>
+        </dl>
+
+        <dl class="detail-list">
+          <div><dt>Status</dt><dd class="status-pill" [class]="'st-' + o.status">{{ statusLabel() }}</dd></div>
+          <div><dt>Booked on</dt><dd>{{ o.createdAt | date: 'mediumDate' }}</dd></div>
+          <div><dt>Name</dt><dd>{{ o.buyerName }}</dd></div>
+          <div><dt>Phone</dt><dd>{{ o.buyerPhone }}</dd></div>
+          <div>
+            <dt>Delivery</dt>
+            <dd>{{ o.deliveryMethod === 'delivery' ? 'Home delivery' : 'Pick up' }}</dd>
+          </div>
+          <div><dt>City</dt><dd>{{ o.city }}</dd></div>
+        </dl>
+
+        <a routerLink="/dashboard" class="btn ghost full">Back to dashboard</a>
+      </aside>
+    </div>
+  }
+</div>

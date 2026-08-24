@@ -1,9 +1,10 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 import { AppUser } from '../../../models/user.model';
+import { AttributesService } from '../../../core/services/attributes.service';
 
 @Component({
   selector: 'app-header',
@@ -16,6 +17,9 @@ import { AppUser } from '../../../models/user.model';
   },
 })
 export class Header implements OnInit, OnDestroy {
+  private readonly attributesService = inject(AttributesService);
+  readonly bodyTypes = this.attributesService.bodyTypes;
+
   researchOpen = false;
   shopOpen = false;
 

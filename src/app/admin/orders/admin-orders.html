@@ -1,0 +1,122 @@
+<h2 class="page-title">Car bookings</h2>
+<p class="page-sub">Verify deposits, confirm sales and track handovers.</p>
+
+@if (loading) {
+  <div class="state-row">
+    <span class="material-icons">hourglass_empty</span>
+    <span>Loading bookings…</span>
+  </div>
+} @else {
+  @if (loadError) {
+    <div class="alert error" role="alert">{{ loadError }}</div>
+  }
+
+  <!-- Summary -->
+  <div class="stat-row">
+    <mat-card class="stat-card">
+      <span class="stat-num">{{ orders.length }}</span>
+      <span class="stat-label">Total bookings</span>
+    </mat-card>
+    <mat-card class="stat-card">
+      <span class="stat-num warn">{{ countFor('payment_review') }}</span>
+      <span class="stat-label">Awaiting verification</span>
+    </mat-card>
+    <mat-card class="stat-card">
+      <span class="stat-num ok">{{ countFor('confirmed') }}</span>
+      <span class="stat-label">Confirmed</span>
+    </mat-card>
+    <mat-card class="stat-card">
+      <span class="stat-num">{{ money(depositTotal) }}</span>
+      <span class="stat-label">Deposits secured</span>
+    </mat-card>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-row">
+    @for (f of filters; track f.key) {
+      <button type="button" class="filter-chip" [class.active]="filter === f.key" (click)="setFilter(f.key)">
+        {{ f.label }} ({{ countFor(f.key) }})
+      </button>
+    }
+    <button type="button" class="filter-chip refresh" (click)="load()">
+      <span class="material-icons">refresh</span> Refresh
+    </button>
+  </div>
+
+  @if (filtered.length === 0) {
+    <div class="state-row">
+      <span class="material-icons">inbox</span>
+      <span>No bookings in this view.</span>
+    </div>
+  } @else {
+    <div class="order-cards">
+      @for (o of filtered; track o.id) {
+        <mat-card class="order-card">
+          <div class="oc-head">
+            <div class="oc-car">
+              <img [src]="o.carImage || 'placeholder-car.svg'" [alt]="o.carTitle" />
+              <div>
+                <h3>{{ o.carTitle }}</h3>
+                <p class="oc-meta">Ref <strong>{{ o.reference }}</strong> • {{ o.createdAt | date: 'medium' }}</p>
+                <p class="oc-meta">📍 {{ o.carLocation }}</p>
+              </div>
+            </div>
+            <span class="oc-status" [class]="'st-' + o.status">{{ label(o.status) }}</span>
+          </div>
+
+          <div class="oc-grid">
+            <div class="oc-block">
+              <h4>Buyer</h4>
+              <p>{{ o.buyerName }}</p>
+              <p><a [href]="'mailto:' + o.buyerEmail">{{ o.buyerEmail }}</a></p>
+              <p><a [href]="'tel:' + o.buyerPhone">{{ o.buyerPhone }}</a></p>
+              @if (o.cnic) { <p>CNIC: {{ o.cnic }}</p> }
+            </div>
+
+            <div class="oc-block">
+              <h4>Fulfilment</h4>
+              <p>{{ o.deliveryMethod === 'delivery' ? 'Home delivery' : 'Pick up' }}</p>
+              <p>{{ o.city }}</p>
+              @if (o.address) { <p>{{ o.address }}</p> }
+              @if (o.notes) { <p class="oc-note">“{{ o.notes }}”</p> }
+            </div>
+
+            <div class="oc-block">
+              <h4>Payment</h4>
+              <p>Car price: <strong>{{ money(o.carPrice) }}</strong></p>
+              <p>Deposit: <strong>{{ money(o.depositAmount) }}</strong></p>
+              <p>Balance: {{ money(o.balanceAmount) }}</p>
+              @if (o.paymentReference) {
+                <p class="oc-ref">Transfer ref: <strong>{{ o.paymentReference }}</strong></p>
+              } @else {
+                <p class="oc-muted">No transfer reference yet</p>
+              }
+            </div>
+          </div>
+
+          @if (o.statusNote) {
+            <p class="oc-status-note">Note: {{ o.statusNote }}</p>
+          }
+
+          <div class="oc-actions">
+            @if (o.status === 'payment_review' || o.status === 'pending_payment') {
+              <button mat-flat-button class="btn-confirm" [disabled]="busyId === o.id" (click)="confirm(o)">
+                <span class="material-icons">check_circle</span> Confirm booking
+              </button>
+            }
+            @if (o.status === 'confirmed') {
+              <button mat-flat-button class="btn-complete" [disabled]="busyId === o.id" (click)="complete(o)">
+                <span class="material-icons">done_all</span> Mark completed
+              </button>
+            }
+            @if (o.status !== 'cancelled' && o.status !== 'completed') {
+              <button mat-stroked-button class="btn-cancel" [disabled]="busyId === o.id" (click)="cancel(o)">
+                Cancel
+              </button>
+            }
+          </div>
+        </mat-card>
+      }
+    </div>
+  }
+}

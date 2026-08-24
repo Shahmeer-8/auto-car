@@ -19,6 +19,11 @@ export const adminRoutes: Routes = [
         loadComponent: () => import('./cars/admin-cars').then((m) => m.AdminCars),
       },
       {
+        path: 'orders',
+        canActivate: [permissionGuard('orders.manage')],
+        loadComponent: () => import('./orders/admin-orders').then((m) => m.AdminOrders),
+      },
+      {
         path: 'users',
         canActivate: [permissionGuard('users.view')],
         loadComponent: () => import('./users/admin-users').then((m) => m.AdminUsers),

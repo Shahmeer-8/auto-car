@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FirebaseError } from 'firebase/app';
 import { filter, firstValueFrom, take } from 'rxjs';
 import { AuthService } from '../services/auth.service';
@@ -36,6 +36,7 @@ export class Register {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService,
     private cdr: ChangeDetectorRef,
   ) {}
@@ -151,7 +152,10 @@ export class Register {
         ),
       );
 
-      this.router.navigate(['/login'], { queryParams: { registered: '1' } });
+      const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+      this.router.navigate(['/login'], {
+        queryParams: { registered: '1', returnUrl: returnUrl || null },
+      });
     } catch (err) {
       const code = err instanceof FirebaseError ? err.code : '';
       this.submitError = this.authService.mapAuthError(code);

@@ -51,3 +51,77 @@ export const onComplaintCreated = onDocumentCreated('complaints/{complaintId}', 
     link: '/admin/complaints',
   });
 });
+
+/** Car booking placed → tell the admin team, and the seller their car is reserved. */
+export const onOrderCreated = onDocumentCreated('orders/{orderId}', async (event) => {
+  const order = event.data?.data();
+  if (!order) return;
+  const db = getFirestore();
+
+  await pushNotification(db, { role: 'admin' }, {
+    title: 'New car booking',
+    body: `${order.buyerName ?? 'A buyer'} reserved ${order.carTitle ?? 'a car'} (ref ${order.reference ?? ''})`.trim(),
+    type: 'success',
+    link: '/admin/orders',
+  });
+
+  if (order.sellerId) {
+    await pushNotification(db, { userId: order.sellerId }, {
+      title: 'Your car has a booking! 🎉',
+      body: `${order.carTitle ?? 'Your listing'} has been reserved. Our team is verifying the buyer's deposit.`,
+      type: 'success',
+      link: '/dashboard',
+    });
+  }
+});
+
+/** Booking status moved → keep the buyer (and the seller on a sale) informed. */
+export const onOrderStatusChanged = onDocumentUpdated('orders/{orderId}', async (event) => {
+  const before = event.data?.before.data();
+  const after = event.data?.after.data();
+  if (!before || !after || before.status === after.status) return;
+
+  const db = getFirestore();
+  const car = (after.carTitle as string) ?? 'your car';
+  const orderId = event.params.orderId;
+
+  const buyerMessage: Record<string, { title: string; body: string; type: 'info' | 'success' | 'warning' | 'error' }> = {
+    payment_review: {
+      title: 'Payment received — verifying',
+      body: `We're checking your transfer for ${car}. You'll hear from us shortly.`,
+      type: 'info',
+    },
+    confirmed: {
+      title: 'Booking confirmed 🎉',
+      body: `Your deposit for ${car} is verified. Our team will contact you to arrange handover.`,
+      type: 'success',
+    },
+    completed: {
+      title: 'Purchase completed',
+      body: `Enjoy your ${car}! Thanks for buying with AutoFlex.`,
+      type: 'success',
+    },
+    cancelled: {
+      title: 'Booking cancelled',
+      body: after.statusNote ? `${car}: ${after.statusNote}` : `Your booking for ${car} was cancelled.`,
+      type: 'warning',
+    },
+  };
+
+  const message = buyerMessage[after.status as string];
+  if (message && after.buyerId) {
+    await pushNotification(db, { userId: after.buyerId }, {
+      ...message,
+      link: `/order/${orderId}`,
+    });
+  }
+
+  if (after.status === 'confirmed' && after.sellerId) {
+    await pushNotification(db, { userId: after.sellerId }, {
+      title: 'Your car is sold ✅',
+      body: `The booking for ${car} is confirmed. Our team will coordinate the handover with you.`,
+      type: 'success',
+      link: '/dashboard',
+    });
+  }
+});

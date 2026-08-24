@@ -26,6 +26,9 @@ export class Login {
   // Shown when arriving here right after creating an account.
   justRegistered = false;
 
+  /** Where to go after signing in (e.g. the checkout the buyer was sent from). */
+  returnUrl = '';
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -33,6 +36,9 @@ export class Login {
     private cdr: ChangeDetectorRef,
   ) {
     this.justRegistered = this.route.snapshot.queryParamMap.get('registered') === '1';
+    const raw = this.route.snapshot.queryParamMap.get('returnUrl') ?? '';
+    // Only ever return to an in-app path — never to an absolute/external URL.
+    this.returnUrl = raw.startsWith('/') && !raw.startsWith('//') ? raw : '';
   }
 
   clearError(field: 'email' | 'password') {
@@ -78,7 +84,12 @@ export class Login {
         return;
       }
 
-      // Route by role: admins land on the admin dashboard, everyone else on the user dashboard.
+      // Honour an explicit return target (e.g. a checkout the buyer was bounced from);
+      // otherwise route by role: admins land on the admin dashboard, everyone else on theirs.
+      if (this.returnUrl) {
+        this.router.navigateByUrl(this.returnUrl);
+        return;
+      }
       const target = profile?.userType === 'admin' ? '/admin/dashboard' : '/dashboard';
       this.router.navigate([target]);
     } catch (err) {

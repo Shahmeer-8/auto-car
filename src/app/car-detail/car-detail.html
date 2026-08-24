@@ -124,6 +124,25 @@
           </div>
         </div>
 
+        <!-- Buy / reserve -->
+        <div class="buy-box" *ngIf="car.isUserListing">
+          <ng-container *ngIf="canBuy">
+            <div class="buy-copy">
+              <strong>Buy this car online</strong>
+              <span>Reserve it now with a refundable {{ depositLabel }} deposit — pay the balance at handover.</span>
+            </div>
+            <button type="button" class="btn-buy" (click)="startPurchase()">
+              🛒 Buy Now — reserve for {{ depositLabel }}
+            </button>
+            <p class="buy-note">🔒 Secure booking • Refundable if the car doesn't match its listing</p>
+          </ng-container>
+
+          <p class="buy-unavailable" *ngIf="isSold">🚫 This car has been sold.</p>
+          <p class="buy-unavailable" *ngIf="!isSold && isOwnListing">
+            This is your listing — buyers will contact you here.
+          </p>
+        </div>
+
         <!-- CTA Buttons -->
         <div class="detail-actions">
           <a *ngIf="car.isUserListing"

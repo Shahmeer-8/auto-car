@@ -53,12 +53,9 @@
           </svg>
         </button>
         <div class="dropdown-menu" [class.show]="shopOpen">
-          <a routerLink="/cars" [queryParams]="{body: 'suv'}" class="dropdown-item" (click)="closeAll()">SUV</a>
-          <a routerLink="/cars" [queryParams]="{body: 'sedan'}" class="dropdown-item" (click)="closeAll()">Sedan</a>
-          <a routerLink="/cars" [queryParams]="{body: 'truck'}" class="dropdown-item" (click)="closeAll()">Truck</a>
-          <a routerLink="/cars" [queryParams]="{body: 'hybrid'}" class="dropdown-item" (click)="closeAll()">Hybrid</a>
-          <a routerLink="/cars" [queryParams]="{body: 'luxury'}" class="dropdown-item" (click)="closeAll()">Luxury</a>
-          <a routerLink="/cars" [queryParams]="{body: 'sports-car'}" class="dropdown-item" (click)="closeAll()">Sports Car</a>
+          @for (type of bodyTypes(); track type) {
+            <a routerLink="/cars" [queryParams]="{body: type}" class="dropdown-item" (click)="closeAll()">{{ type }}</a>
+          }
         </div>
       </li>
 
@@ -131,12 +128,9 @@
         </svg>
       </button>
       <div class="mobile-submenu" [class.show]="mobileShopOpen">
-        <a routerLink="/cars" [queryParams]="{body: 'suv'}" class="mobile-sub-item" (click)="closeMobileMenu()">SUV</a>
-        <a routerLink="/cars" [queryParams]="{body: 'sedan'}" class="mobile-sub-item" (click)="closeMobileMenu()">Sedan</a>
-        <a routerLink="/cars" [queryParams]="{body: 'truck'}" class="mobile-sub-item" (click)="closeMobileMenu()">Truck</a>
-        <a routerLink="/cars" [queryParams]="{body: 'hybrid'}" class="mobile-sub-item" (click)="closeMobileMenu()">Hybrid</a>
-        <a routerLink="/cars" [queryParams]="{body: 'luxury'}" class="mobile-sub-item" (click)="closeMobileMenu()">Luxury</a>
-        <a routerLink="/cars" [queryParams]="{body: 'sports-car'}" class="mobile-sub-item" (click)="closeMobileMenu()">Sports Car</a>
+        @for (type of bodyTypes(); track type) {
+          <a routerLink="/cars" [queryParams]="{body: type}" class="mobile-sub-item" (click)="closeMobileMenu()">{{ type }}</a>
+        }
       </div>
     </div>
 

@@ -1,4 +1,5 @@
-export type ListingStatus = 'pending' | 'approved' | 'rejected';
+/** 'sold' is set when a booking on the listing is confirmed — it leaves the public listings. */
+export type ListingStatus = 'pending' | 'approved' | 'rejected' | 'sold';
 
 export interface CarListing {
   id?: string;

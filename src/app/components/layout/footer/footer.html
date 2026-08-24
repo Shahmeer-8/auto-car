@@ -99,13 +99,9 @@
       <div class="nav-col">
         <h4>Shop by Type</h4>
         <ul>
-          <li><a routerLink="/cars" [queryParams]="{body: 'suv'}">SUV</a></li>
-          <li><a routerLink="/cars" [queryParams]="{body: 'sedan'}">Sedan</a></li>
-          <li><a routerLink="/cars" [queryParams]="{body: 'truck'}">Truck</a></li>
-          <li><a routerLink="/cars" [queryParams]="{body: 'hybrid'}">Hybrid</a></li>
-          <li><a routerLink="/cars" [queryParams]="{body: 'luxury'}">Luxury</a></li>
-          <li><a routerLink="/cars" [queryParams]="{body: 'sports car'}">Sports Car</a></li>
-          <li><a routerLink="/cars" [queryParams]="{body: 'minivan'}">Minivan</a></li>
+          @for (type of bodyTypes(); track type) {
+            <li><a routerLink="/cars" [queryParams]="{body: type}">{{ type }}</a></li>
+          }
         </ul>
       </div>
 

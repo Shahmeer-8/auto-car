@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -8,6 +8,8 @@ import { Slider } from '../components/slider/slider';
 import { CarService } from '../services/car.service';
 import { SliderItem } from '../components/slider/slider.types';
 import { CarListing } from '../models/car.model';
+import { AttributesService } from '../core/services/attributes.service';
+import { attrIcon } from '../core/catalog/catalog.util';
 import {
   HARDCODED_CARS,
   GUIDES,
@@ -53,39 +55,17 @@ export class Home implements OnInit, OnDestroy {
   bestUsedConfig = BEST_USED_CONFIG;
   comparisonsConfig = COMPARISONS_CONFIG;
 
-  brands = [
-    { logo: '🚗', name: 'Toyota' },
-    { logo: '🏎️', name: 'Honda' },
-    { logo: '🚙', name: 'Nissan' },
-    { logo: '🚘', name: 'Mazda' },
-    { logo: '🏔️', name: 'Subaru' },
-    { logo: '⚡', name: 'Mitsubishi' },
-    { logo: '🛻', name: 'Suzuki' },
-    { logo: '💎', name: 'Lexus' },
-    { logo: '🌟', name: 'Daihatsu' },
-    { logo: '🚐', name: 'Isuzu' },
-  ];
+  private readonly attributesService = inject(AttributesService);
+
+  /** Admin-managed makes (config/attributes), capped to the first 12 for the home grid. */
+  readonly brands = computed(() =>
+    this.attributesService.makes().slice(0, 12).map((name) => ({ logo: attrIcon(name), name })));
 
   private readonly brandCounts = signal(new Map<string, number>());
 
-  bodyTypes = [
-    { icon: '🚗', name: 'Sedan' },
-    { icon: '🚙', name: 'SUV' },
-    { icon: '🛻', name: 'Truck' },
-    { icon: '🚐', name: 'Minivan' },
-    { icon: '🏎️', name: 'Coupe' },
-    { icon: '🚘', name: 'Hatchback' },
-    { icon: '🚌', name: 'Wagon' },
-    { icon: '⚡', name: 'Electric' },
-    { icon: '🔋', name: 'Hybrid' },
-    { icon: '🚗', name: 'Convertible' },
-    { icon: '🚙', name: 'CUV' },
-    { icon: '🚐', name: 'Van' },
-    { icon: '🚘', name: 'Compact' },
-    { icon: '🏎️', name: 'Sports Car' },
-    { icon: '💎', name: 'Luxury' },
-    { icon: '✅', name: 'CPO' },
-  ];
+  /** Admin-managed body types (config/attributes). */
+  readonly bodyTypes = computed(() =>
+    this.attributesService.bodyTypes().map((name) => ({ icon: attrIcon(name), name })));
 
   whyItems = [
     {

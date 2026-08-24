@@ -32,7 +32,7 @@
         <label class="field-label">Make</label>
         <select class="search-select" [(ngModel)]="selectedMake" (change)="onMakeChange()">
           <option value="">All Makes</option>
-          <option *ngFor="let make of makes" [value]="make">{{ make }}</option>
+          <option *ngFor="let make of makes()" [value]="make">{{ make }}</option>
         </select>
       </div>
 

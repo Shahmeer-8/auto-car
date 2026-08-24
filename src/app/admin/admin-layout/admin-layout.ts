@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -17,11 +17,13 @@ import { NotificationData } from '../../core/services/notification.data';
 export class AdminLayout implements OnInit {
   private db = getFirebaseDb();
 
-  carListingsCount = 0;
-  adReviewCount = 0;
-  complaintsCount = 0;
-  unreadCount = 0;
-  pageTitle = 'Main dashboard';
+  // Signals: these are all filled from async Firestore reads, and this app is
+  // zoneless — plain fields would not reliably re-render (and caused NG0100).
+  readonly carListingsCount = signal(0);
+  readonly adReviewCount = signal(0);
+  readonly complaintsCount = signal(0);
+  readonly unreadCount = signal(0);
+  readonly pageTitle = signal('Main dashboard');
 
   get adminName(): string {
     return this.auth.getUserDisplayName() || 'Admin';
@@ -43,6 +45,7 @@ export class AdminLayout implements OnInit {
   private titles: Record<string, string> = {
     'dashboard': 'Main dashboard',
     'cars': 'Car listings',
+    'orders': 'Car bookings',
     'users': 'User management',
     'analytics': 'Reports & analytics',
     'reviews': 'Ad review',
@@ -56,55 +59,51 @@ export class AdminLayout implements OnInit {
   constructor(
     private auth: AuthService,
     private router: Router,
-    private cdr: ChangeDetectorRef,
     private notificationData: NotificationData,
   ) {}
 
-  async ngOnInit() {
-    await this.loadBadgeCounts();
+  ngOnInit() {
     this.updateTitle(this.router.url);
 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.updateTitle(event.urlAfterRedirects);
-        this.cdr.detectChanges();
       }
     });
 
-    this.notificationData.unreadCountForCurrentUser().then((c) => {
-      this.unreadCount = c;
-      this.cdr.detectChanges();
-    });
+    void this.loadBadgeCounts();
+    this.notificationData
+      .unreadCountForCurrentUser()
+      .then((c) => this.unreadCount.set(c))
+      .catch(() => this.unreadCount.set(0));
   }
 
   private updateTitle(url: string) {
     const segment = url.split('/').filter(Boolean).pop() || 'dashboard';
-    this.pageTitle = this.titles[segment] || 'Admin Panel';
+    this.pageTitle.set(this.titles[segment] || 'Admin Panel');
   }
 
   async loadBadgeCounts() {
     try {
       const carsSnap = await getCountFromServer(collection(this.db, 'cars'));
-      this.carListingsCount = carsSnap.data().count;
+      this.carListingsCount.set(carsSnap.data().count);
 
       const reviewQ = query(
         collection(this.db, 'cars'),
         where('status', '==', 'pending')
       );
       const reviewSnap = await getCountFromServer(reviewQ);
-      this.adReviewCount = reviewSnap.data().count;
+      this.adReviewCount.set(reviewSnap.data().count);
 
       const complaintsQ = query(
         collection(this.db, 'complaints'),
         where('status', '==', 'open')
       );
       const complaintsSnap = await getCountFromServer(complaintsQ);
-      this.complaintsCount = complaintsSnap.data().count;
-
-    } catch (e) {
-      this.complaintsCount = 0;
+      this.complaintsCount.set(complaintsSnap.data().count);
+    } catch {
+      this.complaintsCount.set(0);
     }
-    this.cdr.detectChanges();
   }
 
   async logout() {

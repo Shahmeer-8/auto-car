@@ -10,7 +10,7 @@
       <div class="brand-grid">
         <a
           class="brand-card"
-          *ngFor="let brand of brands"
+          *ngFor="let brand of brands()"
           [routerLink]="['/cars']"
           [queryParams]="{ make: brand.name }"
         >
@@ -33,9 +33,9 @@
       <div class="body-type-grid">
         <a
           class="body-type-card"
-          *ngFor="let type of bodyTypes"
+          *ngFor="let type of bodyTypes()"
           [routerLink]="['/cars']"
-          [queryParams]="{ body: type.name.toLowerCase() }"
+          [queryParams]="{ body: type.name }"
         >
           <div class="body-type-icon">{{ type.icon }}</div>
           <span class="body-type-name">{{ type.name }}</span>

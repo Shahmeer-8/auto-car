@@ -4,7 +4,10 @@ import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { CarService } from '../services/car.service';
+import { OrderService } from '../services/order.service';
+import { CheckoutSettingsService } from '../core/services/checkout-settings.service';
 import { CarListing } from '../models/car.model';
+import { ORDER_STATUS_LABELS, Order } from '../models/order.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,9 +24,10 @@ export class Dashboard implements OnInit, OnDestroy {
   loadError = '';
   submittedMsg = '';
 
-  activeTab: 'listings' | 'profile' = 'listings';
+  activeTab: 'listings' | 'orders' | 'profile' = 'listings';
 
   listings: CarListing[] = [];
+  orders: Order[] = [];
 
   private userId = '';
   private readonly sub = new Subscription();
@@ -33,6 +37,8 @@ export class Dashboard implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private authService: AuthService,
     private carService: CarService,
+    private orderService: OrderService,
+    private checkout: CheckoutSettingsService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -60,7 +66,12 @@ export class Dashboard implements OnInit, OnDestroy {
     // Firebase auth resolves outside Angular's zone; render the header info now.
     this.cdr.detectChanges();
 
-    await this.loadListings();
+    // Land on the bookings tab when arriving from a purchase.
+    if (this.route.snapshot.queryParamMap.get('tab') === 'orders') {
+      this.activeTab = 'orders';
+    }
+
+    await Promise.all([this.loadListings(), this.loadOrders()]);
     this.isLoading = false;
     this.cdr.detectChanges();
 
@@ -72,6 +83,12 @@ export class Dashboard implements OnInit, OnDestroy {
           this.isLoading = false;
           this.cdr.detectChanges();
         });
+      }),
+    );
+
+    this.sub.add(
+      this.orderService.ordersUpdated$.subscribe(() => {
+        this.loadOrders().then(() => this.cdr.detectChanges());
       }),
     );
   }
@@ -90,8 +107,37 @@ export class Dashboard implements OnInit, OnDestroy {
     }
   }
 
+  async loadOrders() {
+    try {
+      this.orders = await this.orderService.getMyOrders();
+    } catch {
+      // Bookings are non-critical for the rest of the dashboard; leave the list empty.
+      this.orders = [];
+    }
+  }
+
+  get activeOrders() {
+    return this.orders.filter((o) => o.status !== 'cancelled');
+  }
+
+  orderStatusLabel(order: Order): string {
+    return ORDER_STATUS_LABELS[order.status] ?? order.status;
+  }
+
+  formatMoney(amount: number): string {
+    return this.checkout.format(amount);
+  }
+
+  viewOrder(id?: string) {
+    if (id) this.router.navigate(['/order', id]);
+  }
+
   get pendingListings() {
     return this.listings.filter((l) => l.status === 'pending');
+  }
+
+  get soldListings() {
+    return this.listings.filter((l) => l.status === 'sold');
   }
 
   get approvedListings() {

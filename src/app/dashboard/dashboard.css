@@ -69,6 +69,62 @@
 }
 
 /* Tabs */
+/* ═══ MY PURCHASES ═══ */
+.orders-list {
+  display: grid;
+  gap: 14px;
+}
+.order-row {
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+.order-thumb {
+  width: 110px;
+  height: 78px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.order-info h3 {
+  font-size: 1rem;
+  color: #111827;
+  margin-bottom: 4px;
+}
+.order-meta {
+  color: #595f6b;
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+.order-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.order-status {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.ost-pending_payment { background: #fffbeb; color: #92400e; }
+.ost-payment_review { background: #eff6ff; color: #1d4ed8; }
+.ost-confirmed { background: #f0fdf4; color: #15803d; }
+.ost-completed { background: #f0fdf4; color: #15803d; }
+.ost-cancelled { background: #f8fafc; color: #6b7280; }
+
+@media (max-width: 700px) {
+  .order-row { grid-template-columns: 1fr; }
+  .order-thumb { width: 100%; height: 150px; }
+  .order-side { align-items: flex-start; }
+}
+
 .dash-success {
   padding: 14px 18px;
   margin-bottom: 24px;
@@ -255,6 +311,7 @@
 .status-pending  { background: rgba(245,158,11,0.9); color: white; }
 .status-approved { background: rgba(34,197,94,0.9);  color: white; }
 .status-rejected { background: rgba(239,68,68,0.9);  color: white; }
+.status-sold     { background: rgba(37,99,235,0.9);  color: white; }
 
 .listing-content {
   padding: 20px;

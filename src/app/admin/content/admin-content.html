@@ -73,6 +73,98 @@
     </div>
   </mat-card>
 
+  <mat-card style="border-radius:12px; margin-bottom:20px; padding:24px;">
+    <h3 style="font-size:16px; font-weight:600; color:#1a1f36; margin:0 0 4px;">Checkout &amp; Payment</h3>
+    <p style="font-size:13px; color:#718096; margin:0 0 20px;">Booking deposit and bank details shown to buyers when they reserve a car.</p>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:18px; margin-bottom:18px;">
+      <div>
+        <label style="display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px;">Deposit (% of price)</label>
+        <input
+          type="number" min="0" max="100"
+          [(ngModel)]="checkoutModel.depositPercent"
+          (ngModelChange)="onChange()"
+          style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:14px; box-sizing:border-box;" />
+      </div>
+      <div>
+        <label style="display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px;">Minimum deposit</label>
+        <input
+          type="number" min="0"
+          [(ngModel)]="checkoutModel.minDeposit"
+          (ngModelChange)="onChange()"
+          style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:14px; box-sizing:border-box;" />
+      </div>
+      <div>
+        <label style="display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px;">Maximum deposit (0 = no cap)</label>
+        <input
+          type="number" min="0"
+          [(ngModel)]="checkoutModel.maxDeposit"
+          (ngModelChange)="onChange()"
+          style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:14px; box-sizing:border-box;" />
+      </div>
+      <div>
+        <label style="display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px;">Currency symbol</label>
+        <input
+          type="text" maxlength="4"
+          [(ngModel)]="checkoutModel.currencySymbol"
+          (ngModelChange)="onChange()"
+          style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:14px; box-sizing:border-box;" />
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:18px; margin-bottom:18px;">
+      <div>
+        <label style="display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px;">Bank name</label>
+        <input
+          type="text"
+          [(ngModel)]="checkoutModel.bankName"
+          (ngModelChange)="onChange()"
+          style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:14px; box-sizing:border-box;" />
+      </div>
+      <div>
+        <label style="display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px;">Account title</label>
+        <input
+          type="text"
+          [(ngModel)]="checkoutModel.accountTitle"
+          (ngModelChange)="onChange()"
+          style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:14px; box-sizing:border-box;" />
+      </div>
+      <div>
+        <label style="display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px;">Account number</label>
+        <input
+          type="text"
+          [(ngModel)]="checkoutModel.accountNumber"
+          (ngModelChange)="onChange()"
+          style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:14px; box-sizing:border-box;" />
+      </div>
+      <div>
+        <label style="display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px;">IBAN</label>
+        <input
+          type="text"
+          [(ngModel)]="checkoutModel.iban"
+          (ngModelChange)="onChange()"
+          style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:14px; box-sizing:border-box;" />
+      </div>
+      <div>
+        <label style="display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px;">WhatsApp number (digits only)</label>
+        <input
+          type="text"
+          [(ngModel)]="checkoutModel.whatsapp"
+          (ngModelChange)="onChange()"
+          style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:14px; box-sizing:border-box;" />
+      </div>
+    </div>
+
+    <div>
+      <label style="display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px;">Payment instructions</label>
+      <textarea
+        rows="4"
+        [(ngModel)]="checkoutModel.instructions"
+        (ngModelChange)="onChange()"
+        style="width:100%; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:14px; box-sizing:border-box; font-family:inherit; resize:vertical;"></textarea>
+    </div>
+  </mat-card>
+
   <div style="display:flex; align-items:center; gap:16px; padding:8px 0 32px;">
     <button mat-flat-button style="background:#16a34a; color:white;" [disabled]="saving" (click)="save()">{{ saving ? 'Saving...' : 'Save changes' }}</button>
     @if (saved) {

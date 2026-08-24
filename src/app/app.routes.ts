@@ -26,6 +26,16 @@ export const routes: Routes = [
   { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
   { path: 'sell-your-car', component: SellYourCar, canActivate: [authGuard] },
   {
+    path: 'checkout/:carId',
+    canActivate: [authGuard],
+    loadComponent: () => import('./checkout/checkout').then((m) => m.Checkout),
+  },
+  {
+    path: 'order/:id',
+    canActivate: [authGuard],
+    loadComponent: () => import('./checkout/order-confirmation').then((m) => m.OrderConfirmation),
+  },
+  {
     path: 'admin',
     canActivate: [adminGuard],
     loadChildren: () => import('./admin/admin.routes').then((m) => m.adminRoutes),

@@ -210,7 +210,7 @@
       <!-- Register Link -->
       <p class="register-link">
         Don't have an account?
-        <a routerLink="/register">Create one free</a>
+        <a routerLink="/register" [queryParams]="{ returnUrl: returnUrl || null }">Create one free</a>
       </p>
 
     </div>

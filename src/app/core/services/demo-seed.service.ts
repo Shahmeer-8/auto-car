@@ -82,11 +82,17 @@ export class DemoSeedService {
   }
 
   private async seedConfig(): Promise<void> {
-    await setDoc(doc(this.db, 'config', 'attributes'), {
-      makes: ['Toyota', 'Honda', 'Suzuki', 'Kia', 'Hyundai', 'Nissan', 'MG', 'Changan', 'Other'],
-      bodyTypes: ['Sedan', 'SUV', 'Hatchback', 'Crossover', 'Pickup', 'Van'],
-      fuelTypes: ['Petrol', 'Diesel', 'Hybrid', 'Electric', 'CNG'],
-    });
+    // Merge so seeding never wipes attribute lists an admin has customised.
+    await setDoc(
+      doc(this.db, 'config', 'attributes'),
+      {
+        makes: ['Toyota', 'Honda', 'Suzuki', 'Kia', 'Hyundai', 'Nissan', 'MG', 'Changan', 'Other'],
+        bodyTypes: ['Sedan', 'SUV', 'Hatchback', 'Crossover', 'Pickup', 'Van'],
+        fuelTypes: ['Petrol', 'Diesel', 'Hybrid', 'Electric', 'CNG'],
+        transmissions: ['Automatic', 'Manual', 'CVT'],
+      },
+      { merge: true },
+    );
     await setDoc(doc(this.db, 'config', 'content'), {
       heroTitle: "Find Your Perfect Car in Pakistan",
       heroSubtitle: 'Thousands of verified listings from trusted sellers and dealers.',

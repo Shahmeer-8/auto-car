@@ -128,5 +128,48 @@ service cloud.firestore {
         && request.resource.data.email.matches('.*@.*[.].*');
       allow read, update, delete: if hasPerm('customers.manage') || isAdmin();
     }
+
+    // Car bookings. A buyer creates a booking only for themselves and only in the
+    // initial unpaid state; they may then attach a payment reference or cancel their
+    // own booking, and nothing else. Staff (orders.manage) drive every other
+    // transition. Reads are limited to the two parties and staff.
+    function isOrderStaff() {
+      return hasPerm('orders.manage') || isAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow create: if isSignedIn()
+        && request.resource.data.buyerId == request.auth.uid
+        && request.resource.data.status == 'pending_payment'
+        && request.resource.data.carId is string
+        && request.resource.data.carId.size() > 0
+        && request.resource.data.reference is string
+        && request.resource.data.depositAmount is number
+        && request.resource.data.depositAmount >= 0
+        && request.resource.data.carPrice is number
+        && request.resource.data.buyerName is string
+        && request.resource.data.buyerName.size() <= 200
+        && request.resource.data.buyerPhone is string
+        && request.resource.data.buyerPhone.size() <= 40;
+
+      allow read: if isSignedIn()
+        && (resource.data.buyerId == request.auth.uid
+            || resource.data.sellerId == request.auth.uid
+            || isOrderStaff());
+
+      // Buyer: may only submit a transfer reference or cancel, never change money/ownership.
+      allow update: if isOrderStaff()
+        || (isSignedIn()
+            && resource.data.buyerId == request.auth.uid
+            && request.resource.data.buyerId == resource.data.buyerId
+            && request.resource.data.carId == resource.data.carId
+            && request.resource.data.depositAmount == resource.data.depositAmount
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['paymentReference', 'status', 'updatedAt'])
+            && request.resource.data.status in ['payment_review', 'cancelled']
+            && resource.data.status in ['pending_payment', 'payment_review']);
+
+      allow delete: if isOrderStaff();
+    }
   }
 }

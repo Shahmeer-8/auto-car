@@ -43,7 +43,7 @@
             <label>Car Make *</label>
             <select [(ngModel)]="make" [class.error]="errors.make">
               <option value="">Select Make</option>
-              <option *ngFor="let m of carMakes" [value]="m">{{ m }}</option>
+              @for (m of makes(); track m) { <option [value]="m">{{ m }}</option> }
             </select>
             <span class="error-msg" *ngIf="errors.make">{{ errors.make }}</span>
           </div>
@@ -75,9 +75,7 @@
             <label>Transmission *</label>
             <select [(ngModel)]="transmission" [class.error]="errors.transmission">
               <option value="">Select Transmission</option>
-              <option value="automatic">Automatic</option>
-              <option value="manual">Manual</option>
-              <option value="cvt">CVT</option>
+              @for (t of transmissions(); track t) { <option [value]="t">{{ t }}</option> }
             </select>
             <span class="error-msg" *ngIf="errors.transmission">{{ errors.transmission }}</span>
           </div>
@@ -86,10 +84,7 @@
             <label>Fuel Type *</label>
             <select [(ngModel)]="fuelType" [class.error]="errors.fuelType">
               <option value="">Select Fuel Type</option>
-              <option value="petrol">Petrol</option>
-              <option value="diesel">Diesel</option>
-              <option value="hybrid">Hybrid</option>
-              <option value="electric">Electric</option>
+              @for (f of fuelTypes(); track f) { <option [value]="f">{{ f }}</option> }
             </select>
             <span class="error-msg" *ngIf="errors.fuelType">{{ errors.fuelType }}</span>
           </div>
@@ -98,13 +93,7 @@
             <label>Body Type</label>
             <select [(ngModel)]="bodyType">
               <option value="">Select Body Type</option>
-              <option value="sedan">Sedan</option>
-              <option value="suv">SUV</option>
-              <option value="hatchback">Hatchback</option>
-              <option value="wagon">Wagon</option>
-              <option value="van">Van</option>
-              <option value="truck">Truck</option>
-              <option value="coupe">Coupe</option>
+              @for (b of bodyTypes(); track b) { <option [value]="b">{{ b }}</option> }
             </select>
           </div>
 
