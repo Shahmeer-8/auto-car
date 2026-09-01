@@ -119,9 +119,67 @@
             <span class="meta-icon">📍</span>
             <div>
               <div class="meta-label">Location</div>
-              <div class="meta-val">{{ car.location }}</div>
+              <div class="meta-val">
+                {{ car.location }}<span *ngIf="car.postcode">, {{ car.postcode }}</span>
+              </div>
             </div>
           </div>
+
+          <div class="meta-item" *ngIf="car.engineCapacity">
+            <span class="meta-icon">🔧</span>
+            <div>
+              <div class="meta-label">Engine</div>
+              <div class="meta-val">{{ car.engineCapacity }}</div>
+            </div>
+          </div>
+
+          <div class="meta-item" *ngIf="car.doorsCount">
+            <span class="meta-icon">🚪</span>
+            <div>
+              <div class="meta-label">Doors</div>
+              <div class="meta-val">{{ car.doorsCount }}</div>
+            </div>
+          </div>
+
+          <div class="meta-item" *ngIf="car.seatingCapacity">
+            <span class="meta-icon">💺</span>
+            <div>
+              <div class="meta-label">Seats</div>
+              <div class="meta-val">{{ car.seatingCapacity }}</div>
+            </div>
+          </div>
+
+          <div class="meta-item" *ngIf="car.batteryRange">
+            <span class="meta-icon">🔋</span>
+            <div>
+              <div class="meta-label">Battery Range</div>
+              <div class="meta-val">{{ car.batteryRange | number }} km</div>
+            </div>
+          </div>
+
+          <div class="meta-item" *ngIf="car.vrn">
+            <span class="meta-icon">🔖</span>
+            <div>
+              <div class="meta-label">Registration</div>
+              <div class="meta-val">{{ car.vrn }}</div>
+            </div>
+          </div>
+
+          <div class="meta-item" *ngIf="car.registrationPlate">
+            <span class="meta-icon">🏷️</span>
+            <div>
+              <div class="meta-label">Registered</div>
+              <div class="meta-val">{{ car.registrationPlate }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Features -->
+        <div class="features-box" *ngIf="car.features && car.features.length">
+          <h3>✨ Features</h3>
+          <ul class="feature-list">
+            <li *ngFor="let f of car.features">{{ f }}</li>
+          </ul>
         </div>
 
         <!-- Buy / reserve -->

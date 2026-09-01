@@ -12,7 +12,7 @@
       <div class="steps-indicator">
         <div class="step-item" [class.active]="currentStep >= 1" [class.done]="currentStep > 1">
           <div class="step-circle">{{ currentStep > 1 ? '✓' : '1' }}</div>
-          <span>Car Details</span>
+          <span>Vehicle Details</span>
         </div>
         <div class="step-line" [class.active]="currentStep > 1"></div>
         <div class="step-item" [class.active]="currentStep >= 2" [class.done]="currentStep > 2">
@@ -33,264 +33,355 @@
     <!-- Form Card -->
     <div class="form-card">
 
-      <!-- ═══ STEP 1: CAR DETAILS ═══ -->
-      <div *ngIf="currentStep === 1">
-        <h2 class="step-title">🚗 Car Details</h2>
+      <!-- ═══ STEP 1: VEHICLE DETAILS ═══ -->
+      @if (currentStep === 1) {
+        <div>
+          <h2 class="step-title">🚗 Vehicle Details</h2>
 
-        <div class="form-grid">
+          <div class="form-grid">
 
-          <div class="form-group">
-            <label>Car Make *</label>
-            <select [(ngModel)]="make" [class.error]="errors.make">
-              <option value="">Select Make</option>
-              @for (m of makes(); track m) { <option [value]="m">{{ m }}</option> }
-            </select>
-            <span class="error-msg" *ngIf="errors.make">{{ errors.make }}</span>
-          </div>
-
-          <div class="form-group">
-            <label>Car Model *</label>
-            <input type="text" [(ngModel)]="model" placeholder="e.g. Corolla, Civic"
-              [class.error]="errors.model">
-            <span class="error-msg" *ngIf="errors.model">{{ errors.model }}</span>
-          </div>
-
-          <div class="form-group">
-            <label>Year *</label>
-            <select [(ngModel)]="year" [class.error]="errors.year">
-              <option value="">Select Year</option>
-              <option *ngFor="let y of years" [value]="y">{{ y }}</option>
-            </select>
-            <span class="error-msg" *ngIf="errors.year">{{ errors.year }}</span>
-          </div>
-
-          <div class="form-group">
-            <label>Mileage (km) *</label>
-            <input type="number" [(ngModel)]="mileage" placeholder="e.g. 45000"
-              [class.error]="errors.mileage">
-            <span class="error-msg" *ngIf="errors.mileage">{{ errors.mileage }}</span>
-          </div>
-
-          <div class="form-group">
-            <label>Transmission *</label>
-            <select [(ngModel)]="transmission" [class.error]="errors.transmission">
-              <option value="">Select Transmission</option>
-              @for (t of transmissions(); track t) { <option [value]="t">{{ t }}</option> }
-            </select>
-            <span class="error-msg" *ngIf="errors.transmission">{{ errors.transmission }}</span>
-          </div>
-
-          <div class="form-group">
-            <label>Fuel Type *</label>
-            <select [(ngModel)]="fuelType" [class.error]="errors.fuelType">
-              <option value="">Select Fuel Type</option>
-              @for (f of fuelTypes(); track f) { <option [value]="f">{{ f }}</option> }
-            </select>
-            <span class="error-msg" *ngIf="errors.fuelType">{{ errors.fuelType }}</span>
-          </div>
-
-          <div class="form-group">
-            <label>Body Type</label>
-            <select [(ngModel)]="bodyType">
-              <option value="">Select Body Type</option>
-              @for (b of bodyTypes(); track b) { <option [value]="b">{{ b }}</option> }
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>Color</label>
-            <input type="text" [(ngModel)]="color" placeholder="e.g. White, Black, Silver">
-          </div>
-
-          <div class="form-group full-width">
-            <label>Condition *</label>
-            <div class="condition-options">
-              <div class="condition-card" [class.selected]="condition === 'excellent'"
-                (click)="condition = 'excellent'">
-                <span>⭐⭐⭐⭐⭐</span>
-                <strong>Excellent</strong>
-                <p>Like new condition</p>
-              </div>
-              <div class="condition-card" [class.selected]="condition === 'good'"
-                (click)="condition = 'good'">
-                <span>⭐⭐⭐⭐</span>
-                <strong>Good</strong>
-                <p>Minor wear only</p>
-              </div>
-              <div class="condition-card" [class.selected]="condition === 'fair'"
-                (click)="condition = 'fair'">
-                <span>⭐⭐⭐</span>
-                <strong>Fair</strong>
-                <p>Some visible wear</p>
-              </div>
-              <div class="condition-card" [class.selected]="condition === 'poor'"
-                (click)="condition = 'poor'">
-                <span>⭐⭐</span>
-                <strong>Poor</strong>
-                <p>Needs repair</p>
-              </div>
+            <div class="form-group">
+              <label for="f-vrn">Registration Number (VRN) *</label>
+              <input id="f-vrn" type="text" [(ngModel)]="vrn" name="vrn"
+                placeholder="e.g. AB12 CDE / LEA-1234"
+                style="text-transform: uppercase;"
+                [class.error]="errors['vrn']">
+              @if (errors['vrn']) { <span class="error-msg">{{ errors['vrn'] }}</span> }
             </div>
-            <span class="error-msg" *ngIf="errors.condition">{{ errors.condition }}</span>
+
+            <div class="form-group">
+              <label for="f-plate">Registration Plate</label>
+              <input id="f-plate" type="text" [(ngModel)]="registrationPlate" name="registrationPlate"
+                placeholder="e.g. Lahore / Punjab / private plate">
+            </div>
+
+            <div class="form-group">
+              <label for="f-make">Car Make *</label>
+              <select id="f-make" [(ngModel)]="make" name="make" [class.error]="errors['make']">
+                <option value="">Select Make</option>
+                @for (m of makes(); track m) { <option [value]="m">{{ m }}</option> }
+              </select>
+              @if (errors['make']) { <span class="error-msg">{{ errors['make'] }}</span> }
+            </div>
+
+            <div class="form-group">
+              <label for="f-model">Car Model *</label>
+              <input id="f-model" type="text" [(ngModel)]="model" name="model"
+                placeholder="e.g. Corolla, Civic" [class.error]="errors['model']">
+              @if (errors['model']) { <span class="error-msg">{{ errors['model'] }}</span> }
+            </div>
+
+            <div class="form-group">
+              <label for="f-variant">Variant</label>
+              <input id="f-variant" type="text" [(ngModel)]="variant" name="variant"
+                placeholder="e.g. Altis Grande, VTi Oriel">
+            </div>
+
+            <div class="form-group">
+              <label for="f-year">Year of Manufacture *</label>
+              <select id="f-year" [(ngModel)]="year" name="year" [class.error]="errors['year']">
+                <option value="">Select Year</option>
+                @for (y of years; track y) { <option [value]="y">{{ y }}</option> }
+              </select>
+              @if (errors['year']) { <span class="error-msg">{{ errors['year'] }}</span> }
+            </div>
+
+            <div class="form-group">
+              <label for="f-body">Body Type *</label>
+              <select id="f-body" [(ngModel)]="bodyType" name="bodyType" [class.error]="errors['bodyType']">
+                <option value="">Select Body Type</option>
+                @for (b of bodyTypes(); track b) { <option [value]="b">{{ b }}</option> }
+              </select>
+              @if (errors['bodyType']) { <span class="error-msg">{{ errors['bodyType'] }}</span> }
+            </div>
+
+            <div class="form-group">
+              <label for="f-fuel">Fuel Type *</label>
+              <select id="f-fuel" [ngModel]="fuelType()" (ngModelChange)="onFuelTypeChange($event)"
+                name="fuelType" [class.error]="errors['fuelType']">
+                <option value="">Select Fuel Type</option>
+                @for (f of fuelTypes(); track f) { <option [value]="f">{{ f }}</option> }
+              </select>
+              @if (errors['fuelType']) { <span class="error-msg">{{ errors['fuelType'] }}</span> }
+            </div>
+
+            <div class="form-group">
+              <label for="f-transmission">Transmission *</label>
+              <select id="f-transmission" [(ngModel)]="transmission" name="transmission"
+                [class.error]="errors['transmission']">
+                <option value="">Select Transmission</option>
+                @for (t of transmissions(); track t) { <option [value]="t">{{ t }}</option> }
+              </select>
+              @if (errors['transmission']) { <span class="error-msg">{{ errors['transmission'] }}</span> }
+            </div>
+
+            <div class="form-group">
+              <label for="f-engine">Engine Capacity *</label>
+              <input id="f-engine" type="text" [(ngModel)]="engineCapacity" name="engineCapacity"
+                placeholder="e.g. 1300 cc / 2.0L" [class.error]="errors['engineCapacity']">
+              @if (errors['engineCapacity']) { <span class="error-msg">{{ errors['engineCapacity'] }}</span> }
+            </div>
+
+            <div class="form-group">
+              <label for="f-color">Colour *</label>
+              <input id="f-color" type="text" [(ngModel)]="color" name="color"
+                placeholder="e.g. White, Black, Silver" [class.error]="errors['color']">
+              @if (errors['color']) { <span class="error-msg">{{ errors['color'] }}</span> }
+            </div>
+
+            <div class="form-group">
+              <label for="f-doors">Doors *</label>
+              <select id="f-doors" [(ngModel)]="doorsCount" name="doorsCount" [class.error]="errors['doorsCount']">
+                <option value="">Select doors</option>
+                @for (d of [2, 3, 4, 5, 6]; track d) { <option [value]="d">{{ d }}</option> }
+              </select>
+              @if (errors['doorsCount']) { <span class="error-msg">{{ errors['doorsCount'] }}</span> }
+            </div>
+
+            <div class="form-group">
+              <label for="f-seats">Seating Capacity *</label>
+              <select id="f-seats" [(ngModel)]="seatingCapacity" name="seatingCapacity"
+                [class.error]="errors['seatingCapacity']">
+                <option value="">Select seats</option>
+                @for (s of [2, 4, 5, 6, 7, 8, 9]; track s) { <option [value]="s">{{ s }}</option> }
+              </select>
+              @if (errors['seatingCapacity']) { <span class="error-msg">{{ errors['seatingCapacity'] }}</span> }
+            </div>
+
+            <div class="form-group">
+              <label for="f-mileage">Mileage (km) *</label>
+              <input id="f-mileage" type="number" min="0" [(ngModel)]="mileage" name="mileage"
+                placeholder="e.g. 45000" [class.error]="errors['mileage']">
+              @if (errors['mileage']) { <span class="error-msg">{{ errors['mileage'] }}</span> }
+            </div>
+
+            @if (isElectric()) {
+              <div class="form-group">
+                <label for="f-battery">Battery Range (km) *</label>
+                <input id="f-battery" type="number" min="0" [(ngModel)]="batteryRange" name="batteryRange"
+                  placeholder="e.g. 400" [class.error]="errors['batteryRange']">
+                @if (errors['batteryRange']) {
+                  <span class="error-msg">{{ errors['batteryRange'] }}</span>
+                } @else {
+                  <span class="field-hint">Range on a full charge — asked because this is an electric/hybrid car.</span>
+                }
+              </div>
+            }
+
+            <div class="form-group full-width">
+              <label>Condition *</label>
+              <div class="condition-options">
+                @for (c of conditionOptions(); track c) {
+                  <button type="button" class="condition-card" [class.selected]="condition === c"
+                    (click)="condition = c">
+                    <strong>{{ c }}</strong>
+                  </button>
+                }
+              </div>
+              @if (errors['condition']) { <span class="error-msg">{{ errors['condition'] }}</span> }
+            </div>
+
           </div>
 
+          <div class="form-actions">
+            <span></span>
+            <button class="btn-next" (click)="nextStep()">Next: Price &amp; Info →</button>
+          </div>
         </div>
-
-        <div class="form-actions">
-          <span></span>
-          <button class="btn-next" (click)="nextStep()">Next: Price & Info →</button>
-        </div>
-      </div>
+      }
 
       <!-- ═══ STEP 2: PRICE & INFO ═══ -->
-      <div *ngIf="currentStep === 2">
-        <h2 class="step-title">💰 Price & Information</h2>
+      @if (currentStep === 2) {
+        <div>
+          <h2 class="step-title">💰 Price &amp; Information</h2>
 
-        <div class="form-grid">
+          <div class="form-grid">
 
-          <div class="form-group">
-            <label>Asking Price (USD) *</label>
-            <div class="input-prefix">
-              <span>$</span>
-              <input type="number" [(ngModel)]="price" placeholder="e.g. 15000"
-                [class.error]="errors.price">
+            <div class="form-group">
+              <label for="f-price">Asking Price (USD) *</label>
+              <div class="input-prefix">
+                <span>$</span>
+                <input id="f-price" type="number" min="0" [(ngModel)]="price" name="price"
+                  placeholder="e.g. 15000" [class.error]="errors['price']">
+              </div>
+              @if (errors['price']) { <span class="error-msg">{{ errors['price'] }}</span> }
             </div>
-            <span class="error-msg" *ngIf="errors.price">{{ errors.price }}</span>
-          </div>
 
-          <div class="form-group">
-            <label>Location *</label>
-            <input type="text" [(ngModel)]="location" placeholder="e.g. Tokyo, Japan"
-              [class.error]="errors.location">
-            <span class="error-msg" *ngIf="errors.location">{{ errors.location }}</span>
-          </div>
-
-          <div class="form-group full-width">
-            <label>Description *</label>
-            <textarea [(ngModel)]="description" rows="6"
-              placeholder="Describe your car in detail — service history, features, any issues, reason for selling..."
-              [class.error]="errors.description"></textarea>
-            <div class="char-count">{{ description.length }} characters
-              <span *ngIf="description.length < 30"> (minimum 30)</span>
+            <div class="form-group">
+              <label for="f-location">Area / City *</label>
+              <input id="f-location" type="text" [(ngModel)]="location" name="location"
+                placeholder="e.g. DHA Phase 5, Lahore" [class.error]="errors['location']">
+              @if (errors['location']) { <span class="error-msg">{{ errors['location'] }}</span> }
             </div>
-            <span class="error-msg" *ngIf="errors.description">{{ errors.description }}</span>
+
+            <div class="form-group">
+              <label for="f-postcode">Postcode</label>
+              <input id="f-postcode" type="text" [(ngModel)]="postcode" name="postcode"
+                placeholder="e.g. 54000 / SW1A 1AA" style="text-transform: uppercase;">
+            </div>
+
+            <div class="form-group full-width">
+              <label>Vehicle Features</label>
+              <div class="features-grid">
+                @for (f of featureOptions(); track f) {
+                  <button type="button" class="feature-chip" [class.selected]="isFeatureSelected(f)"
+                    [attr.aria-pressed]="isFeatureSelected(f)" (click)="toggleFeature(f)">
+                    <span class="tick">{{ isFeatureSelected(f) ? '✓' : '+' }}</span>{{ f }}
+                  </button>
+                }
+              </div>
+              <span class="field-hint">Tick everything the car has — listings with features get more enquiries.</span>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="f-description">Description *</label>
+              <textarea id="f-description" [(ngModel)]="description" name="description" rows="6"
+                placeholder="Describe your car in detail — service history, features, any issues, reason for selling..."
+                [class.error]="errors['description']"></textarea>
+              <div class="char-count">{{ description.length }} characters
+                @if (description.length < 30) { <span> (minimum 30)</span> }
+              </div>
+              @if (errors['description']) { <span class="error-msg">{{ errors['description'] }}</span> }
+            </div>
+
           </div>
 
+          <div class="form-actions">
+            <button class="btn-back" (click)="prevStep()">← Back</button>
+            <button class="btn-next" (click)="nextStep()">Next: Photos →</button>
+          </div>
         </div>
-
-        <div class="form-actions">
-          <button class="btn-back" (click)="prevStep()">← Back</button>
-          <button class="btn-next" (click)="nextStep()">Next: Photos →</button>
-        </div>
-      </div>
+      }
 
       <!-- ═══ STEP 3: PHOTOS & SUBMIT ═══ -->
-      <div *ngIf="currentStep === 3">
-        <h2 class="step-title">📸 Photos & Contact</h2>
+      @if (currentStep === 3) {
+        <div>
+          <h2 class="step-title">📸 Photos &amp; Contact</h2>
 
-        <!-- Photo Upload - 10 limit -->
-        <div class="form-group">
-          <label>Upload Photos (Max 10)</label>
-          <div class="upload-area" (click)="fileInput.click()">
-            <div class="upload-icon">📷</div>
-            <p>Click to upload photos</p>
-            <span>JPG, PNG — Max 10 photos</span>
+          <!-- Photo Upload - 10 limit -->
+          <div class="form-group">
+            <label>Upload Photos (Max 10)</label>
+            <div class="upload-area" (click)="fileInput.click()">
+              <div class="upload-icon">📷</div>
+              <p>Click to upload photos</p>
+              <span>JPG, PNG — Max 10 photos</span>
+            </div>
+            <input #fileInput type="file" accept="image/*" multiple
+              (change)="onImageUpload($event)" style="display:none">
+            @if (imageError()) { <span class="error-msg">{{ imageError() }}</span> }
           </div>
-          <input #fileInput type="file" accept="image/*" multiple
-            (change)="onImageUpload($event)" style="display:none">
-          <span class="error-msg" *ngIf="imageError()">{{ imageError() }}</span>
-        </div>
 
-        <!-- ✅ Image Count Bar -->
-        <div class="image-count-bar" *ngIf="images().length > 0">
-          <span>{{ images().length }} / 10 photos uploaded</span>
-          <span class="drag-hint">🖱️ Drag to reorder • First photo = Main Photo</span>
-        </div>
+          <!-- ✅ Image Count Bar -->
+          @if (images().length > 0) {
+            <div class="image-count-bar">
+              <span>{{ images().length }} / 10 photos uploaded</span>
+              <span class="drag-hint">🖱️ Drag to reorder • First photo = Main Photo</span>
+            </div>
+          }
 
-        <!-- ✅ Drag & Drop Image Preview -->
-        <div class="image-preview-grid" *ngIf="images().length > 0">
-          <div
-            class="preview-item"
-            *ngFor="let img of images(); let i = index"
-            [class.dragging]="dragIndex === i"
-            [class.drag-over]="dragOverIndex === i"
-            draggable="true"
-            (dragstart)="onDragStart(i)"
-            (dragover)="onDragOver($event, i)"
-            (drop)="onDrop($event, i)"
-            (dragend)="onDragEnd()">
+          <!-- ✅ Drag & Drop Image Preview -->
+          @if (images().length > 0) {
+            <div class="image-preview-grid">
+              @for (img of images(); track img; let i = $index) {
+                <div
+                  class="preview-item"
+                  [class.dragging]="dragIndex === i"
+                  [class.drag-over]="dragOverIndex === i"
+                  draggable="true"
+                  (dragstart)="onDragStart(i)"
+                  (dragover)="onDragOver($event, i)"
+                  (drop)="onDrop($event, i)"
+                  (dragend)="onDragEnd()">
 
-            <img [src]="img" [alt]="'Car photo ' + (i+1)">
+                  <img [src]="img" [alt]="'Car photo ' + (i+1)">
 
-            <!-- Remove button -->
-            <button class="remove-img" (click)="removeImage(i)">✕</button>
+                  <button class="remove-img" (click)="removeImage(i)">✕</button>
 
-            <!-- Main photo badge -->
-            <span class="img-badge" *ngIf="i === 0">⭐ Main</span>
+                  @if (i === 0) { <span class="img-badge">⭐ Main</span> }
 
-            <!-- Set as main button -->
-            <button class="set-main-btn" *ngIf="i !== 0" (click)="setMainPhoto(i)">
-              Set Main
+                  @if (i !== 0) {
+                    <button class="set-main-btn" (click)="setMainPhoto(i)">Set Main</button>
+                  }
+
+                  <div class="drag-handle">⠿</div>
+                  <span class="photo-number">{{ i + 1 }}</span>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Phone -->
+          <div class="form-group" style="margin-top: 24px;">
+            <label for="f-phone">Contact Phone *</label>
+            <input id="f-phone" type="tel" [(ngModel)]="phone" name="phone"
+              placeholder="+92 300 1234567" [class.error]="errors['phone']">
+            @if (errors['phone']) { <span class="error-msg">{{ errors['phone'] }}</span> }
+          </div>
+
+          <!-- Summary -->
+          <div class="listing-summary">
+            <h3>📋 Listing Summary</h3>
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span>Car</span>
+                <strong>{{ year }} {{ make }} {{ model }} {{ variant }}</strong>
+              </div>
+              <div class="summary-item">
+                <span>Registration</span>
+                <strong>{{ vrn || '—' }}</strong>
+              </div>
+              <div class="summary-item">
+                <span>Engine</span>
+                <strong>{{ engineCapacity || '—' }} • {{ transmission }}</strong>
+              </div>
+              <div class="summary-item">
+                <span>Mileage</span>
+                <strong>{{ mileage | number }} km</strong>
+              </div>
+              @if (isElectric() && batteryRange) {
+                <div class="summary-item">
+                  <span>Battery Range</span>
+                  <strong>{{ batteryRange | number }} km</strong>
+                </div>
+              }
+              <div class="summary-item">
+                <span>Doors / Seats</span>
+                <strong>{{ doorsCount || '—' }} / {{ seatingCapacity || '—' }}</strong>
+              </div>
+              <div class="summary-item">
+                <span>Price</span>
+                <strong>${{ price | number }}</strong>
+              </div>
+              <div class="summary-item">
+                <span>Location</span>
+                <strong>{{ location }}{{ postcode ? ', ' + postcode : '' }}</strong>
+              </div>
+              <div class="summary-item">
+                <span>Condition</span>
+                <strong>{{ condition }}</strong>
+              </div>
+              <div class="summary-item">
+                <span>Features</span>
+                <strong>{{ selectedFeatures().length }} selected</strong>
+              </div>
+              <div class="summary-item">
+                <span>Photos</span>
+                <strong>{{ images().length }} uploaded</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn-back" (click)="prevStep()">← Back</button>
+            <button class="btn-submit" (click)="onSubmit()" [disabled]="isLoading()">
+              @if (isLoading()) { <span>Submitting...</span> } @else { <span>🚀 Submit Listing</span> }
             </button>
-
-            <!-- Drag handle -->
-            <div class="drag-handle">⠿</div>
-
-            <!-- Photo number -->
-            <span class="photo-number">{{ i + 1 }}</span>
-
           </div>
+          @if (submitError()) {
+            <div class="submit-error" role="alert">{{ submitError() }}</div>
+          }
         </div>
-
-        <!-- Phone -->
-        <div class="form-group" style="margin-top: 24px;">
-          <label>Contact Phone *</label>
-          <input type="tel" [(ngModel)]="phone" placeholder="+81 80 1234 5678"
-            [class.error]="errors.phone">
-          <span class="error-msg" *ngIf="errors.phone">{{ errors.phone }}</span>
-        </div>
-
-        <!-- Summary -->
-        <div class="listing-summary">
-          <h3>📋 Listing Summary</h3>
-          <div class="summary-grid">
-            <div class="summary-item">
-              <span>Car</span>
-              <strong>{{ year }} {{ make }} {{ model }}</strong>
-            </div>
-            <div class="summary-item">
-              <span>Mileage</span>
-              <strong>{{ mileage | number }} km</strong>
-            </div>
-            <div class="summary-item">
-              <span>Price</span>
-              <strong>${{ price | number }}</strong>
-            </div>
-            <div class="summary-item">
-              <span>Location</span>
-              <strong>{{ location }}</strong>
-            </div>
-            <div class="summary-item">
-              <span>Condition</span>
-              <strong>{{ condition | titlecase }}</strong>
-            </div>
-            <div class="summary-item">
-              <span>Photos</span>
-              <strong>{{ images().length }} uploaded</strong>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button class="btn-back" (click)="prevStep()">← Back</button>
-          <button class="btn-submit" (click)="onSubmit()" [disabled]="isLoading()">
-            <span *ngIf="!isLoading()">🚀 Submit Listing</span>
-            <span *ngIf="isLoading()">Submitting...</span>
-          </button>
-        </div>
-        @if (submitError()) {
-          <div class="submit-error" role="alert">{{ submitError() }}</div>
-        }
-      </div>
+      }
 
     </div>
   </div>

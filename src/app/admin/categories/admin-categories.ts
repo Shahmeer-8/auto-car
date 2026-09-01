@@ -6,21 +6,21 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { getFirebaseDb } from '../../core/firebase/firebase';
-import { AttributesService } from '../../core/services/attributes.service';
+import {
+  AttributesService,
+  DEFAULT_ATTRIBUTES,
+  SiteAttributes,
+} from '../../core/services/attributes.service';
 
-const DEFAULT_MAKES = [
-  'Toyota', 'Honda', 'Nissan', 'Mazda', 'Subaru', 'Mitsubishi', 'Suzuki',
-  'Daihatsu', 'Lexus', 'Isuzu', 'Mercedes Benz', 'BMW', 'Volkswagen', 'Audi', 'Other'
-];
-const DEFAULT_BODY_TYPES = [
-  'Sedan', 'SUV', 'Hatchback', 'Coupe', 'Pickup', 'Van', 'Wagon', 'Crossover'
-];
-const DEFAULT_FUEL_TYPES = [
-  'Petrol', 'Diesel', 'Hybrid', 'Electric', 'CNG', 'LPG'
-];
-const DEFAULT_TRANSMISSIONS = [
-  'Automatic', 'Manual', 'CVT'
-];
+/** One editable list on the page; `key` is the field inside config/attributes. */
+interface AttributeList {
+  key: keyof SiteAttributes;
+  title: string;
+  hint: string;
+  placeholder: string;
+  values: string[];
+  draft: string;
+}
 
 @Component({
   selector: 'app-admin-categories',
@@ -32,115 +32,110 @@ export class AdminCategories implements OnInit {
   private db = getFirebaseDb();
   private attributes = inject(AttributesService);
 
-  makes: string[] = [];
-  bodyTypes: string[] = [];
-  fuelTypes: string[] = [];
-  transmissions: string[] = [];
+  /** Every list rendered on the page — add one entry here to add a new attribute list. */
+  lists: AttributeList[] = [
+    {
+      key: 'makes',
+      title: 'Car Makes',
+      hint: 'Shown in the home page brand cards, the /cars filter and the Sell Your Car form.',
+      placeholder: 'Add make...',
+      values: [],
+      draft: '',
+    },
+    {
+      key: 'bodyTypes',
+      title: 'Body Types',
+      hint: 'Drives the header/footer "Shop by Type" menus and the body type filter.',
+      placeholder: 'Add body type...',
+      values: [],
+      draft: '',
+    },
+    {
+      key: 'fuelTypes',
+      title: 'Fuel Types',
+      hint: 'Choosing an electric/hybrid fuel type asks the seller for battery range.',
+      placeholder: 'Add fuel type...',
+      values: [],
+      draft: '',
+    },
+    {
+      key: 'transmissions',
+      title: 'Transmissions',
+      hint: 'Options for the transmission dropdown on the listing form.',
+      placeholder: 'Add transmission...',
+      values: [],
+      draft: '',
+    },
+    {
+      key: 'features',
+      title: 'Vehicle Features',
+      hint: 'Tick-boxes the seller picks from, e.g. CarPlay, heated seats, sat nav.',
+      placeholder: 'Add feature...',
+      values: [],
+      draft: '',
+    },
+    {
+      key: 'conditions',
+      title: 'Vehicle Conditions',
+      hint: 'Condition choices on the listing form, e.g. Excellent / Write-Off.',
+      placeholder: 'Add condition...',
+      values: [],
+      draft: '',
+    },
+  ];
 
   loading = true;
   saving = false;
   saved = false;
 
-  newMake = '';
-  newBodyType = '';
-  newFuelType = '';
-  newTransmission = '';
-
   constructor(private cdr: ChangeDetectorRef) {}
 
   async ngOnInit() {
+    let data: Partial<SiteAttributes> = {};
     try {
       const snap = await getDoc(doc(this.db, 'config', 'attributes'));
-      if (snap.exists()) {
-        const data = snap.data() as {
-          makes?: string[];
-          bodyTypes?: string[];
-          fuelTypes?: string[];
-          transmissions?: string[];
-        };
-        this.makes = data.makes ?? [...DEFAULT_MAKES];
-        this.bodyTypes = data.bodyTypes ?? [...DEFAULT_BODY_TYPES];
-        this.fuelTypes = data.fuelTypes ?? [...DEFAULT_FUEL_TYPES];
-        this.transmissions = data.transmissions ?? [...DEFAULT_TRANSMISSIONS];
-      } else {
-        this.makes = [...DEFAULT_MAKES];
-        this.bodyTypes = [...DEFAULT_BODY_TYPES];
-        this.fuelTypes = [...DEFAULT_FUEL_TYPES];
-        this.transmissions = [...DEFAULT_TRANSMISSIONS];
-      }
+      if (snap.exists()) data = snap.data() as Partial<SiteAttributes>;
     } catch (err) {
       console.error('Error loading attributes:', err);
-      this.makes = [...DEFAULT_MAKES];
-      this.bodyTypes = [...DEFAULT_BODY_TYPES];
-      this.fuelTypes = [...DEFAULT_FUEL_TYPES];
-      this.transmissions = [...DEFAULT_TRANSMISSIONS];
     }
+
+    for (const list of this.lists) {
+      const stored = data[list.key];
+      list.values = Array.isArray(stored) && stored.length
+        ? [...stored]
+        : [...DEFAULT_ATTRIBUTES[list.key]];
+    }
+
     this.loading = false;
+    // Firestore resolves outside Angular's zone — force the view to update.
     this.cdr.detectChanges();
   }
 
-  addMake() {
-    const value = this.newMake.trim();
-    if (value && !this.makes.includes(value)) {
-      this.makes.push(value);
+  add(list: AttributeList) {
+    const value = list.draft.trim();
+    if (value && !list.values.some((v) => v.toLowerCase() === value.toLowerCase())) {
+      list.values.push(value);
+      this.saved = false;
     }
-    this.newMake = '';
+    list.draft = '';
   }
 
-  removeMake(i: number) {
-    this.makes.splice(i, 1);
-  }
-
-  addBodyType() {
-    const value = this.newBodyType.trim();
-    if (value && !this.bodyTypes.includes(value)) {
-      this.bodyTypes.push(value);
-    }
-    this.newBodyType = '';
-  }
-
-  removeBodyType(i: number) {
-    this.bodyTypes.splice(i, 1);
-  }
-
-  addFuelType() {
-    const value = this.newFuelType.trim();
-    if (value && !this.fuelTypes.includes(value)) {
-      this.fuelTypes.push(value);
-    }
-    this.newFuelType = '';
-  }
-
-  removeFuelType(i: number) {
-    this.fuelTypes.splice(i, 1);
-  }
-
-  addTransmission() {
-    const value = this.newTransmission.trim();
-    if (value && !this.transmissions.includes(value)) {
-      this.transmissions.push(value);
-    }
-    this.newTransmission = '';
-  }
-
-  removeTransmission(i: number) {
-    this.transmissions.splice(i, 1);
+  remove(list: AttributeList, index: number) {
+    list.values.splice(index, 1);
+    this.saved = false;
   }
 
   async save() {
     this.saving = true;
     try {
-      await setDoc(
-        doc(this.db, 'config', 'attributes'),
-        {
-          makes: this.makes,
-          bodyTypes: this.bodyTypes,
-          fuelTypes: this.fuelTypes,
-          transmissions: this.transmissions
-        },
-        { merge: true }
-      );
+      const payload: Partial<SiteAttributes> = {};
+      for (const list of this.lists) {
+        payload[list.key] = list.values;
+      }
+
+      await setDoc(doc(this.db, 'config', 'attributes'), payload, { merge: true });
       this.saved = true;
+      // Refresh the shared service so the storefront picks the change up at once.
       await this.attributes.load();
     } catch (err) {
       console.error('Error saving attributes:', err);

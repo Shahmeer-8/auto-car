@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
@@ -21,6 +21,8 @@ export class SellYourCar implements OnInit {
   readonly bodyTypes = this.attributesService.bodyTypes;
   readonly fuelTypes = this.attributesService.fuelTypes;
   readonly transmissions = this.attributesService.transmissions;
+  readonly featureOptions = this.attributesService.features;
+  readonly conditionOptions = this.attributesService.conditions;
 
   isLoading = signal(false);
   currentStep = 1;
@@ -30,23 +32,32 @@ export class SellYourCar implements OnInit {
   isEditMode = false;
   editListingId = '';
 
-  // Step 1
+  // ── Step 1: vehicle details ──
+  vrn = '';
   make = '';
   model = '';
+  variant = '';
   year = '';
-  mileage = '';
-  transmission = '';
-  fuelType = '';
-  color = '';
-  condition = '';
+  registrationPlate = '';
   bodyType = '';
+  readonly fuelType = signal('');
+  transmission = '';
+  engineCapacity = '';
+  color = '';
+  doorsCount = '';
+  seatingCapacity = '';
+  mileage = '';
+  batteryRange = '';
+  condition = '';
 
-  // Step 2
+  // ── Step 2: price, location, features, description ──
   price = '';
-  description = '';
   location = '';
+  postcode = '';
+  readonly selectedFeatures = signal<string[]>([]);
+  description = '';
 
-  // Step 3
+  // ── Step 3: photos + contact ──
   phone = '';
   readonly images = signal<string[]>([]);
   imageError = signal('');
@@ -56,19 +67,24 @@ export class SellYourCar implements OnInit {
   dragIndex: number | null = null;
   dragOverIndex: number | null = null;
 
-  errors: any = {};
+  errors: Record<string, string> = {};
 
-  years = Array.from({length: 30}, (_, i) => (2024 - i).toString());
+  /** Battery range only matters for electric / hybrid cars. */
+  readonly isElectric = computed(() => {
+    const key = attrKey(this.fuelType());
+    return key.includes('electric') || key.includes('hybrid') || key === 'ev';
+  });
+
+  years = Array.from({ length: 35 }, (_, i) => (new Date().getFullYear() - i).toString());
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute,  // ✅ Added
+    private route: ActivatedRoute,
     private carService: CarService,
     private authService: AuthService,
     private imageUpload: ImageUploadService,
   ) {}
 
-  // ✅ Edit mode check
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
       const editId = params['edit'];
@@ -85,19 +101,28 @@ export class SellYourCar implements OnInit {
     const listing = await this.carService.getCarById(id);
     if (!listing) return;
 
-    this.make         = this.matchOption(listing.make, this.makes());
-    this.model        = listing.model;
-    this.year         = listing.year?.toString() ?? '';
-    this.mileage      = listing.mileage?.toString() ?? '';
-    this.transmission = this.matchOption(listing.transmission, this.transmissions());
-    this.fuelType     = this.matchOption(listing.fuelType, this.fuelTypes());
-    this.color        = listing.color;
-    this.condition    = listing.condition;
-    this.bodyType     = this.matchOption(listing.bodyType, this.bodyTypes());
-    this.price        = listing.price?.toString() ?? '';
-    this.description  = listing.description;
-    this.location     = listing.location;
-    this.phone        = listing.phone;
+    this.vrn               = listing.vrn ?? '';
+    this.make              = this.matchOption(listing.make, this.makes());
+    this.model             = listing.model;
+    this.variant           = listing.variant ?? '';
+    this.year              = listing.year?.toString() ?? '';
+    this.registrationPlate = listing.registrationPlate ?? listing.registeredIn ?? '';
+    this.bodyType          = this.matchOption(listing.bodyType, this.bodyTypes());
+    this.fuelType.set(this.matchOption(listing.fuelType, this.fuelTypes()));
+    this.transmission      = this.matchOption(listing.transmission, this.transmissions());
+    this.engineCapacity    = listing.engineDisplacement ?? '';
+    this.color             = listing.color;
+    this.doorsCount        = listing.doorsCount?.toString() ?? '';
+    this.seatingCapacity   = listing.seatingCapacity?.toString() ?? '';
+    this.mileage           = listing.mileage?.toString() ?? '';
+    this.batteryRange      = listing.batteryRange?.toString() ?? '';
+    this.condition         = this.matchOption(listing.condition, this.conditionOptions());
+    this.price             = listing.price?.toString() ?? '';
+    this.location          = listing.location;
+    this.postcode          = listing.postcode ?? '';
+    this.selectedFeatures.set(listing.features ?? []);
+    this.description       = listing.description;
+    this.phone             = listing.phone;
     this.images.set(listing.images ?? []);
   }
 
@@ -113,6 +138,20 @@ export class SellYourCar implements OnInit {
     return options.find((o) => attrKey(o) === key) ?? value;
   }
 
+  onFuelTypeChange(value: string) {
+    this.fuelType.set(value);
+  }
+
+  toggleFeature(feature: string) {
+    this.selectedFeatures.update((list) =>
+      list.includes(feature) ? list.filter((f) => f !== feature) : [...list, feature],
+    );
+  }
+
+  isFeatureSelected(feature: string): boolean {
+    return this.selectedFeatures().includes(feature);
+  }
+
   nextStep() {
     if (this.validateStep()) {
       this.currentStep++;
@@ -125,47 +164,65 @@ export class SellYourCar implements OnInit {
     window.scrollTo(0, 0);
   }
 
+  private isPositiveNumber(value: string): boolean {
+    const n = Number(value);
+    return value.trim() !== '' && !isNaN(n) && n > 0;
+  }
+
   validateStep(): boolean {
     this.errors = {};
 
     if (this.currentStep === 1) {
-      if (!this.make) this.errors.make = 'Please select car make.';
-      if (!this.model.trim()) this.errors.model = 'Please enter car model.';
-      if (!this.year) this.errors.year = 'Please select year.';
-      if (!this.mileage) this.errors.mileage = 'Please enter mileage.';
-      if (!this.transmission) this.errors.transmission = 'Please select transmission.';
-      if (!this.fuelType) this.errors.fuelType = 'Please select fuel type.';
-      if (!this.condition) this.errors.condition = 'Please select condition.';
+      if (!this.vrn.trim()) this.errors['vrn'] = 'Please enter the registration number.';
+      if (!this.make) this.errors['make'] = 'Please select car make.';
+      if (!this.model.trim()) this.errors['model'] = 'Please enter car model.';
+      if (!this.year) this.errors['year'] = 'Please select the year of manufacture.';
+      if (!this.bodyType) this.errors['bodyType'] = 'Please select body type.';
+      if (!this.fuelType()) this.errors['fuelType'] = 'Please select fuel type.';
+      if (!this.transmission) this.errors['transmission'] = 'Please select transmission.';
+      if (!this.engineCapacity.trim()) this.errors['engineCapacity'] = 'Please enter engine capacity.';
+      if (!this.color.trim()) this.errors['color'] = 'Please enter the colour.';
+      if (!this.isPositiveNumber(this.doorsCount)) this.errors['doorsCount'] = 'Please enter the number of doors.';
+      if (!this.isPositiveNumber(this.seatingCapacity)) this.errors['seatingCapacity'] = 'Please enter the seating capacity.';
+      if (this.mileage.trim() === '' || isNaN(Number(this.mileage)) || Number(this.mileage) < 0) {
+        this.errors['mileage'] = 'Please enter the mileage.';
+      }
+      if (this.isElectric() && !this.isPositiveNumber(this.batteryRange)) {
+        this.errors['batteryRange'] = 'Please enter the battery range for an electric/hybrid car.';
+      }
+      if (!this.condition) this.errors['condition'] = 'Please select the condition.';
     }
 
     if (this.currentStep === 2) {
-      if (!this.price) this.errors.price = 'Please enter price.';
-      if (!this.location.trim()) this.errors.location = 'Please enter location.';
-      if (!this.description.trim()) this.errors.description = 'Please enter description.';
+      if (!this.isPositiveNumber(this.price)) this.errors['price'] = 'Please enter the asking price.';
+      if (!this.location.trim()) this.errors['location'] = 'Please enter the area or city.';
+      if (!this.description.trim()) this.errors['description'] = 'Please enter description.';
       else if (this.description.trim().length < 30)
-        this.errors.description = 'Description must be at least 30 characters.';
+        this.errors['description'] = 'Description must be at least 30 characters.';
     }
 
     if (this.currentStep === 3) {
-      if (!this.phone.trim()) this.errors.phone = 'Please enter phone number.';
+      if (!this.phone.trim()) this.errors['phone'] = 'Please enter phone number.';
     }
 
     return Object.keys(this.errors).length === 0;
   }
 
   // ✅ Image upload with compression
-  onImageUpload(event: any) {
-    const files = event.target.files;
+  onImageUpload(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
     this.imageError.set('');
+    if (!files) return;
 
     if (this.images().length + files.length > 10) {
       this.imageError.set(`Maximum 10 photos allowed. You can add ${10 - this.images().length} more.`);
       return;
     }
 
-    Array.from(files).forEach((file: any) => {
+    Array.from(files).forEach((file: File) => {
       const reader = new FileReader();
-      reader.onload = (e: any) => {
+      reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
@@ -189,7 +246,7 @@ export class SellYourCar implements OnInit {
           const compressed = canvas.toDataURL('image/jpeg', 0.7);
           this.images.update(list => [...list, compressed]);
         };
-        img.src = e.target.result;
+        img.src = e.target?.result as string;
       };
       reader.readAsDataURL(file);
     });
@@ -259,20 +316,35 @@ export class SellYourCar implements OnInit {
     const listingId = isEdit ? this.editListingId : this.carService.newCarId();
     const images = this.images();
 
+    // Firestore rejects `undefined`, so optional fields are only included when filled in.
+    const optional: Record<string, string | number | string[]> = {};
+    if (this.variant.trim()) optional['variant'] = this.variant.trim();
+    if (this.registrationPlate.trim()) optional['registrationPlate'] = this.registrationPlate.trim();
+    if (this.postcode.trim()) optional['postcode'] = this.postcode.trim().toUpperCase();
+    if (this.selectedFeatures().length) optional['features'] = this.selectedFeatures();
+    if (this.isElectric() && this.batteryRange.trim()) {
+      optional['batteryRange'] = Number(this.batteryRange);
+    }
+
     const baseData = {
-      make:         this.make,
-      model:        this.model,
-      year:         parseInt(this.year),
-      mileage:      parseInt(this.mileage),
-      transmission: this.transmission,
-      fuelType:     this.fuelType,
-      color:        this.color || 'Not specified',
-      condition:    this.condition,
-      bodyType:     this.bodyType || 'Not specified',
-      price:        parseFloat(this.price),
-      description:  this.description,
-      location:     this.location,
-      phone:        this.phone,
+      vrn:                this.vrn.trim().toUpperCase(),
+      make:               this.make,
+      model:              this.model.trim(),
+      year:               parseInt(this.year),
+      mileage:            Number(this.mileage),
+      transmission:       this.transmission,
+      fuelType:           this.fuelType(),
+      engineDisplacement: this.engineCapacity.trim(),
+      color:              this.color.trim() || 'Not specified',
+      doorsCount:         Number(this.doorsCount),
+      seatingCapacity:    Number(this.seatingCapacity),
+      condition:          this.condition,
+      bodyType:           this.bodyType,
+      price:              parseFloat(this.price),
+      description:        this.description.trim(),
+      location:           this.location.trim(),
+      phone:              this.phone.trim(),
+      ...optional,
     };
 
     // Photo upload can take several seconds (and may fail if Storage isn't configured).

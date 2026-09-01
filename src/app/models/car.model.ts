@@ -23,15 +23,28 @@ export interface CarListing {
   submittedAt: string;
   status: ListingStatus;
 
-  // ── New fields ──
+  // ── Vehicle detail fields (collected on the Sell Your Car form) ──
+  /** Vehicle Registration Number — the number plate itself, e.g. "AB12 CDE" / "LEA-1234". */
+  vrn?: string;
+  /** Where/how the car is registered, e.g. "Lahore", "Punjab", "private plate". */
+  registrationPlate?: string;
   variant?: string;
+  /** Engine capacity, e.g. "1300 cc" / "2.0L". */
+  engineDisplacement?: string;
+  doorsCount?: number;
+  seatingCapacity?: number;
+  /** Range on a full charge, in km — only meaningful for electric/hybrid cars. */
+  batteryRange?: number;
+  /** Postcode / ZIP, alongside the free-text `location` (area or city). */
+  postcode?: string;
+  features?: string[];
+
+  // ── Legacy optional fields kept for older listings ──
   exteriorColor?: string;
   registrationCity?: string;
-  engineDisplacement?: string;
   driveType?: string;
   previousOwners?: string;
   registeredIn?: string;
-  features?: string[];
   negotiable?: string;
   installmentAvailable?: string | null;
   fullName?: string;
@@ -68,15 +81,23 @@ export interface CreateCarListingInput {
   ownerName: string;
   email: string;
 
-  // ── New fields ──
+  // ── Vehicle detail fields (collected on the Sell Your Car form) ──
+  vrn?: string;
+  registrationPlate?: string;
   variant?: string;
+  engineDisplacement?: string;
+  doorsCount?: number;
+  seatingCapacity?: number;
+  batteryRange?: number;
+  postcode?: string;
+  features?: string[];
+
+  // ── Legacy optional fields ──
   exteriorColor?: string;
   registrationCity?: string;
-  engineDisplacement?: string;
   driveType?: string;
   previousOwners?: string;
   registeredIn?: string;
-  features?: string[];
   negotiable?: string;
   installmentAvailable?: string | null;
   fullName?: string;

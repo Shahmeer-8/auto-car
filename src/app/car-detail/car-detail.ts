@@ -28,6 +28,17 @@ interface CarDetailView {
   status?: ListingStatus;
   sellerId?: string;
   priceValue?: number;
+
+  // ── Extra vehicle details captured on the listing form ──
+  vrn?: string;
+  registrationPlate?: string;
+  variant?: string;
+  engineCapacity?: string;
+  doorsCount?: number;
+  seatingCapacity?: number;
+  batteryRange?: number;
+  postcode?: string;
+  features?: string[];
 }
 
 @Component({
@@ -188,9 +199,13 @@ export class CarDetail implements OnInit {
   }
 
   private setFromListing(found: CarListing) {
+    const name = [found.year, found.make, found.model, found.variant]
+      .filter(Boolean)
+      .join(' ');
+
     this.car = {
       id: found.id,
-      name: `${found.year} ${found.make} ${found.model}`,
+      name,
       price: '$' + found.price?.toLocaleString(),
       km: found.mileage?.toLocaleString() + ' km',
       transmission: found.transmission,
@@ -215,6 +230,16 @@ export class CarDetail implements OnInit {
       status: found.status,
       sellerId: found.sellerId,
       priceValue: Number(found.price) || 0,
+
+      vrn: found.vrn,
+      registrationPlate: found.registrationPlate ?? found.registeredIn,
+      variant: found.variant,
+      engineCapacity: found.engineDisplacement,
+      doorsCount: found.doorsCount,
+      seatingCapacity: found.seatingCapacity,
+      batteryRange: found.batteryRange,
+      postcode: found.postcode,
+      features: found.features ?? [],
     };
     this.images =
       found.images?.length > 0 ? found.images : ['placeholder-car.svg'];

@@ -269,6 +269,15 @@
   text-align: center;
   cursor: pointer;
   transition: all 0.3s;
+  background: #fff;
+  font-family: inherit;
+  width: 100%;
+}
+
+.condition-card:focus-visible,
+.feature-chip:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .condition-card:hover {
@@ -292,6 +301,63 @@
   font-size: 0.75rem;
   color: var(--text-muted);
   margin: 0;
+}
+
+/* Vehicle features */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.feature-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.feature-chip:hover { border-color: var(--primary); }
+
+.feature-chip.selected {
+  border-color: var(--primary);
+  background: rgba(232, 75, 43, 0.05);
+  font-weight: 600;
+}
+
+.feature-chip .tick {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.feature-chip.selected .tick {
+  background: var(--primary);
+  color: #fff;
+}
+
+.field-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
 }
 
 /* Upload Area */

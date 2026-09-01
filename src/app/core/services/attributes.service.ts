@@ -7,6 +7,9 @@ export interface SiteAttributes {
   bodyTypes: string[];
   fuelTypes: string[];
   transmissions: string[];
+  /** Ticked by the seller on the listing form and shown on the car detail page. */
+  features: string[];
+  conditions: string[];
 }
 
 /** Fallbacks used until the admin doc loads (and if it is missing/empty). */
@@ -15,6 +18,15 @@ export const DEFAULT_ATTRIBUTES: SiteAttributes = {
   bodyTypes: ['Sedan', 'SUV', 'Hatchback', 'Coupe', 'Pickup', 'Van', 'Wagon', 'Crossover'],
   fuelTypes: ['Petrol', 'Diesel', 'Hybrid', 'Electric', 'CNG', 'LPG'],
   transmissions: ['Automatic', 'Manual', 'CVT'],
+  features: [
+    'Apple CarPlay / Android Auto',
+    'Heated Seats',
+    'Sat Nav',
+    'Parking Sensors',
+    'Panoramic Roof',
+    'Cruise Control',
+  ],
+  conditions: ['Excellent', 'Good', 'Fair', 'Write-Off / Salvage'],
 };
 
 /** Site-wide car attribute lists, managed by admins at /admin/categories (Firestore config/attributes). */
@@ -27,6 +39,8 @@ export class AttributesService {
   readonly bodyTypes = computed(() => this.attributes().bodyTypes);
   readonly fuelTypes = computed(() => this.attributes().fuelTypes);
   readonly transmissions = computed(() => this.attributes().transmissions);
+  readonly features = computed(() => this.attributes().features);
+  readonly conditions = computed(() => this.attributes().conditions);
 
   constructor() {
     void this.load();
