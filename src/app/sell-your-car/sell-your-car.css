@@ -303,6 +303,18 @@
   margin: 0;
 }
 
+/* Validation summary next to the action buttons */
+.form-error-summary {
+  margin-top: 20px;
+  padding: 12px 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  color: #b91c1c;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
 /* Vehicle features */
 .features-grid {
   display: grid;

@@ -261,3 +261,77 @@
   overflow-y: auto;
   padding: 28px;
 }
+
+/* Hamburger — desktop keeps the sidebar pinned, so it only appears on small screens. */
+.sidebar-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-right: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  color: #1a1f36;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.sidebar-toggle:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.sidebar-backdrop { display: none; }
+
+/* ═══ MOBILE / TABLET ═══ */
+@media (max-width: 900px) {
+  .sidebar-toggle { display: inline-flex; }
+
+  /* Sidebar slides in over the content instead of eating the whole screen. */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 60;
+    width: 268px;
+    min-width: 268px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 0 0 40px rgba(15, 23, 42, 0.35);
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    background: rgba(15, 23, 42, 0.5);
+  }
+
+  .top-header {
+    padding: 12px 16px;
+    gap: 8px;
+  }
+  .page-title {
+    font-size: 17px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .page-content { padding: 16px; }
+  /* NOTE: the admin tables live inside routed child components, so their mobile
+     rules can't live here (view encapsulation) — see styles.css. */
+}
+
+@media (max-width: 520px) {
+  .page-content { padding: 12px; }
+  .top-header { padding: 10px 12px; }
+}

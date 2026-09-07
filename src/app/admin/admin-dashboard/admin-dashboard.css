@@ -277,3 +277,26 @@
   color: #9ca3af;
   font-weight: 500;
 }
+/* ─── MOBILE ────────────────────────────── */
+@media (max-width: 900px) {
+  .quick-actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tables-row {
+    grid-template-columns: 1fr;
+  }
+
+  /* The tables have a min-width so their columns stay readable — let each card
+     scroll on its own instead of stretching (and clipping) the page. */
+  .table-card,
+  .chart-card {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .quick-actions {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,7 +1,12 @@
 <div class="admin-wrapper">
 
+  <!-- Mobile backdrop: tap anywhere outside the sidebar to close it -->
+  @if (sidebarOpen()) {
+    <div class="sidebar-backdrop" (click)="closeSidebar()"></div>
+  }
+
   <!-- Sidebar -->
-  <aside class="sidebar">
+  <aside class="sidebar" [class.open]="sidebarOpen()">
     <!-- Logo -->
     <div class="sidebar-logo">
       <div class="logo-icon">
@@ -110,6 +115,14 @@
   <div class="main-area">
     <!-- Top Header -->
     <header class="top-header">
+      <button
+        class="sidebar-toggle"
+        type="button"
+        (click)="toggleSidebar()"
+        [attr.aria-expanded]="sidebarOpen()"
+        aria-label="Toggle navigation menu">
+        <span class="material-icons">{{ sidebarOpen() ? 'close' : 'menu' }}</span>
+      </button>
       <h1 class="page-title">{{ pageTitle() }}</h1>
       <div class="header-right">
         <button class="icon-btn" type="button" routerLink="/admin/notifications" aria-label="Notifications">

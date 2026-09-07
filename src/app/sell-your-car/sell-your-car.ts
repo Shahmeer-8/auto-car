@@ -46,12 +46,14 @@ export class SellYourCar implements OnInit {
   color = '';
   doorsCount = '';
   seatingCapacity = '';
-  mileage = '';
-  batteryRange = '';
+  // `<input type="number">` + ngModel hands back a NUMBER, not a string — so these
+  // must never be treated as strings (calling .trim() on them throws).
+  mileage: string | number = '';
+  batteryRange: string | number = '';
   condition = '';
 
   // ── Step 2: price, location, features, description ──
-  price = '';
+  price: string | number = '';
   location = '';
   postcode = '';
   readonly selectedFeatures = signal<string[]>([]);
@@ -68,6 +70,8 @@ export class SellYourCar implements OnInit {
   dragOverIndex: number | null = null;
 
   errors: Record<string, string> = {};
+  /** Shown next to the Next/Submit button — the failing fields are often far above it. */
+  readonly errorSummary = signal('');
 
   /** Battery range only matters for electric / hybrid cars. */
   readonly isElectric = computed(() => {
@@ -153,20 +157,53 @@ export class SellYourCar implements OnInit {
   }
 
   nextStep() {
-    if (this.validateStep()) {
-      this.currentStep++;
-      window.scrollTo(0, 0);
+    if (!this.validateStep()) {
+      this.reportErrors();
+      return;
     }
+    this.errorSummary.set('');
+    this.currentStep++;
+    window.scrollTo(0, 0);
   }
 
   prevStep() {
+    this.errorSummary.set('');
     this.currentStep--;
     window.scrollTo(0, 0);
   }
 
-  private isPositiveNumber(value: string): boolean {
-    const n = Number(value);
-    return value.trim() !== '' && !isNaN(n) && n > 0;
+  /**
+   * The failing fields sit far above the button on a long form (especially on a
+   * phone), so a silent validation failure looks like a dead button. Say what
+   * happened next to the button AND jump to the first field that needs fixing.
+   */
+  private reportErrors() {
+    const count = Object.keys(this.errors).length;
+    this.errorSummary.set(
+      count === 1
+        ? 'Please complete the highlighted field above before continuing.'
+        : `Please complete the ${count} highlighted fields above before continuing.`,
+    );
+
+    // Let Angular render the error markup first, then scroll to it.
+    setTimeout(() => {
+      const firstError = document.querySelector('.form-card .error-msg');
+      const group = firstError?.closest('.form-group') ?? firstError;
+      group?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const focusable = group?.querySelector<HTMLElement>('input, select, textarea, button');
+      focusable?.focus({ preventScroll: true });
+    });
+  }
+
+  /** Number inputs yield numbers, selects yield strings — normalise before testing. */
+  private asText(value: string | number | null | undefined): string {
+    return value === null || value === undefined ? '' : String(value).trim();
+  }
+
+  private isPositiveNumber(value: string | number): boolean {
+    const text = this.asText(value);
+    const n = Number(text);
+    return text !== '' && !isNaN(n) && n > 0;
   }
 
   validateStep(): boolean {
@@ -184,7 +221,8 @@ export class SellYourCar implements OnInit {
       if (!this.color.trim()) this.errors['color'] = 'Please enter the colour.';
       if (!this.isPositiveNumber(this.doorsCount)) this.errors['doorsCount'] = 'Please enter the number of doors.';
       if (!this.isPositiveNumber(this.seatingCapacity)) this.errors['seatingCapacity'] = 'Please enter the seating capacity.';
-      if (this.mileage.trim() === '' || isNaN(Number(this.mileage)) || Number(this.mileage) < 0) {
+      const mileageText = this.asText(this.mileage);
+      if (mileageText === '' || isNaN(Number(mileageText)) || Number(mileageText) < 0) {
         this.errors['mileage'] = 'Please enter the mileage.';
       }
       if (this.isElectric() && !this.isPositiveNumber(this.batteryRange)) {
@@ -298,8 +336,12 @@ export class SellYourCar implements OnInit {
   }
 
   async onSubmit() {
-    if (!this.validateStep()) return;
+    if (!this.validateStep()) {
+      this.reportErrors();
+      return;
+    }
 
+    this.errorSummary.set('');
     this.submitError.set('');
 
     await this.authService.waitUntilReady();
@@ -322,8 +364,8 @@ export class SellYourCar implements OnInit {
     if (this.registrationPlate.trim()) optional['registrationPlate'] = this.registrationPlate.trim();
     if (this.postcode.trim()) optional['postcode'] = this.postcode.trim().toUpperCase();
     if (this.selectedFeatures().length) optional['features'] = this.selectedFeatures();
-    if (this.isElectric() && this.batteryRange.trim()) {
-      optional['batteryRange'] = Number(this.batteryRange);
+    if (this.isElectric() && this.asText(this.batteryRange)) {
+      optional['batteryRange'] = Number(this.asText(this.batteryRange));
     }
 
     const baseData = {
@@ -331,7 +373,7 @@ export class SellYourCar implements OnInit {
       make:               this.make,
       model:              this.model.trim(),
       year:               parseInt(this.year),
-      mileage:            Number(this.mileage),
+      mileage:            Number(this.asText(this.mileage)),
       transmission:       this.transmission,
       fuelType:           this.fuelType(),
       engineDisplacement: this.engineCapacity.trim(),
@@ -340,7 +382,7 @@ export class SellYourCar implements OnInit {
       seatingCapacity:    Number(this.seatingCapacity),
       condition:          this.condition,
       bodyType:           this.bodyType,
-      price:              parseFloat(this.price),
+      price:              Number(this.asText(this.price)),
       description:        this.description.trim(),
       location:           this.location.trim(),
       phone:              this.phone.trim(),

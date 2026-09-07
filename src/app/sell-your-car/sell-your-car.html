@@ -183,6 +183,10 @@
 
           </div>
 
+          @if (errorSummary()) {
+            <div class="form-error-summary" role="alert">⚠️ {{ errorSummary() }}</div>
+          }
+
           <div class="form-actions">
             <span></span>
             <button class="btn-next" (click)="nextStep()">Next: Price &amp; Info →</button>
@@ -245,6 +249,10 @@
             </div>
 
           </div>
+
+          @if (errorSummary()) {
+            <div class="form-error-summary" role="alert">⚠️ {{ errorSummary() }}</div>
+          }
 
           <div class="form-actions">
             <button class="btn-back" (click)="prevStep()">← Back</button>
@@ -370,6 +378,10 @@
               </div>
             </div>
           </div>
+
+          @if (errorSummary()) {
+            <div class="form-error-summary" role="alert">⚠️ {{ errorSummary() }}</div>
+          }
 
           <div class="form-actions">
             <button class="btn-back" (click)="prevStep()">← Back</button>

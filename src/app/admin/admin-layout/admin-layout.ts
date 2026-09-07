@@ -25,6 +25,9 @@ export class AdminLayout implements OnInit {
   readonly unreadCount = signal(0);
   readonly pageTitle = signal('Main dashboard');
 
+  /** Mobile only: the sidebar slides in over the content and closes on navigation. */
+  readonly sidebarOpen = signal(false);
+
   get adminName(): string {
     return this.auth.getUserDisplayName() || 'Admin';
   }
@@ -68,6 +71,8 @@ export class AdminLayout implements OnInit {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.updateTitle(event.urlAfterRedirects);
+        // On a phone the sidebar covers the page — close it once we've navigated.
+        this.sidebarOpen.set(false);
       }
     });
 
@@ -76,6 +81,14 @@ export class AdminLayout implements OnInit {
       .unreadCountForCurrentUser()
       .then((c) => this.unreadCount.set(c))
       .catch(() => this.unreadCount.set(0));
+  }
+
+  toggleSidebar() {
+    this.sidebarOpen.update((open) => !open);
+  }
+
+  closeSidebar() {
+    this.sidebarOpen.set(false);
   }
 
   private updateTitle(url: string) {

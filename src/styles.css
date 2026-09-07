@@ -10,3 +10,27 @@ html, body {
   margin: 0;
   padding: 0;
 }
+
+/* ═══ ADMIN PANEL — MOBILE ═══
+   The admin tables live inside routed child components, so the layout's own
+   (encapsulated) stylesheet can't reach them. These rules are global on purpose
+   and stay scoped to .page-content so they only affect the admin area. */
+@media (max-width: 900px) {
+  .page-content mat-card,
+  .page-content mat-card-content,
+  .page-content .table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Keep table columns readable and let the card scroll instead of the page. */
+  .page-content table {
+    min-width: 640px;
+  }
+
+  /* Stat/summary grids collapse to a single column rather than squashing. */
+  .page-content .stat-row,
+  .page-content .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
