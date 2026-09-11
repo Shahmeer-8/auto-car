@@ -160,14 +160,17 @@
       </div>
     </div>
 
-    @if (config.showDots) {
+    @if (config.showDots && dots().length) {
     <div class="dots">
-      @for (dot of dots(); track dot) {
+      @for (dot of dots(); track dot.page) {
       <button
         class="dot"
-        [class.active]="dot === currentIndex()"
-        (click)="goTo(dot)"
-        [attr.aria-label]="'Go to slide ' + (dot + 1)"
+        [class.active]="dot.page === activePage()"
+        [class.dot--sm]="dot.size === 'sm'"
+        [class.dot--xs]="dot.size === 'xs'"
+        (click)="goToPage(dot.page)"
+        [attr.aria-current]="dot.page === activePage() ? 'true' : null"
+        [attr.aria-label]="'Go to page ' + (dot.page + 1) + ' of ' + totalPages()"
       ></button>
       }
     </div>

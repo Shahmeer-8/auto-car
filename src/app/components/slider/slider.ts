@@ -15,6 +15,14 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SliderConfig, SliderItem } from './slider.types';
 
+/** Edge dots render smaller to signal that the page strip continues. */
+type SliderDotSize = 'full' | 'sm' | 'xs';
+
+interface SliderDot {
+  page: number;
+  size: SliderDotSize;
+}
+
 @Component({
   selector: 'app-slider',
   standalone: true,
@@ -50,7 +58,53 @@ export class Slider implements OnInit, OnDestroy, OnChanges {
     }px) / ${visible} + ${gap}px))))`;
   });
 
-  dots = computed(() => Array.from({ length: this.maxIndex() + 1 }, (_, i) => i));
+  /**
+   * Dots represent PAGES (one screenful of cards), not every scroll position —
+   * a 26-car row used to render 23 dots on desktop and 26 on a phone. The strip
+   * is also capped at MAX_DOTS and windowed around the active page, with the
+   * outermost dots shrinking to hint that there is more either side.
+   */
+  private readonly MAX_DOTS = 7;
+
+  totalPages = computed(() => {
+    const perPage = this.visibleCards();
+    const count = this.items().length;
+    if (!count || !perPage) return 1;
+    return Math.max(1, Math.ceil(count / perPage));
+  });
+
+  activePage = computed(() =>
+    Math.min(Math.floor(this.currentIndex() / this.visibleCards()), this.totalPages() - 1),
+  );
+
+  dots = computed<SliderDot[]>(() => {
+    const total = this.totalPages();
+    const active = this.activePage();
+
+    // A single page needs no pagination at all.
+    if (total <= 1) return [];
+
+    if (total <= this.MAX_DOTS) {
+      return Array.from({ length: total }, (_, page) => ({ page, size: 'full' as const }));
+    }
+
+    // Slide a fixed-size window so the active page stays near the middle.
+    const half = Math.floor(this.MAX_DOTS / 2);
+    const start = Math.min(Math.max(active - half, 0), total - this.MAX_DOTS);
+    const last = this.MAX_DOTS - 1;
+
+    return Array.from({ length: this.MAX_DOTS }, (_, i) => {
+      const page = start + i;
+      const moreBefore = start > 0;
+      const moreAfter = start + this.MAX_DOTS < total;
+
+      let size: SliderDotSize = 'full';
+      if ((i === 0 && moreBefore) || (i === last && moreAfter)) size = 'xs';
+      else if ((i === 1 && start > 1) || (i === last - 1 && start + this.MAX_DOTS < total - 1)) size = 'sm';
+
+      return { page, size };
+    });
+  });
 
   constructor() {
     // Signal inputs don't surface in ngOnChanges/SimpleChanges, so react to `items`
@@ -112,8 +166,9 @@ export class Slider implements OnInit, OnDestroy, OnChanges {
     this.restartAutoSlide();
   }
 
-  goTo(index: number): void {
-    this.currentIndex.set(index);
+  /** Jump a whole screenful, clamped so the last page doesn't scroll past the end. */
+  goToPage(page: number): void {
+    this.currentIndex.set(Math.min(page * this.visibleCards(), this.maxIndex()));
     this.restartAutoSlide();
   }
 

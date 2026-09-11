@@ -349,6 +349,7 @@
 /* ===== DOTS ===== */
 .dots {
   display: flex;
+  align-items: center;
   justify-content: center;
   gap: 8px;
   margin-top: 24px;
@@ -363,13 +364,33 @@
   cursor: pointer;
   transition: all 0.3s;
   padding: 0;
+  flex: 0 0 auto;
+}
+
+.dot:hover { background: #c4c4c4; }
+.dot:focus-visible {
+  outline: 2px solid #e84b2b;
+  outline-offset: 2px;
+}
+
+/* Edge dots of a windowed strip: smaller, to hint there are more pages. */
+.dot--sm {
+  width: 7px;
+  height: 7px;
+}
+
+.dot--xs {
+  width: 5px;
+  height: 5px;
+  opacity: 0.65;
 }
 
 .dot.active {
   background: #e84b2b;
-  transform: scale(1.3);
   width: 24px;
-  border-radius: 4px;
+  height: 10px;
+  border-radius: 5px;
+  opacity: 1;
 }
 
 .section-divider {
