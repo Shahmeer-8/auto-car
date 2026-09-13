@@ -15,14 +15,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SliderConfig, SliderItem } from './slider.types';
 
-/** Edge dots render smaller to signal that the page strip continues. */
-type SliderDotSize = 'full' | 'sm' | 'xs';
-
-interface SliderDot {
-  page: number;
-  size: SliderDotSize;
-}
-
 @Component({
   selector: 'app-slider',
   standalone: true,
@@ -44,10 +36,15 @@ export class Slider implements OnInit, OnDestroy, OnChanges {
 
   private interval: ReturnType<typeof setInterval> | null = null;
   private itemsInitialized = false;
+  /** Auto-play is suspended while the user is hovering, focused inside, or dragging. */
+  private paused = false;
 
   hostClasses = '';
 
   maxIndex = computed(() => Math.max(0, this.items().length - this.visibleCards()));
+
+  /** Arrows are pointless when everything already fits on screen. */
+  canSlide = computed(() => this.maxIndex() > 0);
 
   translateX = computed(() => {
     const index = this.currentIndex();
@@ -56,54 +53,6 @@ export class Slider implements OnInit, OnDestroy, OnChanges {
     return `translateX(calc(${index} * (-1 * ((100% - ${
       (visible - 1) * gap
     }px) / ${visible} + ${gap}px))))`;
-  });
-
-  /**
-   * Dots represent PAGES (one screenful of cards), not every scroll position —
-   * a 26-car row used to render 23 dots on desktop and 26 on a phone. The strip
-   * is also capped at MAX_DOTS and windowed around the active page, with the
-   * outermost dots shrinking to hint that there is more either side.
-   */
-  private readonly MAX_DOTS = 7;
-
-  totalPages = computed(() => {
-    const perPage = this.visibleCards();
-    const count = this.items().length;
-    if (!count || !perPage) return 1;
-    return Math.max(1, Math.ceil(count / perPage));
-  });
-
-  activePage = computed(() =>
-    Math.min(Math.floor(this.currentIndex() / this.visibleCards()), this.totalPages() - 1),
-  );
-
-  dots = computed<SliderDot[]>(() => {
-    const total = this.totalPages();
-    const active = this.activePage();
-
-    // A single page needs no pagination at all.
-    if (total <= 1) return [];
-
-    if (total <= this.MAX_DOTS) {
-      return Array.from({ length: total }, (_, page) => ({ page, size: 'full' as const }));
-    }
-
-    // Slide a fixed-size window so the active page stays near the middle.
-    const half = Math.floor(this.MAX_DOTS / 2);
-    const start = Math.min(Math.max(active - half, 0), total - this.MAX_DOTS);
-    const last = this.MAX_DOTS - 1;
-
-    return Array.from({ length: this.MAX_DOTS }, (_, i) => {
-      const page = start + i;
-      const moreBefore = start > 0;
-      const moreAfter = start + this.MAX_DOTS < total;
-
-      let size: SliderDotSize = 'full';
-      if ((i === 0 && moreBefore) || (i === last && moreAfter)) size = 'xs';
-      else if ((i === 1 && start > 1) || (i === last - 1 && start + this.MAX_DOTS < total - 1)) size = 'sm';
-
-      return { page, size };
-    });
   });
 
   constructor() {
@@ -152,24 +101,63 @@ export class Slider implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  /** Arrows wrap around, matching auto-play — a dead-end arrow is a dead control. */
   prev(): void {
-    if (this.currentIndex() > 0) {
-      this.currentIndex.update((i) => i - 1);
-    }
+    this.currentIndex.update((i) => (i > 0 ? i - 1 : this.maxIndex()));
     this.restartAutoSlide();
   }
 
   next(): void {
-    if (this.currentIndex() < this.maxIndex()) {
-      this.currentIndex.update((i) => i + 1);
-    }
+    this.currentIndex.update((i) => (i < this.maxIndex() ? i + 1 : 0));
     this.restartAutoSlide();
   }
 
-  /** Jump a whole screenful, clamped so the last page doesn't scroll past the end. */
-  goToPage(page: number): void {
-    this.currentIndex.set(Math.min(page * this.visibleCards(), this.maxIndex()));
+  // ===== AUTO-PLAY PAUSING =====
+  // Stop the carousel moving out from under someone who is reading or tabbing through it.
+  pause(): void {
+    this.paused = true;
+    this.clearAutoSlide();
+  }
+
+  resume(): void {
+    this.paused = false;
     this.restartAutoSlide();
+  }
+
+  @HostListener('document:visibilitychange')
+  onVisibilityChange(): void {
+    if (document.hidden) {
+      this.clearAutoSlide();
+    } else if (!this.paused) {
+      this.restartAutoSlide();
+    }
+  }
+
+  // ===== TOUCH / DRAG SWIPE =====
+  // With the dots gone, swiping is the primary way to browse on a phone.
+  private dragStartX: number | null = null;
+  private readonly SWIPE_THRESHOLD = 45;
+
+  onPointerDown(event: PointerEvent): void {
+    if (event.pointerType === 'mouse') return;
+    this.dragStartX = event.clientX;
+    this.pause();
+  }
+
+  onPointerUp(event: PointerEvent): void {
+    if (this.dragStartX === null) return;
+    const delta = event.clientX - this.dragStartX;
+    this.dragStartX = null;
+
+    if (Math.abs(delta) >= this.SWIPE_THRESHOLD && this.canSlide()) {
+      delta < 0 ? this.next() : this.prev();
+    }
+    this.resume();
+  }
+
+  onPointerCancel(): void {
+    this.dragStartX = null;
+    this.resume();
   }
 
   getRouterLink(item: SliderItem, index: number): string | any[] {
@@ -210,19 +198,26 @@ export class Slider implements OnInit, OnDestroy, OnChanges {
 
   private updateVisibleCards(): void {
     const width = window.innerWidth;
-    if (width <= 480) {
+    if (width <= 560) {
       this.visibleCards.set(1);
-    } else if (width <= 768) {
+    } else if (width <= 880) {
       this.visibleCards.set(2);
-    } else if (width <= 1024) {
+    } else if (width <= 1180) {
       this.visibleCards.set(3);
     } else {
       this.visibleCards.set(4);
     }
   }
 
+  private prefersReducedMotion(): boolean {
+    return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+  }
+
   private startAutoSlide(): void {
     this.clearAutoSlide();
+    // Honour the OS "reduce motion" setting, and don't animate a slider that can't move.
+    if (this.paused || this.prefersReducedMotion() || this.maxIndex() === 0) return;
+
     const ms = this.config.autoPlayMs ?? 4000;
     this.interval = setInterval(() => {
       this.currentIndex.update((i) => (i < this.maxIndex() ? i + 1 : 0));

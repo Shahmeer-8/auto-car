@@ -7,12 +7,12 @@
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 clamp(16px, 4vw, 24px);
   box-sizing: border-box;
 }
 
 .section-title {
-  font-size: 1.6rem;
+  font-size: clamp(1.22rem, 2.4vw, 1.6rem);
   font-weight: 700;
   color: #222;
   margin-bottom: 8px;
@@ -34,13 +34,19 @@
   background: #fff;
 }
 
-.brand-grid {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
+/* Flex, not grid: the number of brands/body types is admin-driven, so a short
+   final row has to stay centred instead of hugging the left edge. */
+.brand-grid,
+.body-type-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 16px;
 }
 
+/* Ten brands fill a desktop row exactly (9 gaps x 16px). */
 .brand-card {
+  flex: 0 0 calc((100% - 144px) / 10);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -85,17 +91,19 @@
 
 /* ===== BODY TYPE SECTION ===== */
 .body-type-section {
-  padding: 48px 0 40px;
+  padding: clamp(36px, 5vw, 48px) 0 clamp(32px, 4.5vw, 40px);
   background: #f9f9f9;
 }
 
-.body-type-grid {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 16px;
+/* No subtitle under this heading, so it needs its own breathing room. */
+.body-type-section .section-title {
+  margin-bottom: 24px;
 }
 
+/* Body types are a handful, so give them a comfortable fixed width and let the
+   whole cluster sit in the middle of the section. */
 .body-type-card {
+  flex: 0 0 132px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -339,12 +347,8 @@
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
-  .brand-grid {
-    grid-template-columns: repeat(5, 1fr);
-  }
-
-  .body-type-grid {
-    grid-template-columns: repeat(5, 1fr);
+  .brand-card {
+    flex: 0 0 calc((100% - 64px) / 5);
   }
 
   .cars-grid {
@@ -367,14 +371,14 @@
     margin-bottom: 16px;
   }
 
-  .brand-grid {
-    grid-template-columns: repeat(3, 1fr);
+  .brand-grid,
+  .body-type-grid {
     gap: 10px;
   }
 
-  .body-type-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+  .brand-card,
+  .body-type-card {
+    flex: 0 0 calc((100% - 20px) / 3);
   }
 
   .body-type-card,
@@ -417,5 +421,31 @@
 
   .why-section::before {
     font-size: 8rem;
+  }
+}
+/* Very small phones only: three tiles per row squash below ~360px. */
+@media (max-width: 359px) {
+  .brand-card,
+  .body-type-card {
+    flex: 0 0 calc((100% - 10px) / 2);
+  }
+}
+
+/* Respect the OS "reduce motion" preference across the home page tiles. */
+@media (prefers-reduced-motion: reduce) {
+  .brand-card,
+  .body-type-card,
+  .car-card,
+  .why-card {
+    transition: none;
+  }
+
+  .brand-card:hover,
+  .body-type-card:hover,
+  .car-card:hover,
+  .why-card:hover,
+  .brand-card:hover .brand-logo,
+  .car-card:hover .car-image {
+    transform: none;
   }
 }

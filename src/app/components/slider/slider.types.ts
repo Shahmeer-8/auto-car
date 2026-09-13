@@ -7,7 +7,6 @@ export interface SliderConfig {
   viewAllLink?: string;
   viewAllLabel?: string;
   autoPlayMs?: number;
-  showDots?: boolean;
   showDivider?: boolean;
   headerLayout?: SliderHeaderLayout;
   sectionClass?: string;

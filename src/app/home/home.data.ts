@@ -390,7 +390,6 @@ export const COMPARISONS: SliderItem[] = [
 export const POPULAR_CARS_CONFIG: SliderConfig = {
   cardVariant: 'car',
   viewAllLink: '/cars',
-  showDots: true,
   headerLayout: 'inline',
   autoPlayMs: 3500,
 };

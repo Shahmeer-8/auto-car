@@ -7,59 +7,53 @@
 }
 
 :host(.slider-host--compact) .slider-section {
-  padding: 48px 0 0;
+  padding: clamp(32px, 5vw, 48px) 0 0;
 }
 
 .slider-section {
-  padding: 52px 0;
+  padding: clamp(36px, 5.5vw, 52px) 0;
   background: #fff;
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 clamp(16px, 4vw, 24px);
   box-sizing: border-box;
 }
 
 /* ===== HEADER ===== */
 .slider-header {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 28px;
+  margin-bottom: clamp(18px, 2.5vw, 28px);
+  gap: 12px;
 }
 
+/* Title left, "View All" right. */
 .slider-header--inline {
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
+/* Title with the link tucked underneath it. */
 .slider-header--stacked {
-  align-items: flex-start;
-  margin-bottom: 24px;
-}
-
-.header-left {
-  display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 6px;
 }
 
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
 .section-title {
-  font-size: 1.6rem;
+  font-size: clamp(1.22rem, 2.4vw, 1.6rem);
   font-weight: 700;
   color: #222;
   margin: 0;
+  line-height: 1.25;
   font-family: 'Segoe UI', Arial, sans-serif;
 }
 
 .slider-header--stacked .section-title {
-  font-size: 1.5rem;
+  font-size: clamp(1.15rem, 2.2vw, 1.5rem);
   color: #1a1a1a;
 }
 
@@ -69,11 +63,12 @@
   font-weight: 700;
   text-decoration: none;
   font-family: 'Segoe UI', Arial, sans-serif;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 4px;
   transition: gap 0.2s;
   width: fit-content;
+  flex-shrink: 0;
 }
 
 .view-all:hover {
@@ -88,55 +83,74 @@
   font-size: 0.88rem;
 }
 
-.arrows {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+/* ===== STAGE, ARROWS & VIEWPORT ===== */
+/* The stage exists so the arrows can sit in the container gutter, beside the
+   rail rather than inside the clipped viewport. */
+.slider-stage {
+  position: relative;
 }
 
-.arrow {
-  background: #fff;
-  border: 1.5px solid #ddd;
+.slider-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  width: 38px;
-  height: 38px;
+  border: 1px solid #e6e6e6;
+  background: rgba(255, 255, 255, 0.96);
+  color: #222;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.2s;
-  color: #333;
   padding: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
 }
 
-.arrow:hover:not(:disabled) {
+.slider-nav:hover {
   background: #e84b2b;
   border-color: #e84b2b;
   color: #fff;
-  box-shadow: 0 4px 16px rgba(232, 75, 43, 0.25);
+  box-shadow: 0 6px 20px rgba(232, 75, 43, 0.3);
+  transform: translateY(-50%) scale(1.06);
 }
 
-.arrow:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
+.slider-nav:focus-visible {
+  outline: 2px solid #e84b2b;
+  outline-offset: 3px;
 }
 
-/* ===== VIEWPORT & TRACK ===== */
+.slider-nav--prev {
+  left: -22px;
+}
+
+.slider-nav--next {
+  right: -22px;
+}
+
 .slider-viewport {
   overflow: hidden;
   width: 100%;
+  /* Let the browser keep vertical scrolling while we interpret horizontal drags. */
+  touch-action: pan-y;
 }
 
 .slider-track {
   display: flex;
-  transition: transform 0.4s ease;
+  transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
+/* Card width MUST stay in lockstep with Slider.updateVisibleCards() — the track
+   translate assumes exactly this many cards per screen. */
 .card {
   flex: 0 0 calc((100% - 48px) / 4);
   margin-right: 16px;
+  min-width: 0;
 }
 
 /* ===== CAR VARIANT ===== */
@@ -145,6 +159,8 @@
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
+  display: flex;
+  flex-direction: column;
   transition: box-shadow 0.2s, transform 0.2s;
 }
 
@@ -155,8 +171,9 @@
 
 .card__image-wrap--car {
   position: relative;
-  height: 210px;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
+  background: #f4f5f7;
 }
 
 .card__badge {
@@ -174,6 +191,9 @@
 
 .card__body--car {
   padding: 18px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .card__title--car {
@@ -182,6 +202,11 @@
   color: #222;
   margin: 0 0 6px;
   font-family: 'Segoe UI', Arial, sans-serif;
+  /* Two lines max so every card in a row lines up. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .card__price {
@@ -200,6 +225,7 @@
 
 .card__btn {
   width: 100%;
+  margin-top: auto;
   padding: 11px;
   background: transparent;
   border: 1.5px solid #e84b2b;
@@ -229,10 +255,11 @@
 
 .card__image-wrap--article {
   width: 100%;
-  height: 200px;
+  aspect-ratio: 16 / 11;
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 16px;
+  background: #f4f5f7;
 }
 
 .card__body--article {
@@ -269,7 +296,7 @@
 
 .card__image-wrap--category {
   width: 100%;
-  height: 200px;
+  aspect-ratio: 16 / 11;
   background: #f5f5f5;
   margin-bottom: 16px;
   border-radius: 8px;
@@ -308,10 +335,11 @@
 
 .card__image-wrap--comparison {
   width: 100%;
-  height: 200px;
+  aspect-ratio: 16 / 11;
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 14px;
+  background: #f4f5f7;
 }
 
 .card__title--comparison {
@@ -331,66 +359,14 @@
   transition: transform 0.4s;
 }
 
-.card--car:hover .card__image,
 .card--article:hover .card__image,
-.card--category:hover .card__image,
 .card--comparison:hover .card__image {
   transform: scale(1.04);
 }
 
-.card--category:hover .card__image {
-  transform: scale(1.05);
-}
-
+.card--category:hover .card__image,
 .card--car:hover .card__image {
   transform: scale(1.05);
-}
-
-/* ===== DOTS ===== */
-.dots {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 24px;
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #ddd;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s;
-  padding: 0;
-  flex: 0 0 auto;
-}
-
-.dot:hover { background: #c4c4c4; }
-.dot:focus-visible {
-  outline: 2px solid #e84b2b;
-  outline-offset: 2px;
-}
-
-/* Edge dots of a windowed strip: smaller, to hint there are more pages. */
-.dot--sm {
-  width: 7px;
-  height: 7px;
-}
-
-.dot--xs {
-  width: 5px;
-  height: 5px;
-  opacity: 0.65;
-}
-
-.dot.active {
-  background: #e84b2b;
-  width: 24px;
-  height: 10px;
-  border-radius: 5px;
-  opacity: 1;
 }
 
 .section-divider {
@@ -400,45 +376,58 @@
 }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 1024px) {
+/* Breakpoints mirror Slider.updateVisibleCards(). */
+@media (max-width: 1180px) {
   .card {
     flex: 0 0 calc((100% - 32px) / 3);
   }
+
+  /* No gutter left to sit in, so the arrows float over the rail edges. */
+  .slider-nav--prev {
+    left: 6px;
+  }
+  .slider-nav--next {
+    right: 6px;
+  }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 880px) {
   .card {
     flex: 0 0 calc((100% - 16px) / 2);
   }
 
-  .card__image-wrap--car {
-    height: 180px;
-  }
-
-  .card__image-wrap--article,
-  .card__image-wrap--category,
-  .card__image-wrap--comparison {
-    height: 160px;
-  }
-
-  .arrow {
-    width: 32px;
-    height: 32px;
-  }
-
-  .section-title {
-    font-size: 1.3rem;
+  .slider-nav {
+    width: 38px;
+    height: 38px;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 560px) {
   .card {
-    flex: 0 0 85%;
+    flex: 0 0 100%;
   }
 
-  .slider-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+  .slider-nav {
+    width: 34px;
+    height: 34px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
+  }
+}
+
+/* Someone who asked for less motion gets no auto-play (handled in TS) and no glide. */
+@media (prefers-reduced-motion: reduce) {
+  .slider-track {
+    transition: none;
+  }
+
+  .card--car:hover,
+  .card--article:hover,
+  .card--category:hover,
+  .card--comparison:hover {
+    transform: none;
+  }
+
+  .slider-nav:hover {
+    transform: translateY(-50%);
   }
 }
