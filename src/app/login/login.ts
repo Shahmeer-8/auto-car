@@ -58,11 +58,11 @@ export class Login {
       valid = false;
     }
 
+    // Deliberately no length rule here — that belongs on the REGISTER form. Enforcing
+    // it on sign-in only locks out accounts whose password predates the rule (or was
+    // created outside the form), and tells them nothing they can act on.
     if (!this.password) {
       this.passwordError = 'Password is required.';
-      valid = false;
-    } else if (this.password.length < 8) {
-      this.passwordError = 'Password must be at least 8 characters.';
       valid = false;
     }
 
