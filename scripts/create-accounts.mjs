@@ -1,7 +1,11 @@
 /**
  * Creates (or repairs) the two demo accounts on the LIVE Firebase project.
  *
- *   node scripts/create-accounts.mjs
+ *   ADMIN_DEMO_PASSWORD=... USER_DEMO_PASSWORD=... node scripts/create-accounts.mjs
+ *
+ * Passwords are read from the environment and NEVER hardcoded here: this file is
+ * committed, and one of these accounts holds full admin on a live site. To roll a
+ * password, run the script again with the new value (see OLD_*_PASSWORDS below).
  *
  * Uses the ordinary public client SDK, so it needs no service-account key — it
  * does exactly what a visitor signing up through the site would do.
@@ -22,6 +26,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  updatePassword,
   updateProfile,
 } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -37,10 +42,24 @@ const db = getFirestore(app);
 
 const SUPER_ADMIN_PERMISSIONS = ['*'];
 
+/** Reads a required password from the environment; refuses to guess one. */
+function requirePassword(name) {
+  const value = process.env[name];
+  if (!value) {
+    console.error(`Missing ${name}. Run e.g.  ${name}=<password> node scripts/create-accounts.mjs`);
+    process.exit(1);
+  }
+  return value;
+}
+
+/** Comma-separated list of superseded passwords, so a rolled password self-heals. */
+const oldPasswords = (name) => (process.env[name] ?? '').split(',').filter(Boolean);
+
 const ACCOUNTS = [
   {
-    email: 'admin@gmail.com',
-    password: 'admin123',
+    email: process.env.ADMIN_DEMO_EMAIL ?? 'admin@gmail.com',
+    password: requirePassword('ADMIN_DEMO_PASSWORD'),
+    oldPasswords: oldPasswords('OLD_ADMIN_DEMO_PASSWORDS'),
     name: 'Admin',
     phone: '+92 300 0000001',
     // Rules only allow self-registration as buyer/seller; promoted below.
@@ -53,8 +72,9 @@ const ACCOUNTS = [
     },
   },
   {
-    email: 'user@gmail.com',
-    password: 'user123',
+    email: process.env.USER_DEMO_EMAIL ?? 'user@gmail.com',
+    password: requirePassword('USER_DEMO_PASSWORD'),
+    oldPasswords: oldPasswords('OLD_USER_DEMO_PASSWORDS'),
     name: 'User',
     phone: '+92 300 0000002',
     signupType: 'buyer',
@@ -62,17 +82,39 @@ const ACCOUNTS = [
   },
 ];
 
-/** Signs the account in, creating it first if it doesn't exist yet. */
-async function ensureAuthUser({ email, password, name }) {
+/**
+ * Signs the account in, creating it first if it doesn't exist yet. If the account
+ * exists on an older password, it is signed in with that and reset to the current
+ * one, so re-running this script always leaves the documented password working.
+ */
+async function ensureAuthUser({ email, password, name, oldPasswords = [] }) {
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(cred.user, { displayName: name });
     return { uid: cred.user.uid, created: true };
   } catch (err) {
     if (err.code !== 'auth/email-already-in-use') throw err;
+  }
+
+  try {
     const cred = await signInWithEmailAndPassword(auth, email, password);
     return { uid: cred.user.uid, created: false };
+  } catch (err) {
+    if (err.code !== 'auth/invalid-credential' && err.code !== 'auth/wrong-password') throw err;
   }
+
+  for (const old of oldPasswords) {
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, old);
+      await updatePassword(cred.user, password);
+      console.log(`  password for ${email} updated to the current one`);
+      return { uid: cred.user.uid, created: false };
+    } catch {
+      // try the next known password
+    }
+  }
+
+  throw new Error(`${email} exists but none of the known passwords work — reset it manually.`);
 }
 
 async function ensureProfileDoc(uid, account) {
